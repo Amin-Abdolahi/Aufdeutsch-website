@@ -1,13 +1,8 @@
 import type { Metadata } from "next";
 import { Vazirmatn } from "next/font/google";
-import { Space_Mono } from "next/font/google";
-
-const spaceMono = Space_Mono({
-  weight: "400",
-  variable: "--font-mono",
-  subsets: ["latin"],
-});
 import "./globals.css";
+import { Header } from "@/components/layout/Header";
+import { Footer } from "@/components/layout/Footer";
 
 const vazirmatn = Vazirmatn({
   variable: "--font-vazirmatn",
@@ -16,7 +11,14 @@ const vazirmatn = Vazirmatn({
 
 export const metadata: Metadata = {
   title: "AUF Deutsch — آموزش زبان آلمانی",
-  description: "آموزش آنلاین زبان آلمانی با امین و فتانه",
+  description: "آموزش آنلاین زبان آلمانی با مدرسین مجرب امین و فتانه. دورههای A1 تا C1، آمادگی آزمونهای بینالمللی",
+  keywords: ["آموزش آلمانی", "زبان آلمانی", "آموزش آنلاین", "A1", "B1", "C1", "آمادگی آزمون", "امین فتانه"],
+  openGraph: {
+    type: "website",
+    title: "AUF Deutsch — آموزش زبان آلمانی",
+    description: "آموزش آنلاین زبان آلمانی با مدرسین مجرب امین و فتانه",
+    images: ["/og-image.png"],
+  },
 };
 
 export default function RootLayout({
@@ -25,8 +27,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="fa" dir="rtl" className={`${vazirmatn.variable} ${spaceMono.variable} antialiased`}>
-      <body className="font-sans">{children}</body>
+    <html lang="fa" dir="rtl" className={`${vazirmatn.variable} antialiased`}>
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </head>
+      <body className="font-sans min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-1">{children}</main>
+        <Footer />
+      </body>
     </html>
   );
 }

@@ -2,9 +2,23 @@
 
 @theme inline {
   --font-sans: var(--font-vazirmatn);
-  --font-mono: var(--font-mono);
+  --font-mono: "Space Mono", monospace;
+  
+  /* Color palette - based on SPEC.md */
+  --color-paper-100: #F3ECDD;
+  --color-paper-50: #F9F5EC;
+  --color-navy-900: #1B2A44;
+  --color-navy-800: #243758;
+  --color-navy-700: #2D426C;
+  --color-gold-500: #B08D3E;
+  --color-gold-400: #C8A65C;
+  --color-gold-300: #D9BE7A;
+  --color-red-600: #B23A2E;
+  --color-red-500: #D14336;
+  --color-red-400: #E25C52;
 }
 
 body {
   font-family: var(--font-sans), Arial, sans-serif;
+  background-color: var(--color-paper-100);
 }
