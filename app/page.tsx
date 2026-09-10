@@ -37,8 +37,8 @@ export default function Home() {
                 یاد بگیرید
               </h1>
               <p className="text-paper-100/80 text-xl mb-10 leading-relaxed max-w-2xl">
-                آموزش خصوصی آنلاین با مدرسین مجرب — از صفر تا آزمونهای بینالمللی.
-                مثل یک سفر، قدمبهقدم همراهتان هستیم.
+                آموزش خصوصی آنلاین با مدرسین مجرب — از صفر تا آزمونهای بین المللی.
+                مثل یک سفر، قدم به قدم همراهتان هستیم.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button href="/contact" size="lg" className="font-mono">
@@ -79,9 +79,9 @@ export default function Home() {
           </div>
           <div className="grid md:grid-cols-3 gap-8">
             <Card rotate="left">
-              <CardTitle>شخصیسازیشده</CardTitle>
+              <CardTitle>شخصی سازی شده</CardTitle>
               <CardDescription>
-                برنامهی درسی دقیقاً متناسب با هدف و سطح شما طراحی میشود.
+                برنامه ی درسی دقیقاً متناسب با هدف و سطح شما طراحی میشود.
               </CardDescription>
             </Card>
             <Card rotate="none">
@@ -122,7 +122,7 @@ export default function Home() {
                 { level: "A1", title: "مبتدی", desc: "مکالمات روزمره" },
                 { level: "A2", title: "پایه", desc: "جملهسازی حرفهای" },
                 { level: "B1", title: "متوسط", desc: "مکالمه روان" },
-                { level: "B2", title: "پیشمتوسط", desc: "تحصیل و کار" },
+                { level: "B2", title: "پیش متوسط", desc: "تحصیل و کار" },
                 { level: "C1", title: "پیشرفته", desc: "تجاری و آکادمیک" },
                 { level: "TEST", title: "آزمون", desc: "Goethe، TestDaF" },
               ].map((course) => (
@@ -203,7 +203,7 @@ export default function Home() {
             همین امروز اولین قدم رو بردارید
           </h2>
           <p className="text-paper-100/80 text-xl mb-10 max-w-2xl mx-auto">
-            جلسهی مشاوره رایگان با مدرسین ما رزرو کنید و برنامهی یادگیری شخصیسازیشده خود را دریافت نمایید.
+            جلسه ی مشاوره رایگان با مدرسین ما رزرو کنید و برنامه ی یادگیری شخصی سازی شده خود را دریافت نمایید.
           </p>
           <Button href="/contact" size="lg" className="text-lg px-10 py-4">
             رزرو جلسه مشاوره ←
