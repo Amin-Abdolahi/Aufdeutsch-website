@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { Section } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
