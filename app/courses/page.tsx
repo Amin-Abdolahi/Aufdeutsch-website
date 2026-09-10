@@ -20,13 +20,13 @@ export default function Courses() {
       title: "مبتدی",
       description: "آشنایی با مکالمات روزمره و مفاهیم پایه زبان آلمانی",
       duration: "۸ هفته",
-      price: 1500000,
+      price: 0,
       features: [
         "آموزش الفبا و تلفظ صحیح",
         "مکالمات روزمره و مقدماتی",
         "آشنایی با گرامر پایه",
         "تمرینات لغت و عبارات کلیدی",
-        "آمادگی برای آزمون Goethe A1",
+        "آمادگی برای آزمون  A1",
       ],
       accent: "Northern German",
     },
@@ -35,13 +35,13 @@ export default function Courses() {
       title: "پایه",
       description: "توسعه مهارتهای مکالمه و جملهسازی حرفهای",
       duration: "۱۰ هفته",
-      price: 1800000,
+      price: 0,
       features: [
         "گسترش مفردات و عبارات",
         "تمرین مکالمه در موقعیتهای مختلف",
         "آشنایی با گرامر متوسط",
         "نوشتار ساده و جامع",
-        "آمادگی برای آزمون Goethe A2",
+        "آمادگی برای آزمون  A2",
       ],
       accent: "Standard German",
     },
@@ -50,13 +50,13 @@ export default function Courses() {
       title: "متوسط",
       description: "رسیدن به سطح مکالمه روان و قابل فهم",
       duration: "۱۲ هفته",
-      price: 2100000,
+      price: 0,
       features: [
         "مکالمه روان و روزمره",
         "درک مطلب و گوش دادن فعال",
         "گرامر پیشرفتهتر",
         "نوشتار آکادمیک و اداری",
-        "آمادگی برای آزمون Goethe B1",
+        "آمادگی برای آزمون  B1",
       ],
       accent: "Standard German",
     },
@@ -65,13 +65,13 @@ export default function Courses() {
       title: "پیشرفته",
       description: "آمادگی برای تحصیل و کار در محیط آلمانی",
       duration: "۱۴ هفته",
-      price: 2400000,
+      price: 0,
       features: [
         "مکالمه حرفهای در محیط کار",
         "درک مطلب آکادمیک",
         "گرامر پیشرفته و ادبی",
         "نوشتار تحلیلی و ارائهها",
-        "آمادگی برای آزمون Goethe B2",
+        "آمادگی برای آزمون  B2",
       ],
       accent: "Standard German",
     },
@@ -80,13 +80,12 @@ export default function Courses() {
       title: "پیشرفته",
       description: "سلطه کامل بر زبان برای محیط کار و تحصیل",
       duration: "۱۶ هفته",
-      price: 2700000,
+      price: 0,
       features: [
         "مکالمه و ارائه حرفهای",
         "نوشتار آکادمیک و تحلیلی",
         "درک نکات ریز زبانی",
-        "افسونهها و ضربالمثلها",
-        "آمادگی برای آزمون Goethe C1",
+        "آمادگی برای آزمون  C1",
       ],
       accent: "Northern German",
     },
@@ -110,7 +109,7 @@ export default function Courses() {
   const pricingPlans = [
     {
       title: "تک جلسه",
-      price: 250000,
+      price: 0,
       period: "۶۰ دقیقه",
       features: [
         "جلسه مشاوره شخصی",
@@ -121,7 +120,7 @@ export default function Courses() {
     },
     {
       title: "پکیج ویژه A1",
-      price: 1200000,
+      price: 0,
       period: "۸ هفته",
       features: [
         "۱۶ جلسه ۶۰ دقیقهای",
@@ -133,7 +132,7 @@ export default function Courses() {
     },
     {
       title: "پکیج تمامعیار",
-      price: 1500000,
+      price: 0,
       period: "۱۶ هفته",
       features: [
         "۳۲ جلسه ۶۰ دقیقهای",
@@ -156,7 +155,7 @@ export default function Courses() {
             از A1 تا C1 — مسیر کامل یادگیری
           </h1>
           <p className="text-paper-100/80 text-xl mb-10 max-w-3xl mx-auto leading-relaxed">
-            دورههای ما شما را از مبتدی تا پیشرفته همراهی میکنند.
+            دوره های ما شما را از مبتدی تا پیشرفته همراهی میکنند.
             هر سطح شامل تمرینات عملی، پروژههای مکالمه و آمادگی آزمون است.
           </p>
           <Button href="/contact" variant="secondary" size="lg">
@@ -230,7 +229,7 @@ export default function Courses() {
           <div className="grid md:grid-cols-3 gap-8">
             {[
               { icon: "🎓", title: "تحصیل رایگان", desc: "دانشگاههای آلمان با کیفیت بالا و هزینه تحصیل بسیار پایین" },
-              { icon: "💼", title: "فرصتهای شغلی", desc: "پشتیبانی از مهاجران با نیاز بالا به کارگران مهارتدار" },
+              { icon: "💼", title: "فرصتهای شغلی", desc: "پشتیبانی از مهاجران با نیاز بالا به کارگران مهارت دار" },
               { icon: "🌍", title: "فرهنگ و تاریخ", desc: "دسترسی به فرهنگ، هنر و تاریخ غنی آلمان و کشورهای اروپایی" },
             ].map((item, index) => (
               <div key={index} className="text-center p-6">
@@ -247,7 +246,7 @@ export default function Courses() {
       <Section className="relative">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-navy-900 mb-4">برنامههای آموزشی</h2>
+            <h2 className="text-3xl font-bold text-navy-900 mb-4">برنامه های آموزشی</h2>
             <p className="text-navy-900/60 text-lg">پلنی که با نیاز شما هماهنگ است</p>
           </div>
 
@@ -299,7 +298,7 @@ export default function Courses() {
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold text-paper-100 mb-6">آماده شروع هستید؟</h2>
           <p className="text-paper-100/80 text-xl mb-10 max-w-2xl mx-auto">
-            جلسه مشاوره رایگان رزرو کنید و برنامه شخصیسازیشده خود را دریافت کنید.
+            جلسه مشاوره رایگان رزرو کنید و برنامه شخصی سازی شده خود را دریافت کنید.
           </p>
           <Button href="/contact" size="lg" className="text-lg px-10 py-4">
             شروع مسیر یادگیری ←

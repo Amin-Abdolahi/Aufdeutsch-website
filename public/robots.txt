@@ -1,0 +1,23 @@
+# Robots.txt for AUF Deutsch
+# آموزش زبان آلمانی
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://aufdeutsch.ir/sitemap.xml
+
+# Disallow admin/private paths
+Disallow: /api/
+Disallow: /_next/
+Disallow: /private/
+
+# Crawl-delay
+Crawl-delay: 10
+
+---
+# German version
+User-agent: *
+Allow: /
+
+Sitemap: https://aufdeutsch.ir/sitemap.xml

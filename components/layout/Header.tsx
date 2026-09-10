@@ -7,7 +7,7 @@ import Link from "next/link";
 
 const navLinks = [
   { href: "/", label: "خانه" },
-  { href: "/courses", label: "دورهها" },
+  { href: "/courses", label: "دوره ها" },
   { href: "/pricing", label: "قیمت" },
   { href: "/about", label: "درباره ما" },
   { href: "/contact", label: "تماس" },

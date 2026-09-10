@@ -54,27 +54,22 @@ export default function Contact() {
     {
       icon: "clock",
       title: "ساعت کاری",
-      description: "شنبه تا چهارشنبه: ۱۰:۰۰ - ۲۰:۰۰",
-      time: "۱۰:۰۰ - ۲۰:۰۰",
+      description: " همه روزه ",
+      time: "۱۰:۰۰ - ۲2:۰۰",
     },
     {
       icon: "phone",
       title: "تماس",
       description: "پشتیبانی آنلاین و مشاوره",
-      phone: "+۹۸ (۹۱۲) ۰۰۰-۰۰۰۰",
+      phone: "+۹۸ ۹۹۱۱۰۴۵۹۴۷",
     },
     {
       icon: "email",
       title: "ایمیل",
       description: "پاسخگویی در عرض ۲۴ ساعت",
-      email: "info@aufdeutsch.ir",
+      email: "abdollahi.amin@gmail.com",
     },
-    {
-      icon: "location",
-      title: "آدرس",
-      description: "تهران، خیابان آزادی، مجتمع فرهنگی",
-      address: "تهران، خیابان آزادی",
-    },
+    
   ];
 
   return (
@@ -90,10 +85,10 @@ export default function Contact() {
             جلسه مشاوره رایگان را رزرو کنید و برنامه شخصی سازی شده یادگیری آلمانی خود را دریافت کنید.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button href="tel:+989120000000" size="lg">
+            <Button href="tel:+989911045947" size="lg">
               تماس فوری ←
             </Button>
-            <Button href="mailto:info@aufdeutsch.ir" variant="outline" size="lg">
+            <Button href="mailto:abdollahi.amin@gmail.com" variant="outline" size="lg">
               ارسال ایمیل
             </Button>
           </div>
@@ -113,7 +108,7 @@ export default function Contact() {
                 
                 <h2 className="text-2xl font-bold text-paper-100 mb-6">فرم درخواست مشاوره</h2>
                 <p className="text-paper-100/70 mb-8 text-sm">
-                  لطفاً اطلاعات خود را وارد کنید. یکی از مدرسین ما در عرض ۲۴ ساعت با شما تماس میگیرد.
+                  لطفاً اطلاعات خود را وارد کنید. یکی از مدرسین ما در عرض ۲۴ ساعت با شما تماس می گیرد.
                 </p>
 
                 {isSuccess ? (
@@ -132,7 +127,7 @@ export default function Contact() {
                   <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
                       <label htmlFor="name" className="block text-paper-100 font-medium mb-2">
-                        نا�� و نام خانوادگی *
+                        نام و نام خانوادگی *
                       </label>
                       <input
                         type="text"
@@ -254,7 +249,7 @@ export default function Contact() {
                       {info.time && <p className="text-gold-600 font-medium text-sm mt-1">{info.time}</p>}
                       {info.phone && <a href={`tel:${info.phone}`} className="text-gold-600 font-medium text-sm mt-1 block">{info.phone}</a>}
                       {info.email && <a href={`mailto:${info.email}`} className="text-gold-600 font-medium text-sm mt-1 block">{info.email}</a>}
-                      {info.address && <p className="text-navy-900/70 text-sm mt-1">{info.address}</p>}
+                      
                     </div>
                   </div>
                 ))}
@@ -262,15 +257,15 @@ export default function Contact() {
 
               {/* Social Media */}
               <div className="mt-10">
-                <h3 className="font-bold text-navy-900 mb-4">ما را در شبکههای اجتماعی دنبال کنید</h3>
+                <h3 className="font-bold text-navy-900 mb-4">ما را در شبکه های اجتماعی دنبال کنید</h3>
                 <div className="flex gap-3">
-                  <a href="https://instagram.com/aufdeutsch" target="_blank" rel="noopener noreferrer" className="flex-1 bg-navy-900 hover:bg-navy-800 text-paper-100 py-3 rounded-sm text-center transition-colors font-medium">
+                  <a href="" target="_blank" rel="noopener noreferrer" className="flex-1 bg-navy-900 hover:bg-navy-800 text-paper-100 py-3 rounded-sm text-center transition-colors font-medium">
                     اینستاگرام
                   </a>
-                  <a href="https://t.me/aufdeutsch" target="_blank" rel="noopener noreferrer" className="flex-1 bg-navy-900 hover:bg-navy-800 text-paper-100 py-3 rounded-sm text-center transition-colors font-medium">
+                  <a href="https://t.me/aminundfatane" target="_blank" rel="noopener noreferrer" className="flex-1 bg-navy-900 hover:bg-navy-800 text-paper-100 py-3 rounded-sm text-center transition-colors font-medium">
                     تلگرام
                   </a>
-                  <a href="https://youtube.com/@aufdeutsch" target="_blank" rel="noopener noreferrer" className="flex-1 bg-navy-900 hover:bg-navy-800 text-paper-100 py-3 rounded-sm text-center transition-colors font-medium">
+                  <a href="" target="_blank" rel="noopener noreferrer" className="flex-1 bg-navy-900 hover:bg-navy-800 text-paper-100 py-3 rounded-sm text-center transition-colors font-medium">
                     یوتیوب
                   </a>
                 </div>
@@ -295,7 +290,6 @@ export default function Contact() {
                 </div>
                 <h3 className="text-2xl font-bold mb-2">آدرس ما</h3>
                 <p className="text-paper-100/80 mb-6">
-                  تهران، خیابان آزادی، مجتمع فرهنگی، طبقه سوم، دفتر آموزشی AUF Deutsch
                 </p>
                 <Button href="https://maps.google.com" variant="secondary" className="mx-auto">
                   مشاهده در نقشه
@@ -317,12 +311,10 @@ export default function Contact() {
 
           <div className="space-y-4">
             {[
-              { q: "چگونه جلسه مشاوره رایگان رزرو کنم؟", a: "میتوانید از طریق فرم تماس در این صفحه یا تماس با شماره ۹۱۲-۰۰۰-۰۰۰۰ جلسه مشاوره رایگان را رزرو کنید." },
-              { q: "آیا دورهها آنلاین هستند؟", a: "بله، تمام دورهها به صورت آنلاین و از طریق پلتفرمهای زوم و تیمویز برگزار میشوند." },
-              { q: "چه زمانی میتوانم شروع کنم؟", a: "هر زمان که بخواهید! دورهها به صورت شروعباز شروع میشوند و برنامه کاملاً انعطافپذیر است." },
-              { q: "آیا گواهی پایان دوره دریافت میکنم؟", a: "بله، پس از پایان موفق دوره و انجام آزمون نهایی، گواهی حضور و موفقیت دریافت میکنید." },
+              { q: "چگونه جلسه مشاوره رایگان رزرو کنم؟", a: "میتوانید از طریق فرم تماس در این صفحه یا تماس با شماره-۰۹۹۱۱۰۴۵۹۴۷ جلسه مشاوره رایگان را رزرو کنید." },
+              { q: "آیا دورهها آنلاین هستند؟", a: "بله، تمام دورهها به صورت آنلاین و از طریق پلتفرمهای داخلی و خارجی برگزار میشوند." },
+              { q: "چه زمانی میتوانم شروع کنم؟", a: "هر زمان که بخواهید! دورهها به صورت شروع باز شروع میشوند و برنامه کاملاً انعطاف پذیر است." },
               { q: "آیا قابلیت تغییر مدرس وجود دارد؟", a: "بله، اگر به دلایلی نیاز به تغییر مدرس داشتید، در خدمتتان هستیم." },
-              { q: "آیا امکان پرداخت اقساط وجود دارد؟", a: "بله، برای دورههای طولانیتر امکان پرداخت اقساط ماهانه را دارید." },
             ].map((faq, index) => (
               <details key={index} className="bg-navy-50 rounded-sm p-6 hover:bg-navy-100 transition-colors group">
                 <summary className="cursor-pointer font-bold text-navy-900 text-lg flex items-center gap-3 list-none">

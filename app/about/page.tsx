@@ -31,7 +31,7 @@ export default function About() {
     { year: 2021, title: "تاسیس AUF Deutsch", description: "شروع فعالیت با تمرکز بر آموزش خصوصی" },
     { year: 2022, title: "آغاز آموزش آنلاین", description: "گسترش خدمات به دانشجویان خارج از کشور" },
     { year: 2023, title: "+۱۰۰ دانشجو", description: "رسیدن به مرز ۱۰۰ دانشجوی فعال" },
-    { year: 2024, title: "راهاندازی دورههای گروهی", description: "افزودن کلاسهای گروهی کوچک" },
+    { year: 2024, title: "راه اندازی دوره های گروهی", description: "افزودن کلاسهای گروهی کوچک" },
     { year: 2025, title: "برگزاری وبینارهای آموزشی", description: "ارائه محتوای رایگان برای جامعه" },
     {
       year: 2026, title: "توسعه پلتفرم یادگیری", description: "پیاده سازی سیستم تمرینات آنلاین"
@@ -210,7 +210,7 @@ export default function About() {
               <div className="text-4xl font-bold text-gold-400 mb-4">۲×۱</div>
               <h3 className="text-xl font-bold text-paper-100 mb-3">دو مدرس، دو تخصص</h3>
               <p className="text-paper-100/70">
-                ترکیب تخصص امین در گرامر و فتانه در مکالمه، بهترین آموزش را برای شما فراهم میکند.
+                ترکیب تخصص امین در آمادگی آزمون و فتانه در تدریس، بهترین آموزش را برای شما فراهم میکند.
               </p>
             </div>
 
@@ -238,7 +238,7 @@ export default function About() {
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold text-navy-900 mb-6">آماده شروع هستید؟</h2>
           <p className="text-navy-900/70 text-xl mb-10 max-w-2xl mx-auto">
-            با ما تماس بگیرید و برنامهی یادگیری شخصیسازیشده خود را دریافت کنید.
+            با ما تماس بگیرید و برنامه ی یادگیری شخصی سازی شده خود را دریافت کنید.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button href="/contact" size="lg">

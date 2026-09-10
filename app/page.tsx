@@ -45,7 +45,7 @@ export default function Home() {
                   رزرو جلسه رایگان ←
                 </Button>
                 <Button href="/courses" variant="outline" size="lg">
-                  مشاهده دورهها
+                  مشاهده دوره ها
                 </Button>
               </div>
             </div>
@@ -93,7 +93,7 @@ export default function Home() {
             <Card rotate="right">
               <CardTitle>کاملاً آنلاین</CardTitle>
               <CardDescription>
-                از هر جای دنیا، در زمان دلخواه شما آموزش میبینید.
+                از هر جای دنیا، در زمان دلخواه شما آموزش می بینید.
               </CardDescription>
             </Card>
           </div>
@@ -110,8 +110,8 @@ export default function Home() {
                 از A1 تا C1 — مسیر کامل یادگیری
               </h2>
               <p className="text-paper-100/80 text-lg mb-8">
-                دورههای ما شما را از مبتدی تا پیشرفته همراهی میکنند.
-                هر سطح شامل تمرینات عملی، پروژههای مکالمه و آمادگی آزمون است.
+                دورههای ما شما را از مبتدی تا پیشرفته همراهی می کنند.
+                هر سطح شامل تمرینات عملی، پروژه های مکالمه و آمادگی آزمون است.
               </p>
               <Button href="/courses" variant="secondary" size="lg">
                 مشاهده تمام دورهها
@@ -120,11 +120,11 @@ export default function Home() {
             <div className="grid grid-cols-2 gap-6">
               {[
                 { level: "A1", title: "مبتدی", desc: "مکالمات روزمره" },
-                { level: "A2", title: "پایه", desc: "جملهسازی حرفهای" },
+                { level: "A2", title: "پایه", desc: "جمله سازی حرفه ای" },
                 { level: "B1", title: "متوسط", desc: "مکالمه روان" },
                 { level: "B2", title: "پیش متوسط", desc: "تحصیل و کار" },
                 { level: "C1", title: "پیشرفته", desc: "تجاری و آکادمیک" },
-                { level: "TEST", title: "آزمون", desc: "Goethe، TestDaF" },
+                { level: "TEST", title: "آزمون", desc: "Goethe، TestDaF, öSD, DTZ, Telc" },
               ].map((course) => (
                 <div
                   key={course.level}
@@ -163,12 +163,12 @@ export default function Home() {
               <div className="space-y-8">
                 {[
                   {
-                    text: "با روش امین و فتانه، تو ۶ ماه به سطح B1 رسیدم — چیزی که فکر میکردم یک سال طول میکشه.",
+                    text: "با روش امین و فتانه، تو ۶ ماه به سطح B1 رسیدم — چیزی که فکر می کردم یک سال طول میکشه.",
                     name: "سارا محمدی",
                     course: "دانشجوی دوره B1",
                   },
                   {
-                    text: "تدریس گرامر فتانه فوقالعاده بود. مفاهیم پیچیده رو ساده و کاربردی توضیح میداد.",
+                    text: "تدریس گرامر فتانه فوق العاده بود. مفاهیم پیچیده رو ساده و کاربردی توضیح میداد.",
                     name: "علی کریمی",
                     course: "دانشجوی دوره A2",
                   },

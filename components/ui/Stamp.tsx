@@ -34,7 +34,7 @@ export function Stamp({ size = 160, className = "" }: StampProps) {
           className="text-gold-500"
         />
         {/* Top text curve */}
-        <path id="stampTopCurve" d="M 30,100 A 70,70 0 0,1 170,100" fill="none" />
+        <path id="stampTopCurve" d="M 30,81 A 70,70 0 0,1 170,100" fill="none" />
         <text
           fill="currentColor"
           fontSize="14"

@@ -81,7 +81,7 @@ export function Footer() {
 
           {/* Courses Links */}
           <div>
-            <h3 className="font-bold text-gold-500 mb-4">دورهها</h3>
+            <h3 className="font-bold text-gold-500 mb-4">دوره ها</h3>
             <ul className="space-y-2">
               {footerLinks.courses.map((link) => (
                 <li key={link.href}>
