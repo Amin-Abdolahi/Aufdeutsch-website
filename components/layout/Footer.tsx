@@ -1,46 +1,94 @@
 // Footer Component - فوتر سایت
 
+"use client";
+
 import Link from "next/link";
-import { useMessages, useTranslations } from "next-intl";
+import { useLocale } from "@/components/LocaleProvider";
 
-const locales = ["fa", "de"] as const;
-type Locale = typeof locales[number];
+export function Footer() {
+  const { locale, t } = useLocale();
 
-export function Footer({ locale }: { locale: string }) {
-  const currentLocale = locales.includes(locale as Locale) ? locale as Locale : "fa";
-  const t = useTranslations("Footer");
-  const tContact = useTranslations("Contact");
+  const labels = {
+    fa: {
+      courses: "دورهها",
+      company: "شرکت",
+      support: "پشتیبانی",
+      courses_a1: "مبتدی (A1-A2)",
+      courses_b1: "متوسط (B1-B2)",
+      courses_c1: "پیشرفته (C1)",
+      courses_exam: "آمادگی آزمون",
+      about_us: "درباره ما",
+      pricing: "قیمتگذاری",
+      contact: "تماس با ما",
+      blog: "وبلاگ",
+      faq: "سوالات متداول",
+      privacy: "حریم خصوصی",
+      terms: "شرایط استفاده",
+      refund: "انصراف و بازگشت",
+      copyright: "تمامی حقوق محفوظ است.",
+      madeWith: "ساخته شده با ♥ برای زبان آلمانی",
+      tagline: "آموزش زبان آلمانی با روشی متفاوت. از صفر تا B1 در ۶ ماه، همراه با مدرسین مجرب.",
+      instagram: "اینستاگرام",
+      telegram: "تلگرام",
+      youtube: "یوتیوب",
+    },
+    de: {
+      courses: "Kurse",
+      company: "Unternehmen",
+      support: "Support",
+      courses_a1: "Anfänger (A1-A2)",
+      courses_b1: "Mittelstufe (B1-B2)",
+      courses_c1: "Fortgeschritten (C1)",
+      courses_exam: "Prüfungsvorbereitung",
+      about_us: "Über uns",
+      pricing: "Preise",
+      contact: "Kontakt",
+      blog: "Blog",
+      faq: "FAQ",
+      privacy: "Datenschutz",
+      terms: "AGB",
+      refund: "Widerruf",
+      copyright: "Alle Rechte vorbehalten.",
+      madeWith: "Mit ♥ gemacht für Deutsch",
+      tagline: "Deutsch lernen auf eine andere Weise.",
+      instagram: "Instagram",
+      telegram: "Telegram",
+      youtube: "YouTube",
+    },
+  };
+
+  const l = labels[locale as keyof typeof labels] || labels.fa;
 
   const footerLinks = {
     courses: [
-      { label: t("courses_a1"), href: `/${currentLocale}/courses?level=a1` },
-      { label: t("courses_b1"), href: `/${currentLocale}/courses?level=b1` },
-      { label: t("courses_c1"), href: `/${currentLocale}/courses?level=c1` },
-      { label: t("courses_exam"), href: `/${currentLocale}/courses?type=exam` },
+      { label: l.courses_a1, href: "/courses?level=a1" },
+      { label: l.courses_b1, href: "/courses?level=b1" },
+      { label: l.courses_c1, href: "/courses?level=c1" },
+      { label: l.courses_exam, href: "/courses?type=exam" },
     ],
     company: [
-      { label: t("about_us"), href: `/${currentLocale}/about` },
-      { label: t("pricing"), href: `/${currentLocale}/pricing` },
-      { label: t("contact"), href: `/${currentLocale}/contact` },
-      { label: t("blog"), href: `/${currentLocale}/blog` },
+      { label: l.about_us, href: "/about" },
+      { label: l.pricing, href: "/pricing" },
+      { label: l.contact, href: "/contact" },
+      { label: l.blog, href: "/blog" },
     ],
     support: [
-      { label: t("faq"), href: `/${currentLocale}/faq` },
-      { label: t("privacy"), href: `/${currentLocale}/privacy` },
-      { label: t("terms"), href: `/${currentLocale}/terms` },
-      { label: t("refund"), href: `/${currentLocale}/refund` },
+      { label: l.faq, href: "/faq" },
+      { label: l.privacy, href: "/privacy" },
+      { label: l.terms, href: "/terms" },
+      { label: l.refund, href: "/refund" },
     ],
   };
 
   const socialLabels = {
-    fa: ["اینستاگرام", "تلگرام", "یوتیوب"],
-    de: ["Instagram", "Telegram", "YouTube"],
+    fa: [l.instagram, l.telegram, l.youtube],
+    de: [l.instagram, l.telegram, l.youtube],
   };
 
   const socialLinks = [
-    { name: socialLabels[currentLocale][0], url: "https://instagram.com/aufdeutsch", icon: "instagram" },
-    { name: socialLabels[currentLocale][1], url: "https://t.me/aufdeutsch", icon: "telegram" },
-    { name: socialLabels[currentLocale][2], url: "https://youtube.com/@aufdeutsch", icon: "youtube" },
+    { name: socialLabels.fa[0], url: "https://instagram.com/aufdeutsch", icon: "instagram" },
+    { name: socialLabels.fa[1], url: "https://t.me/aufdeutsch", icon: "telegram" },
+    { name: socialLabels.fa[2], url: "https://youtube.com/@aufdeutsch", icon: "youtube" },
   ];
 
   const currentYear = new Date().getFullYear();
@@ -50,14 +98,14 @@ export function Footer({ locale }: { locale: string }) {
       <div className="max-w-6xl mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
           <div className="lg:col-span-1">
-            <Link href={`/${currentLocale}`} className="flex items-center gap-3 mb-4">
+            <Link href="/" className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 rounded-full border-2 border-gold-500 flex items-center justify-center bg-navy-800">
                 <span className="text-gold-500 font-bold text-lg font-mono">A♦F</span>
               </div>
               <span className="text-xl font-bold">AUF Deutsch</span>
             </Link>
             <p className="text-paper-100/60 text-sm leading-relaxed mb-6">
-              {t("tagline")}
+              {l.tagline}
             </p>
             <div className="flex gap-3">
               {socialLinks.map((social) => (
@@ -71,7 +119,7 @@ export function Footer({ locale }: { locale: string }) {
           </div>
 
           <div>
-            <h3 className="font-bold text-gold-500 mb-4">{t("courses")}</h3>
+            <h3 className="font-bold text-gold-500 mb-4">{l.courses}</h3>
             <ul className="space-y-2">
               {footerLinks.courses.map((link) => (
                 <li key={link.href}>
@@ -82,7 +130,7 @@ export function Footer({ locale }: { locale: string }) {
           </div>
 
           <div>
-            <h3 className="font-bold text-gold-500 mb-4">{t("company")}</h3>
+            <h3 className="font-bold text-gold-500 mb-4">{l.company}</h3>
             <ul className="space-y-2">
               {footerLinks.company.map((link) => (
                 <li key={link.href}>
@@ -93,7 +141,7 @@ export function Footer({ locale }: { locale: string }) {
           </div>
 
           <div>
-            <h3 className="font-bold text-gold-500 mb-4">{t("support")}</h3>
+            <h3 className="font-bold text-gold-500 mb-4">{l.support}</h3>
             <ul className="space-y-2">
               {footerLinks.support.map((link) => (
                 <li key={link.href}>
@@ -105,8 +153,8 @@ export function Footer({ locale }: { locale: string }) {
         </div>
 
         <div className="border-t border-navy-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-paper-100/40 text-sm">© {currentYear} AUF Deutsch. {t("copyright")}</p>
-          <p className="text-paper-100/40 text-sm font-mono">{t("madeWith")}</p>
+          <p className="text-paper-100/40 text-sm">© {currentYear} AUF Deutsch. {l.copyright}</p>
+          <p className="text-paper-100/40 text-sm font-mono">{l.madeWith}</p>
         </div>
       </div>
     </footer>
