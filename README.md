@@ -1,36 +1,227 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AUF Deutsch 🇩🇪
 
-## Getting Started
+> A modern German language learning platform for Persian-speaking learners.
 
-First, run the development server:
+**AUF Deutsch** is a real-world German language education website created for online German language training. The platform presents German courses, introduces the instructors, explains the learning approach, and provides a way for learners to get in touch and request a consultation.
+
+## 🌐 Website
+
+**Live:** https://aufdeutsch.ir
+
+## ✨ Highlights
+
+- German language courses from **A1 to C1**
+- Course and level presentation
+- Instructor introduction
+- Personalized learning approach
+- Free consultation call-to-action
+- Contact section
+- Pricing section
+- Blog section
+- Student testimonials
+- Responsive, mobile-first interface
+- Full **RTL** support for Persian content
+- Custom visual identity inspired by notebooks, passports, travel, and language learning
+- Structured pages suitable for future course registration and online services
+
+## 🧭 Pages
+
+| Route | Description |
+|---|---|
+| `/` | Landing page and introduction to AUF Deutsch |
+| `/about` | About the instructors and teaching approach |
+| `/courses` | German courses and language levels |
+| `/pricing` | Course pricing and packages |
+| `/contact` | Contact and consultation information |
+| `/blog` | German-learning articles and educational content |
+
+## 🛠️ Tech Stack
+
+- **Next.js 16**
+- **React 19**
+- **TypeScript**
+- **Tailwind CSS 4**
+- **Vazirmatn**
+- **Git**
+- **GitHub**
+- **Vercel** for deployment
+
+## 🎨 Design System
+
+The visual language of AUF Deutsch is based on a warm editorial/notebook aesthetic combined with travel and passport-inspired elements.
+
+### Main colors
+
+| Color | Hex |
+|---|---|
+| Paper | `#F3ECDD` |
+| Navy | `#1B2A44` |
+| Gold | `#B08D3E` |
+| Red | `#B23A2E` |
+
+### Typography
+
+- **Vazirmatn** — Persian / RTL content
+- **Space Mono** — English and selected display text
+
+The interface is designed primarily for Persian-speaking users, so RTL behavior is considered throughout the layout and content structure.
+
+## 📁 Project Structure
+
+```text
+AUF Deutsch
+├── app/
+│   ├── about/
+│   ├── blog/
+│   ├── contact/
+│   ├── courses/
+│   ├── pricing/
+│   ├── globals.css
+│   ├── layout.tsx
+│   └── page.tsx
+│
+├── components/
+│   ├── ...
+│
+├── public/
+│   ├── ...
+│
+├── AGENTS.md
+├── CLAUDE.md
+├── README.md
+├── SPEC.md
+├── package.json
+└── tsconfig.json
+```
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+Make sure you have Node.js and npm installed.
+
+### Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/Amin-Abdolahi/Aufdeutsch-website.git
+cd Aufdeutsch-website
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+### Run the development server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```text
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Production build
 
-## Learn More
+```bash
+npm run build
+```
 
-To learn more about Next.js, take a look at the following resources:
+To start the production server after building:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm start
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🔧 Development Workflow
 
-## Deploy on Vercel
+The project follows a component-based Next.js structure.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Typical workflow:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```text
+Idea / Requirement
+       ↓
+Page or component design
+       ↓
+Implementation
+       ↓
+Local development
+       ↓
+Testing & debugging
+       ↓
+Git commit
+       ↓
+GitHub
+       ↓
+Deployment
+```
+
+## 🤖 AI-Assisted Development
+
+This project was developed with the help of AI-assisted development tools.
+
+AI was used extensively during implementation, including code generation, exploration of implementation approaches, debugging assistance, and iteration.
+
+The project owner was responsible for the product idea and requirements, design direction, content decisions, reviewing the generated implementation, testing the website, debugging issues, and making final development decisions.
+
+This project is therefore best described as an **AI-assisted real-world web development project**, rather than a claim of having written every line of code manually.
+
+## 📚 What This Project Demonstrates
+
+AUF Deutsch represents practical work across several parts of the web-development process:
+
+- Translating a real business idea into a web product
+- Designing a multi-page website
+- Building reusable React components
+- Working with Next.js App Router
+- Using TypeScript in a real project
+- Styling with Tailwind CSS
+- Building RTL interfaces
+- Handling responsive layouts
+- Organizing project structure
+- Working with Git and GitHub
+- Reviewing and debugging AI-generated code
+- Preparing a website for production deployment
+- Thinking about UX, conversion, trust, and user experience
+
+## 🔮 Roadmap
+
+Possible future improvements:
+
+- [ ] Real course registration
+- [ ] Free consultation booking system
+- [ ] Online payment
+- [ ] Student dashboard
+- [ ] Placement / level test
+- [ ] Interactive German-learning exercises
+- [ ] Blog content management
+- [ ] Better SEO
+- [ ] Analytics
+- [ ] Newsletter
+- [ ] Automated student communication
+
+## 🎯 Project Goal
+
+The long-term goal of AUF Deutsch is to create a practical online environment for learning German, starting with personalized language training and gradually adding digital learning tools and services.
+
+The website is intentionally being developed as a real product that can evolve according to actual learner needs.
+
+## 👨‍💻 Author
+
+**Amin Abdollahi**
+
+German Language Teacher & Web Development Learner
+
+- GitHub: https://github.com/Amin-Abdolahi
+- Project: https://github.com/Amin-Abdolahi/Aufdeutsch-website
+
+## 📄 License
+
+This project is a private educational/business project. The source code, design, branding, and content are not licensed for unrestricted reuse or redistribution without permission.

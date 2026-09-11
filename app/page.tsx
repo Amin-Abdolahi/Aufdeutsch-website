@@ -114,7 +114,7 @@ export default function Home() {
                 هر سطح شامل تمرینات عملی، پروژه های مکالمه و آمادگی آزمون است.
               </p>
               <Button href="/courses" variant="secondary" size="lg">
-                مشاهده تمام دورهها
+                مشاهده تمام دوره ها
               </Button>
             </div>
             <div className="grid grid-cols-2 gap-6">
