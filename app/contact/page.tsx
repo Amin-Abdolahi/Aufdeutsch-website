@@ -5,6 +5,7 @@ import { Section } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Stamp } from "@/components/ui/Stamp";
+import { useLocale } from "@/components/LocaleProvider";
 
 interface ContactFormState {
   name: string;
@@ -15,6 +16,7 @@ interface ContactFormState {
 }
 
 export default function Contact() {
+  const { t } = useLocale();
   const [formState, setFormState] = useState<ContactFormState>({
     name: "",
     email: "",
@@ -36,14 +38,12 @@ export default function Contact() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    // Simulate API call
+
     await new Promise((resolve) => setTimeout(resolve, 1500));
-    
+
     setIsSubmitting(false);
     setIsSuccess(true);
-    
-    // Reset form after 3 seconds
+
     setTimeout(() => {
       setFormState({ name: "", email: "", phone: "", level: "A1", message: "" });
       setIsSuccess(false);
@@ -53,63 +53,55 @@ export default function Contact() {
   const contactInfo = [
     {
       icon: "clock",
-      title: "ساعت کاری",
-      description: " همه روزه ",
-      time: "۱۰:۰۰ - ۲2:۰۰",
+      title: t.contact.hoursTitle,
+      description: t.contact.hoursDesc,
+      time: t.contact.hoursTime,
     },
     {
       icon: "phone",
-      title: "تماس",
-      description: "پشتیبانی آنلاین و مشاوره",
+      title: t.contact.phoneTitle,
+      description: t.contact.phoneDesc,
       phone: "+۹۸ ۹۹۱۱۰۴۵۹۴۷",
     },
     {
       icon: "email",
-      title: "ایمیل",
-      description: "پاسخگویی در عرض ۲۴ ساعت",
+      title: t.contact.emailTitle,
+      description: t.contact.emailDesc,
       email: "abdollahi.amin@gmail.com",
     },
-    
   ];
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
       <Section variant="navy" className="relative overflow-hidden">
         <div className="max-w-6xl mx-auto text-center">
-          <Badge variant="red" className="mb-6">تماس با ما</Badge>
-          <h1 className="text-4xl md:text-6xl font-bold text-paper-100 leading-[1.3] mb-6">
-            همین امروز شروع کنید
-          </h1>
-          <p className="text-paper-100/80 text-xl mb-10 max-w-3xl mx-auto leading-relaxed">
-            جلسه مشاوره رایگان را رزرو کنید و برنامه شخصی سازی شده یادگیری آلمانی خود را دریافت کنید.
-          </p>
+          <Badge variant="red" className="mb-6">
+            {t.contact.badge}
+          </Badge>
+          <h1 className="text-4xl md:text-6xl font-bold text-paper-100 leading-[1.3] mb-6">{t.contact.heroTitle}</h1>
+          <p className="text-paper-100/80 text-xl mb-10 max-w-3xl mx-auto leading-relaxed">{t.contact.heroSubtitle}</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button href="tel:+989911045947" size="lg">
-              تماس فوری ←
+              {t.contact.callNow}
             </Button>
             <Button href="mailto:abdollahi.amin@gmail.com" variant="outline" size="lg">
-              ارسال ایمیل
+              {t.contact.sendEmail}
             </Button>
           </div>
         </div>
       </Section>
 
-      {/* Form Section */}
       <Section className="relative">
         <div className="max-w-6xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-12">
-            {/* Contact Form */}
             <div>
               <div className="bg-navy-900 p-8 rounded-sm shadow-xl relative">
                 <div className="absolute -top-3 -left-3 w-16 h-16 bg-gold-500 rounded-sm flex items-center justify-center">
                   <Stamp size={64} />
                 </div>
-                
-                <h2 className="text-2xl font-bold text-paper-100 mb-6">فرم درخواست مشاوره</h2>
-                <p className="text-paper-100/70 mb-8 text-sm">
-                  لطفاً اطلاعات خود را وارد کنید. یکی از مدرسین ما در عرض ۲۴ ساعت با شما تماس می گیرد.
-                </p>
+
+                <h2 className="text-2xl font-bold text-paper-100 mb-6">{t.contact.formTitle}</h2>
+                <p className="text-paper-100/70 mb-8 text-sm">{t.contact.formIntro}</p>
 
                 {isSuccess ? (
                   <div className="bg-green-500/10 border border-green-500/30 p-6 rounded-sm text-center">
@@ -118,16 +110,14 @@ export default function Contact() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
                     </div>
-                    <h3 className="text-green-500 font-bold text-lg mb-2">درخواست شما ثبت شد!</h3>
-                    <p className="text-green-600 text-sm">
-                      ما در عرض ۲۴ ساعت با شما تماس میگیریم.
-                    </p>
+                    <h3 className="text-green-500 font-bold text-lg mb-2">{t.contact.successTitle}</h3>
+                    <p className="text-green-600 text-sm">{t.contact.successDesc}</p>
                   </div>
                 ) : (
                   <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
                       <label htmlFor="name" className="block text-paper-100 font-medium mb-2">
-                        نام و نام خانوادگی *
+                        {t.contact.name}
                       </label>
                       <input
                         type="text"
@@ -137,13 +127,13 @@ export default function Contact() {
                         value={formState.name}
                         onChange={handleChange}
                         className="w-full bg-navy-800 border border-navy-700 text-paper-100 px-4 py-3 rounded-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500 transition-colors"
-                        placeholder="مثال: علی محمدی"
+                        placeholder={t.contact.namePlaceholder}
                       />
                     </div>
 
                     <div>
                       <label htmlFor="email" className="block text-paper-100 font-medium mb-2">
-                        ایمیل *
+                        {t.contact.email}
                       </label>
                       <input
                         type="email"
@@ -159,7 +149,7 @@ export default function Contact() {
 
                     <div>
                       <label htmlFor="phone" className="block text-paper-100 font-medium mb-2">
-                        شماره موبایل *
+                        {t.contact.phone}
                       </label>
                       <input
                         type="tel"
@@ -169,13 +159,13 @@ export default function Contact() {
                         value={formState.phone}
                         onChange={handleChange}
                         className="w-full bg-navy-800 border border-navy-700 text-paper-100 px-4 py-3 rounded-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500 transition-colors"
-                        placeholder="۰۹۱۲۰۰۰۰۰۰۰۰"
+                        placeholder={t.contact.phonePlaceholder}
                       />
                     </div>
 
                     <div>
                       <label htmlFor="level" className="block text-paper-100 font-medium mb-2">
-                        سطح فعلی زبان *
+                        {t.contact.level}
                       </label>
                       <select
                         id="level"
@@ -184,19 +174,19 @@ export default function Contact() {
                         onChange={handleChange}
                         className="w-full bg-navy-800 border border-navy-700 text-paper-100 px-4 py-3 rounded-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500 transition-colors"
                       >
-                        <option value="A1">A1 - مبتدی</option>
-                        <option value="A2">A2 - پایه</option>
-                        <option value="B1">B1 - متوسط</option>
-                        <option value="B2">B2 - پیشرفته</option>
-                        <option value="C1">C1 - کاملاً پیشرفته</option>
-                        <option value="test">آمادگی آزمون (Goethe/TestDaF)</option>
-                        <option value="other">دیگر</option>
+                        <option value="A1">{t.contact.levelA1}</option>
+                        <option value="A2">{t.contact.levelA2}</option>
+                        <option value="B1">{t.contact.levelB1}</option>
+                        <option value="B2">{t.contact.levelB2}</option>
+                        <option value="C1">{t.contact.levelC1}</option>
+                        <option value="test">{t.contact.levelTest}</option>
+                        <option value="other">{t.contact.levelOther}</option>
                       </select>
                     </div>
 
                     <div>
                       <label htmlFor="message" className="block text-paper-100 font-medium mb-2">
-                        پیام شما
+                        {t.contact.message}
                       </label>
                       <textarea
                         id="message"
@@ -205,25 +195,22 @@ export default function Contact() {
                         value={formState.message}
                         onChange={handleChange}
                         className="w-full bg-navy-800 border border-navy-700 text-paper-100 px-4 py-3 rounded-sm focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500 transition-colors resize-none"
-                        placeholder="سوالات خود را اینجا بنویسید..."
+                        placeholder={t.contact.messagePlaceholder}
                       />
                     </div>
 
                     <Button type="submit" size="lg" disabled={isSubmitting} className="w-full">
-                      {isSubmitting ? "در حال ارسال..." : "ارسال درخواست ←"}
+                      {isSubmitting ? t.contact.submitting : t.contact.submit}
                     </Button>
 
-                    <p className="text-paper-100/50 text-xs text-center mt-4">
-                      اطلاعات شما کاملاً محرمانه است و فقط برای ارتباط با شما استفاده میشود.
-                    </p>
+                    <p className="text-paper-100/50 text-xs text-center mt-4">{t.contact.privacyNote}</p>
                   </form>
                 )}
               </div>
             </div>
 
-            {/* Contact Info */}
             <div>
-              <h2 className="text-2xl font-bold text-navy-900 mb-8">اطلاعات تماس</h2>
+              <h2 className="text-2xl font-bold text-navy-900 mb-8">{t.contact.infoTitle}</h2>
               <div className="space-y-6">
                 {contactInfo.map((info, index) => (
                   <div key={index} className="bg-navy-50 p-6 rounded-sm border border-navy-100 flex items-start gap-4 hover:bg-navy-100 transition-colors">
@@ -249,24 +236,22 @@ export default function Contact() {
                       {info.time && <p className="text-gold-600 font-medium text-sm mt-1">{info.time}</p>}
                       {info.phone && <a href={`tel:${info.phone}`} className="text-gold-600 font-medium text-sm mt-1 block">{info.phone}</a>}
                       {info.email && <a href={`mailto:${info.email}`} className="text-gold-600 font-medium text-sm mt-1 block">{info.email}</a>}
-                      
                     </div>
                   </div>
                 ))}
               </div>
 
-              {/* Social Media */}
               <div className="mt-10">
-                <h3 className="font-bold text-navy-900 mb-4">ما را در شبکه های اجتماعی دنبال کنید</h3>
+                <h3 className="font-bold text-navy-900 mb-4">{t.contact.socialTitle}</h3>
                 <div className="flex gap-3">
                   <a href="" target="_blank" rel="noopener noreferrer" className="flex-1 bg-navy-900 hover:bg-navy-800 text-paper-100 py-3 rounded-sm text-center transition-colors font-medium">
-                    اینستاگرام
+                    {t.contact.instagram}
                   </a>
                   <a href="https://t.me/aminundfatane" target="_blank" rel="noopener noreferrer" className="flex-1 bg-navy-900 hover:bg-navy-800 text-paper-100 py-3 rounded-sm text-center transition-colors font-medium">
-                    تلگرام
+                    {t.contact.telegram}
                   </a>
                   <a href="" target="_blank" rel="noopener noreferrer" className="flex-1 bg-navy-900 hover:bg-navy-800 text-paper-100 py-3 rounded-sm text-center transition-colors font-medium">
-                    یوتیوب
+                    {t.contact.youtube}
                   </a>
                 </div>
               </div>
@@ -275,7 +260,6 @@ export default function Contact() {
         </div>
       </Section>
 
-      {/* Map Section */}
       <Section className="relative">
         <div className="max-w-6xl mx-auto">
           <div className="bg-navy-900 rounded-sm overflow-hidden shadow-2xl relative">
@@ -288,11 +272,10 @@ export default function Contact() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                 </div>
-                <h3 className="text-2xl font-bold mb-2">آدرس ما</h3>
-                <p className="text-paper-100/80 mb-6">
-                </p>
+                <h3 className="text-2xl font-bold mb-2">{t.contact.addressTitle}</h3>
+                <p className="text-paper-100/80 mb-6"></p>
                 <Button href="https://maps.google.com" variant="secondary" className="mx-auto">
-                  مشاهده در نقشه
+                  {t.contact.viewMap}
                 </Button>
               </div>
             </div>
@@ -301,20 +284,19 @@ export default function Contact() {
         </div>
       </Section>
 
-      {/* FAQ */}
       <Section className="relative">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-navy-900 mb-4">سوالات متداول</h2>
-            <p className="text-navy-900/60 text-lg">پاسخ به سوالات پرتکرار</p>
+            <h2 className="text-3xl font-bold text-navy-900 mb-4">{t.contact.faqTitle}</h2>
+            <p className="text-navy-900/60 text-lg">{t.contact.faqSubtitle}</p>
           </div>
 
           <div className="space-y-4">
             {[
-              { q: "چگونه جلسه مشاوره رایگان رزرو کنم؟", a: "میتوانید از طریق فرم تماس در این صفحه یا تماس با شماره-۰۹۹۱۱۰۴۵۹۴۷ جلسه مشاوره رایگان را رزرو کنید." },
-              { q: "آیا دورهها آنلاین هستند؟", a: "بله، تمام دورهها به صورت آنلاین و از طریق پلتفرمهای داخلی و خارجی برگزار میشوند." },
-              { q: "چه زمانی میتوانم شروع کنم؟", a: "هر زمان که بخواهید! دورهها به صورت شروع باز شروع میشوند و برنامه کاملاً انعطاف پذیر است." },
-              { q: "آیا قابلیت تغییر مدرس وجود دارد؟", a: "بله، اگر به دلایلی نیاز به تغییر مدرس داشتید، در خدمتتان هستیم." },
+              { q: t.contact.faq1q, a: t.contact.faq1a },
+              { q: t.contact.faq2q, a: t.contact.faq2a },
+              { q: t.contact.faq3q, a: t.contact.faq3a },
+              { q: t.contact.faq4q, a: t.contact.faq4a },
             ].map((faq, index) => (
               <details key={index} className="bg-navy-50 rounded-sm p-6 hover:bg-navy-100 transition-colors group">
                 <summary className="cursor-pointer font-bold text-navy-900 text-lg flex items-center gap-3 list-none">

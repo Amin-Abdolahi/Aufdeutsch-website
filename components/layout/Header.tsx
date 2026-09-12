@@ -1,47 +1,22 @@
-// Header Component - هدر سایت با ناوبری و سوئیچر زبان
-
 "use client";
 
 import { useState } from "react";
 import Link from "next/link";
 import { useLocale } from "@/components/LocaleProvider";
-
-const locales = ["fa", "de"] as const;
-type Locale = typeof locales[number];
-
-const labels: Record<Locale, string> = {
-  fa: "فارسی",
-  de: "Deutsch",
-};
-
-const flags: Record<Locale, string> = {
-  fa: "🇮🇷",
-  de: "🇩🇪",
-};
+import { locales, languageMeta, type Locale } from "@/lib/i18n";
 
 export function Header() {
-  const { locale, setLocale } = useLocale();
+  const { locale, setLocale, t } = useLocale();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
 
-  const navLinks: Record<Locale, Array<{ href: string; label: string }>> = {
-    fa: [
-      { href: "/", label: "خانه" },
-      { href: "/courses", label: "دوره ها" },
-      { href: "/pricing", label: "قیمت" },
-      { href: "/about", label: "درباره ما" },
-      { href: "/contact", label: "تماس" },
-    ],
-    de: [
-      { href: "/", label: "Startseite" },
-      { href: "/courses", label: "Kurse" },
-      { href: "/pricing", label: "Preise" },
-      { href: "/about", label: "Über uns" },
-      { href: "/contact", label: "Kontakt" },
-    ],
-  };
-
-  const currentLabels = navLinks[locale];
+  const navLinks = [
+    { href: "/", label: t.nav.home },
+    { href: "/courses", label: t.nav.courses },
+    { href: "/pricing", label: t.nav.pricing },
+    { href: "/about", label: t.nav.about },
+    { href: "/contact", label: t.nav.contact },
+  ];
 
   const handleLanguageChange = (newLocale: Locale) => {
     setIsLangOpen(false);
@@ -52,7 +27,6 @@ export function Header() {
     <header className="sticky top-0 z-50 bg-paper-100/95 backdrop-blur-sm border-b border-navy-900/10">
       <div className="max-w-6xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
-          {/* Logo */}
           <Link href="/" className="flex items-center gap-3 group">
             <div className="w-10 h-10 rounded-full border-2 border-gold-500 flex items-center justify-center bg-navy-900">
               <span className="text-gold-500 font-bold text-lg font-mono">A♦F</span>
@@ -62,9 +36,8 @@ export function Header() {
             </span>
           </Link>
 
-          {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
-            {currentLabels.map((link) => (
+            {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -76,31 +49,29 @@ export function Header() {
             ))}
           </nav>
 
-          {/* CTA Button + Language Switcher */}
           <div className="hidden sm:flex items-center gap-4">
             <Link
               href="/contact"
               className="inline-flex items-center gap-2 bg-navy-900 hover:bg-navy-800 text-paper-100 px-5 py-2.5 rounded-sm font-bold text-sm transition-all hover:shadow-lg"
             >
-              <span>{locale === "fa" ? "رزرو جلسه" : "Sitzung buchen"}</span>
+              <span>{t.nav.bookSession}</span>
               <span className="text-gold-500">→</span>
             </Link>
 
-            {/* Language Switcher */}
             <div className="relative">
               <button
                 className="flex items-center gap-2 px-3 py-2 rounded-sm border border-navy-900/20 hover:bg-navy-900/5 transition-colors"
                 onClick={() => setIsLangOpen(!isLangOpen)}
               >
-                <span>{flags[locale]}</span>
-                <span className="text-sm font-medium text-navy-900">{labels[locale]}</span>
+                <span>{languageMeta[locale].flag}</span>
+                <span className="text-sm font-medium text-navy-900">{languageMeta[locale].label}</span>
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
 
               {isLangOpen && (
-                <div className="absolute left-0 mt-2 w-40 bg-white rounded-sm shadow-lg border border-navy-900/10 py-2">
+                <div className="absolute left-0 mt-2 w-40 bg-white rounded-sm shadow-lg border border-navy-900/10 py-2 z-50">
                   {locales.map((l) => (
                     <button
                       key={l}
@@ -109,8 +80,8 @@ export function Header() {
                         locale === l ? "text-gold-600 font-medium" : "text-navy-900"
                       }`}
                     >
-                      <span>{flags[l]}</span>
-                      <span>{labels[l]}</span>
+                      <span>{languageMeta[l].flag}</span>
+                      <span>{languageMeta[l].label}</span>
                     </button>
                   ))}
                 </div>
@@ -118,7 +89,6 @@ export function Header() {
             </div>
           </div>
 
-          {/* Mobile Menu Button */}
           <button
             className="md:hidden p-2 text-navy-900"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -134,11 +104,10 @@ export function Header() {
           </button>
         </div>
 
-        {/* Mobile Navigation */}
         {isMenuOpen && (
           <nav className="md:hidden mt-4 pb-4 border-t border-navy-900/10 pt-4">
             <div className="flex flex-col gap-4">
-              {currentLabels.map((link) => (
+              {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
@@ -153,12 +122,11 @@ export function Header() {
                 className="inline-flex items-center justify-center gap-2 bg-navy-900 text-paper-100 px-5 py-3 rounded-sm font-bold mt-2"
                 onClick={() => setIsMenuOpen(false)}
               >
-                <span>{locale === "fa" ? "رزرو جلسه رایگان" : "Kostenlose Sitzung"}</span>
+                <span>{t.nav.bookSessionFree}</span>
                 <span>→</span>
               </Link>
 
-              {/* Mobile Language Switcher */}
-              <div className="flex gap-2 mt-4 pt-4 border-t border-navy-900/10">
+              <div className="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-navy-900/10">
                 {locales.map((l) => (
                   <button
                     key={l}
@@ -166,14 +134,14 @@ export function Header() {
                       handleLanguageChange(l);
                       setIsMenuOpen(false);
                     }}
-                    className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-sm border ${
+                    className={`flex items-center justify-center gap-2 py-2 rounded-sm border ${
                       locale === l
                         ? "border-gold-500 bg-gold-500/10 text-gold-600"
                         : "border-navy-900/20 text-navy-900"
                     }`}
                   >
-                    <span>{flags[l]}</span>
-                    <span className="text-sm">{labels[l]}</span>
+                    <span>{languageMeta[l].flag}</span>
+                    <span className="text-xs">{languageMeta[l].label}</span>
                   </button>
                 ))}
               </div>
