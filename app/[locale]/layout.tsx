@@ -5,6 +5,7 @@ import { Footer } from "@/components/layout/Footer";
 import { LocaleProvider } from "@/components/LocaleProvider";
 import { locales, languageMeta, type Locale } from "@/lib/i18n";
 import { Vazirmatn } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 
 const vazirmatn = Vazirmatn({
   variable: "--font-vazirmatn",
@@ -77,6 +78,7 @@ export default async function LocaleLayout({
           <main className="flex-1">{children}</main>
           <Footer />
         </LocaleProvider>
+        <Analytics />
       </body>
     </html>
   );
