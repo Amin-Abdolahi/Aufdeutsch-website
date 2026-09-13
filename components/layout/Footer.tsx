@@ -4,27 +4,27 @@ import Link from "next/link";
 import { useLocale } from "@/components/LocaleProvider";
 
 export function Footer() {
-  const { t } = useLocale();
+  const { locale, t } = useLocale();
   const currentYear = new Date().getFullYear();
 
   const footerLinks = {
     courses: [
-      { label: t.footer.coursesA1, href: "/courses?level=a1" },
-      { label: t.footer.coursesB1, href: "/courses?level=b1" },
-      { label: t.footer.coursesC1, href: "/courses?level=c1" },
-      { label: t.footer.coursesExam, href: "/courses?type=exam" },
+      { label: t.footer.coursesA1, href: `/${locale}/courses?level=a1` },
+      { label: t.footer.coursesB1, href: `/${locale}/courses?level=b1` },
+      { label: t.footer.coursesC1, href: `/${locale}/courses?level=c1` },
+      { label: t.footer.coursesExam, href: `/${locale}/courses?type=exam` },
     ],
     company: [
-      { label: t.footer.aboutUs, href: "/about" },
-      { label: t.footer.pricing, href: "/pricing" },
-      { label: t.footer.contact, href: "/contact" },
-      { label: t.footer.blog, href: "/blog" },
+      { label: t.footer.aboutUs, href: `/${locale}/about` },
+      { label: t.footer.pricing, href: `/${locale}/pricing` },
+      { label: t.footer.contact, href: `/${locale}/contact` },
+      { label: t.footer.blog, href: `/${locale}/blog` },
     ],
     support: [
-      { label: t.footer.faq, href: "/faq" },
-      { label: t.footer.privacy, href: "/privacy" },
-      { label: t.footer.terms, href: "/terms" },
-      { label: t.footer.refund, href: "/refund" },
+      { label: t.footer.faq, href: `/${locale}/faq` },
+      { label: t.footer.privacy, href: `/${locale}/privacy` },
+      { label: t.footer.terms, href: `/${locale}/terms` },
+      { label: t.footer.refund, href: `/${locale}/refund` },
     ],
   };
 
@@ -39,7 +39,7 @@ export function Footer() {
       <div className="max-w-6xl mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
           <div className="lg:col-span-1">
-            <Link href="/" className="flex items-center gap-3 mb-4">
+            <Link href={`/${locale}`} className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 rounded-full border-2 border-gold-500 flex items-center justify-center bg-navy-800">
                 <span className="text-gold-500 font-bold text-lg font-mono">A♦F</span>
               </div>

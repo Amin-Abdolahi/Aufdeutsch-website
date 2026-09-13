@@ -4,9 +4,14 @@ import { Section } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { useLocale } from "@/components/LocaleProvider";
+import { type Locale } from "@/lib/i18n";
 
-export default function Pricing() {
-  const { t, locale } = useLocale();
+interface PricingContentProps {
+  locale: Locale;
+}
+
+export function PricingContent({ locale }: PricingContentProps) {
+  const { t } = useLocale();
   const numberLocale = locale === "de" ? "de-DE" : locale === "en" ? "en-US" : "fa-IR";
 
   const pricingTiers = [
@@ -90,7 +95,7 @@ export default function Pricing() {
           </Badge>
           <h1 className="text-4xl md:text-6xl font-bold text-paper-100 leading-[1.3] mb-6">{t.pricing.heroTitle}</h1>
           <p className="text-paper-100/80 text-xl mb-10 max-w-3xl mx-auto leading-relaxed">{t.pricing.heroSubtitle}</p>
-          <Button href="/contact" variant="secondary" size="lg">
+          <Button href={`/${locale}/contact`} variant="secondary" size="lg">
             {t.pricing.heroCta}
           </Button>
         </div>
@@ -149,7 +154,7 @@ export default function Pricing() {
                   ))}
                 </ul>
 
-                <Button href="/contact" variant={tier.recommended ? "primary" : "outline"} className="w-full">
+                <Button href={`/${locale}/contact`} variant={tier.recommended ? "primary" : "outline"} className="w-full">
                   {t.pricing.startCourse}
                 </Button>
               </div>
@@ -219,7 +224,7 @@ export default function Pricing() {
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold text-paper-100 mb-6">{t.pricing.ctaTitle}</h2>
           <p className="text-paper-100/80 text-xl mb-10 max-w-2xl mx-auto">{t.pricing.ctaSubtitle}</p>
-          <Button href="/contact" size="lg" className="text-lg px-10 py-4">
+          <Button href={`/${locale}/contact`} size="lg" className="text-lg px-10 py-4">
             {t.pricing.ctaButton}
           </Button>
         </div>

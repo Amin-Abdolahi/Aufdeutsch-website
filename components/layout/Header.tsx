@@ -11,11 +11,11 @@ export function Header() {
   const [isLangOpen, setIsLangOpen] = useState(false);
 
   const navLinks = [
-    { href: "/", label: t.nav.home },
-    { href: "/courses", label: t.nav.courses },
-    { href: "/pricing", label: t.nav.pricing },
-    { href: "/about", label: t.nav.about },
-    { href: "/contact", label: t.nav.contact },
+    { href: `/${locale}`, label: t.nav.home },
+    { href: `/${locale}/courses`, label: t.nav.courses },
+    { href: `/${locale}/pricing`, label: t.nav.pricing },
+    { href: `/${locale}/about`, label: t.nav.about },
+    { href: `/${locale}/contact`, label: t.nav.contact },
   ];
 
   const handleLanguageChange = (newLocale: Locale) => {
@@ -27,7 +27,7 @@ export function Header() {
     <header className="sticky top-0 z-50 bg-paper-100/95 backdrop-blur-sm border-b border-navy-900/10">
       <div className="max-w-6xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3 group">
+          <Link href={`/${locale}`} className="flex items-center gap-3 group">
             <div className="w-10 h-10 rounded-full border-2 border-gold-500 flex items-center justify-center bg-navy-900">
               <span className="text-gold-500 font-bold text-lg font-mono">A♦F</span>
             </div>
@@ -51,7 +51,7 @@ export function Header() {
 
           <div className="hidden sm:flex items-center gap-4">
             <Link
-              href="/contact"
+              href={`/${locale}/contact`}
               className="inline-flex items-center gap-2 bg-navy-900 hover:bg-navy-800 text-paper-100 px-5 py-2.5 rounded-sm font-bold text-sm transition-all hover:shadow-lg"
             >
               <span>{t.nav.bookSession}</span>
@@ -62,6 +62,7 @@ export function Header() {
               <button
                 className="flex items-center gap-2 px-3 py-2 rounded-sm border border-navy-900/20 hover:bg-navy-900/5 transition-colors"
                 onClick={() => setIsLangOpen(!isLangOpen)}
+                aria-label={t.nav.changeLanguage}
               >
                 <span>{languageMeta[locale].flag}</span>
                 <span className="text-sm font-medium text-navy-900">{languageMeta[locale].label}</span>
@@ -92,7 +93,7 @@ export function Header() {
           <button
             className="md:hidden p-2 text-navy-900"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            aria-label="Toggle menu"
+            aria-label={t.nav.toggleMenu}
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               {isMenuOpen ? (
@@ -118,7 +119,7 @@ export function Header() {
                 </Link>
               ))}
               <Link
-                href="/contact"
+                href={`/${locale}/contact`}
                 className="inline-flex items-center justify-center gap-2 bg-navy-900 text-paper-100 px-5 py-3 rounded-sm font-bold mt-2"
                 onClick={() => setIsMenuOpen(false)}
               >

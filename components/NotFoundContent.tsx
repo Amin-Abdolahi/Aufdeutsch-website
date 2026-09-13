@@ -4,8 +4,13 @@ import { Section } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
 import { Stamp } from "@/components/ui/Stamp";
 import { useLocale } from "@/components/LocaleProvider";
+import { type Locale } from "@/lib/i18n";
 
-export function NotFoundContent() {
+interface NotFoundContentProps {
+  locale: Locale;
+}
+
+export function NotFoundContent({ locale }: NotFoundContentProps) {
   const { t } = useLocale();
 
   return (
@@ -46,10 +51,10 @@ export function NotFoundContent() {
             <p className="text-navy-900/70 mb-8 leading-relaxed">{t.notFound.message}</p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button href="/" size="lg">
+              <Button href={`/${locale}`} size="lg">
                 {t.notFound.home}
               </Button>
-              <Button href="/contact" variant="outline" size="lg">
+              <Button href={`/${locale}/contact`} variant="outline" size="lg">
                 {t.notFound.contact}
               </Button>
             </div>

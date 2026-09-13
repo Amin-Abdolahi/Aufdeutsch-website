@@ -19,6 +19,8 @@ const fa = {
     contact: "تماس",
     bookSession: "رزرو جلسه",
     bookSessionFree: "رزرو جلسه رایگان",
+    changeLanguage: "تغییر زبان",
+    toggleMenu: "باز/بسته کردن منو",
   },
   footer: {
     courses: "دوره ها",
@@ -414,6 +416,8 @@ const de: Dict = {
     contact: "Kontakt",
     bookSession: "Sitzung buchen",
     bookSessionFree: "Kostenlose Sitzung",
+    changeLanguage: "Sprache ändern",
+    toggleMenu: "Menü umschalten",
   },
   footer: {
     courses: "Kurse",
@@ -809,6 +813,8 @@ const en: Dict = {
     contact: "Contact",
     bookSession: "Book Session",
     bookSessionFree: "Book a Free Session",
+    changeLanguage: "Change Language",
+    toggleMenu: "Toggle Menu",
   },
   footer: {
     courses: "Courses",

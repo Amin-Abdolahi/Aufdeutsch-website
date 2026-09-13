@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Stamp } from "@/components/ui/Stamp";
 import { useLocale } from "@/components/LocaleProvider";
+import { type Locale } from "@/lib/i18n";
 
 interface ContactFormState {
   name: string;
@@ -15,7 +16,11 @@ interface ContactFormState {
   message: string;
 }
 
-export default function Contact() {
+interface ContactContentProps {
+  locale: Locale;
+}
+
+export function ContactContent({ locale }: ContactContentProps) {
   const { t } = useLocale();
   const [formState, setFormState] = useState<ContactFormState>({
     name: "",
@@ -39,7 +44,17 @@ export default function Contact() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    try {
+      const response = await fetch(`/api/contact`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formState),
+      });
+
+      if (!response.ok) throw new Error("Failed to submit");
+    } catch {
+      // Silently handle error
+    }
 
     setIsSubmitting(false);
     setIsSuccess(true);

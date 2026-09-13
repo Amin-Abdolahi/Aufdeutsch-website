@@ -5,8 +5,13 @@ import { Button } from "@/components/ui/Button";
 import { Card, CardTitle, CardDescription } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { useLocale } from "@/components/LocaleProvider";
+import { type Locale } from "@/lib/i18n";
 
-export default function About() {
+interface AboutContentProps {
+  locale: Locale;
+}
+
+export function AboutContent({ locale }: AboutContentProps) {
   const { t } = useLocale();
 
   const teachers = [
@@ -57,7 +62,7 @@ export default function About() {
           </Badge>
           <h1 className="text-4xl md:text-6xl font-bold text-paper-100 leading-[1.3] mb-6">{t.about.heroTitle}</h1>
           <p className="text-paper-100/80 text-xl mb-10 max-w-3xl mx-auto leading-relaxed">{t.about.heroSubtitle}</p>
-          <Button href="/contact" variant="secondary" size="lg">
+          <Button href={`/${locale}/contact`} variant="secondary" size="lg">
             {t.about.heroCta}
           </Button>
         </div>
@@ -207,10 +212,10 @@ export default function About() {
           <h2 className="text-3xl font-bold text-navy-900 mb-6">{t.about.ctaTitle}</h2>
           <p className="text-navy-900/70 text-xl mb-10 max-w-2xl mx-auto">{t.about.ctaSubtitle}</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button href="/contact" size="lg">
+            <Button href={`/${locale}/contact`} size="lg">
               {t.about.ctaContact}
             </Button>
-            <Button href="/courses" variant="outline" size="lg">
+            <Button href={`/${locale}/courses`} variant="outline" size="lg">
               {t.about.ctaCourses}
             </Button>
           </div>

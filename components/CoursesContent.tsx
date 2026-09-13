@@ -5,9 +5,14 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { useLocale } from "@/components/LocaleProvider";
+import { type Locale } from "@/lib/i18n";
 
-export default function Courses() {
-  const { t, locale } = useLocale();
+interface CoursesContentProps {
+  locale: Locale;
+}
+
+export function CoursesContent({ locale }: CoursesContentProps) {
+  const { t } = useLocale();
   const numberLocale = locale === "de" ? "de-DE" : locale === "en" ? "en-US" : "fa-IR";
 
   const courses = [
@@ -100,7 +105,7 @@ export default function Courses() {
           </Badge>
           <h1 className="text-4xl md:text-6xl font-bold text-paper-100 leading-[1.3] mb-6">{t.courses.heroTitle}</h1>
           <p className="text-paper-100/80 text-xl mb-10 max-w-3xl mx-auto leading-relaxed">{t.courses.heroSubtitle}</p>
-          <Button href="/contact" variant="secondary" size="lg">
+          <Button href={`/${locale}/contact`} variant="secondary" size="lg">
             {t.courses.heroCta}
           </Button>
         </div>
@@ -139,9 +144,7 @@ export default function Courses() {
                     ))}
                     {course.features.length > 3 && (
                       <div className="flex items-center gap-2 text-xs text-navy-900/60 mt-2">
-                        <span>
-                          {t.common.and} {course.features.length - 3} {t.common.andMore}
-                        </span>
+                        <span>{t.common.and} {course.features.length - 3} {t.common.andMore}</span>
                       </div>
                     )}
                   </div>
@@ -151,7 +154,7 @@ export default function Courses() {
                     <span className="text-navy-900/50 text-sm">{t.common.toman}</span>
                   </div>
 
-                  <Button href="/contact" className="w-full mt-6">
+                  <Button href={`/${locale}/contact`} className="w-full mt-6">
                     {t.courses.startCourse}
                   </Button>
                 </div>
@@ -221,7 +224,7 @@ export default function Courses() {
                   ))}
                 </ul>
 
-                <Button href="/contact" variant={plan.recommended ? "primary" : "outline"} className="w-full">
+                <Button href={`/${locale}/contact`} variant={plan.recommended ? "primary" : "outline"} className="w-full">
                   {t.courses.choosePlan}
                 </Button>
               </div>
@@ -234,7 +237,7 @@ export default function Courses() {
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold text-paper-100 mb-6">{t.courses.ctaTitle}</h2>
           <p className="text-paper-100/80 text-xl mb-10 max-w-2xl mx-auto">{t.courses.ctaSubtitle}</p>
-          <Button href="/contact" size="lg" className="text-lg px-10 py-4">
+          <Button href={`/${locale}/contact`} size="lg" className="text-lg px-10 py-4">
             {t.courses.ctaButton}
           </Button>
         </div>
