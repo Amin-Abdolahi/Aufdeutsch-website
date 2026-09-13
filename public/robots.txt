@@ -1,5 +1,5 @@
 # Robots.txt for AUF Deutsch
-# آموزش زبان آلمانی
+# آموزش زبان آلمانی | Deutsch lernen | Learn German
 
 User-agent: *
 Allow: /
@@ -11,13 +11,11 @@ Sitemap: https://aufdeutsch.ir/sitemap.xml
 Disallow: /api/
 Disallow: /_next/
 Disallow: /private/
+Disallow: /*.json$
+Disallow: /*.xml$
 
 # Crawl-delay
 Crawl-delay: 10
 
----
-# German version
-User-agent: *
-Allow: /
-
-Sitemap: https://aufdeutsch.ir/sitemap.xml
+# Host
+Host: https://aufdeutsch.ir
