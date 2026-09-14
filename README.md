@@ -20,6 +20,7 @@
 - Blog section
 - Student testimonials
 - Responsive, mobile-first interface
+- Full **trilingual** interface: Persian (`/fa`), German (`/de`), English (`/en`)
 - Full **RTL** support for Persian content
 - Custom visual identity inspired by notebooks, passports, travel, and language learning
 - Structured pages suitable for future course registration and online services
@@ -71,25 +72,32 @@ The interface is designed primarily for Persian-speaking users, so RTL behavior 
 ```text
 AUF Deutsch
 ├── app/
-│   ├── about/
-│   ├── blog/
-│   ├── contact/
-│   ├── courses/
-│   ├── pricing/
+│   ├── [locale]/          # fa | de | en pages
+│   │   ├── about/
+│   │   ├── contact/
+│   │   ├── courses/
+│   │   ├── pricing/
+│   │   ├── layout.tsx
+│   │   └── page.tsx
+│   ├── api/
+│   │   ├── contact/
+│   │   └── locale/
 │   ├── globals.css
 │   ├── layout.tsx
 │   └── page.tsx
 │
 ├── components/
-│   ├── ...
+│   ├── layout/
+│   └── ui/
+│
+├── lib/
+│   └── i18n.ts            # dictionaries + locale helpers
 │
 ├── public/
-│   ├── ...
+│   ├── robots.txt
+│   └── sitemap.xml
 │
-├── AGENTS.md
-├── CLAUDE.md
-├── README.md
-├── SPEC.md
+├── proxy.ts               # locale redirect (Next.js 16)
 ├── package.json
 └── tsconfig.json
 ```

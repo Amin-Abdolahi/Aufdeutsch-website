@@ -32,6 +32,7 @@ export function ContactContent({ locale }: ContactContentProps) {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormState({
@@ -44,6 +45,8 @@ export function ContactContent({ locale }: ContactContentProps) {
     e.preventDefault();
     setIsSubmitting(true);
 
+    setErrorMessage("");
+
     try {
       const response = await fetch(`/api/contact`, {
         method: "POST",
@@ -52,17 +55,15 @@ export function ContactContent({ locale }: ContactContentProps) {
       });
 
       if (!response.ok) throw new Error("Failed to submit");
-    } catch {
-      // Silently handle error
-    }
 
-    setIsSubmitting(false);
-    setIsSuccess(true);
-
-    setTimeout(() => {
+      setIsSuccess(true);
       setFormState({ name: "", email: "", phone: "", level: "A1", message: "" });
-      setIsSuccess(false);
-    }, 3000);
+      setTimeout(() => setIsSuccess(false), 3000);
+    } catch {
+      setErrorMessage(t.contact.errorDesc);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const contactInfo = [
@@ -213,6 +214,12 @@ export function ContactContent({ locale }: ContactContentProps) {
                         placeholder={t.contact.messagePlaceholder}
                       />
                     </div>
+
+                    {errorMessage && (
+                      <p role="alert" className="text-red-400 text-sm text-center">
+                        {errorMessage}
+                      </p>
+                    )}
 
                     <Button type="submit" size="lg" disabled={isSubmitting} className="w-full">
                       {isSubmitting ? t.contact.submitting : t.contact.submit}
