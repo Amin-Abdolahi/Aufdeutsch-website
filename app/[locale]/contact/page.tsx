@@ -1,5 +1,7 @@
 import { Metadata } from "next";
 import { ContactContent } from "@/components/ContactContent";
+import { Testimonials } from "@/components/Testimonials";
+import { TestimonialForm } from "@/components/TestimonialForm";
 import { locales, type Locale } from "@/lib/i18n";
 
 interface PageProps {
@@ -41,5 +43,11 @@ export default async function ContactPage({ params }: PageProps) {
   const { locale } = await params;
   const validLocale = locales.includes(locale as Locale) ? (locale as Locale) : "fa";
 
-  return <ContactContent locale={validLocale} />;
+  return (
+    <>
+      <ContactContent locale={validLocale} />
+      <Testimonials locale={validLocale} className="py-16" />
+      <TestimonialForm locale={validLocale} />
+    </>
+  );
 }

@@ -7,6 +7,7 @@ import { Stamp } from "@/components/ui/Stamp";
 import { Badge } from "@/components/ui/Badge";
 import { useLocale } from "@/components/LocaleProvider";
 import { type Locale } from "@/lib/i18n";
+import { Testimonials } from "@/components/Testimonials";
 
 interface HomeContentProps {
   locale: Locale;
@@ -22,11 +23,6 @@ export function HomeContent({ locale }: HomeContentProps) {
     { level: "B2", title: t.home.courseB2Title, desc: t.home.courseB2Desc },
     { level: "C1", title: t.home.courseC1Title, desc: t.home.courseC1Desc },
     { level: "TEST", title: t.home.courseTestTitle, desc: t.home.courseTestDesc },
-  ];
-
-  const testimonials = [
-    { text: t.home.t1Text, name: t.home.t1Name, course: t.home.t1Course },
-    { text: t.home.t2Text, name: t.home.t2Name, course: t.home.t2Course },
   ];
 
   return (
@@ -169,22 +165,7 @@ export function HomeContent({ locale }: HomeContentProps) {
 
             <div className="relative z-10">
               <h3 className="text-2xl font-bold text-navy-900 mb-6">{t.home.testimonialsTitle}</h3>
-              <div className="space-y-8">
-                {testimonials.map((testimonial, index) => (
-                  <div key={index} className="border-b border-navy-900/10 pb-8 last:border-0 last:pb-0">
-                    <p className="text-navy-900/80 text-lg mb-4 leading-relaxed">"{testimonial.text}"</p>
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-full bg-gold-500/10 flex items-center justify-center">
-                        <span className="text-gold-600 font-bold text-lg">{testimonial.name.charAt(0)}</span>
-                      </div>
-                      <div>
-                        <div className="font-bold text-navy-900">{testimonial.name}</div>
-                        <div className="text-navy-900/60 text-sm">{testimonial.course}</div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <Testimonials locale={locale} />
             </div>
           </div>
         </div>

@@ -1,0 +1,70 @@
+{
+  "testimonials": [
+    {
+      "id": "t1",
+      "authorName": "سارا محمدی",
+      "authorInitial": "س",
+      "course": "دانشجوی دوره B1",
+      "text": "با روش امین و فتانه، تو ۶ ماه به سطح B1 رسیدم — چیزی که فکر می‌کردم یک سال طول می‌کشد.",
+      "rating": 5,
+      "locale": "fa",
+      "approved": true,
+      "createdAt": "2025-01-15T10:00:00Z"
+    },
+    {
+      "id": "t2",
+      "authorName": "علی کریمی",
+      "authorInitial": "ع",
+      "course": "دانشجوی دوره A2",
+      "text": "تدریس گرامر فتانه فوق‌العاده بود. مفاهیم پیچیده را ساده و کاربردی توضیح می‌داد.",
+      "rating": 5,
+      "locale": "fa",
+      "approved": true,
+      "createdAt": "2025-02-20T10:00:00Z"
+    },
+    {
+      "id": "t3",
+      "authorName": "Sara Mohammadi",
+      "authorInitial": "S",
+      "course": "B1 Student",
+      "text": "With Amin and Fataneh's method I reached B1 in 6 months — I thought it would take a year.",
+      "rating": 5,
+      "locale": "en",
+      "approved": true,
+      "createdAt": "2025-01-15T10:00:00Z"
+    },
+    {
+      "id": "t4",
+      "authorName": "Ali Karimi",
+      "authorInitial": "A",
+      "course": "A2 Student",
+      "text": "Fataneh's grammar teaching was outstanding. Complex ideas were explained simply and practically.",
+      "rating": 5,
+      "locale": "en",
+      "approved": true,
+      "createdAt": "2025-02-20T10:00:00Z"
+    },
+    {
+      "id": "t5",
+      "authorName": "Sara Mohammadi",
+      "authorInitial": "S",
+      "course": "B1-Schülerin",
+      "text": "Mit der Methode von Amin und Fataneh habe ich in 6 Monaten B1 erreicht — ich dachte, das dauert ein Jahr.",
+      "rating": 5,
+      "locale": "de",
+      "approved": true,
+      "createdAt": "2025-01-15T10:00:00Z"
+    },
+    {
+      "id": "t6",
+      "authorName": "Ali Karimi",
+      "authorInitial": "A",
+      "course": "A2-Schüler",
+      "text": "Fatanehs Grammatikunterricht war hervorragend. Komplexe Themen wurden einfach und praxisnah erklärt.",
+      "rating": 5,
+      "locale": "de",
+      "approved": true,
+      "createdAt": "2025-02-20T10:00:00Z"
+    }
+  ]
+}
