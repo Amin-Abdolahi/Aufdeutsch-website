@@ -13,9 +13,11 @@ function getResendClient() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
+    console.log("Testimonial submit body:", body);
     const { authorName, course, text, rating, locale } = body;
 
-    if (!authorName || !course || !text || !rating || !locale) {
+    if (!authorName || !course || !text || rating === undefined || rating === null || !locale) {
+      console.log("Validation failed:", { authorName, course, text, rating, locale });
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 

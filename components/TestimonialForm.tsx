@@ -53,8 +53,8 @@ export function TestimonialForm({ locale }: TestimonialFormProps) {
       setIsSuccess(true);
       setFormState({ authorName: "", course: "", text: "", rating: 5 });
       setTimeout(() => setIsSuccess(false), 3000);
-    } catch {
-      setErrorMessage(t.contact.testimonialErrorDesc);
+    } catch (err) {
+      setErrorMessage(err instanceof Error ? err.message : t.contact.testimonialErrorDesc);
     } finally {
       setIsSubmitting(false);
     }
