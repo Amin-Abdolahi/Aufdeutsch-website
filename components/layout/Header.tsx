@@ -14,6 +14,7 @@ export function Header() {
     { href: `/${locale}`, label: t.nav.home },
     { href: `/${locale}/courses`, label: t.nav.courses },
     { href: `/${locale}/pricing`, label: t.nav.pricing },
+    { href: `/${locale}/tools`, label: t.nav.tools },
     { href: `/${locale}/about`, label: t.nav.about },
     { href: `/${locale}/contact`, label: t.nav.contact },
   ];

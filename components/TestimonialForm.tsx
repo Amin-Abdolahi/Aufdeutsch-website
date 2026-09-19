@@ -123,7 +123,7 @@ export function TestimonialForm({ locale }: TestimonialFormProps) {
               onClick={() => setFormState({ ...formState, rating: star })}
               className={`flex-1 py-3 rounded-sm font-bold transition-colors ${
                 formState.rating >= star
-                  ? "bg-gold-500 text-white"
+                  ? "bg-gold-300 text-navy-900"
                   : "bg-navy-900/10 text-navy-900/50 hover:bg-navy-900/20"
               }`}
             >
@@ -150,7 +150,7 @@ export function TestimonialForm({ locale }: TestimonialFormProps) {
       </div>
 
       {errorMessage && (
-        <p role="alert" className="text-red-500 text-sm text-center">
+        <p role="alert" aria-live="assertive" className="text-red-500 text-sm text-center">
           {errorMessage}
         </p>
       )}

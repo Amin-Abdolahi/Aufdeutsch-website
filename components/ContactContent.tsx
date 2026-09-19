@@ -58,7 +58,6 @@ export function ContactContent({ locale }: ContactContentProps) {
 
       setIsSuccess(true);
       setFormState({ name: "", email: "", phone: "", level: "A1", message: "" });
-      setTimeout(() => setIsSuccess(false), 3000);
     } catch {
       setErrorMessage(t.contact.errorDesc);
     } finally {
@@ -90,13 +89,17 @@ export function ContactContent({ locale }: ContactContentProps) {
   return (
     <div className="min-h-screen">
       <Section variant="navy" className="relative overflow-hidden">
-        <div className="max-w-6xl mx-auto text-center">
+        <div className="notebook-band notebook-band-red notebook-band-contact-red" aria-hidden="true" />
+        <div className="notebook-band notebook-band-gold notebook-band-contact-gold" aria-hidden="true" />
+        <div className="max-w-6xl mx-auto">
           <Badge variant="red" className="mb-6">
             {t.contact.badge}
           </Badge>
-          <h1 className="text-4xl md:text-6xl font-bold text-paper-100 leading-[1.3] mb-6">{t.contact.heroTitle}</h1>
-          <p className="text-paper-100/80 text-xl mb-10 max-w-3xl mx-auto leading-relaxed">{t.contact.heroSubtitle}</p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="max-w-3xl">
+            <h1 className="text-4xl md:text-6xl lg:text-[4.4rem] font-bold text-paper-100 leading-[1.08] tracking-[-0.04em] mb-6">{t.contact.heroTitle}</h1>
+            <p className="text-paper-100/80 text-lg md:text-xl mb-10 leading-relaxed">{t.contact.heroSubtitle}</p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-4">
             <Button href="tel:+989911045947" size="lg">
               {t.contact.callNow}
             </Button>
@@ -111,7 +114,7 @@ export function ContactContent({ locale }: ContactContentProps) {
         <div className="max-w-6xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-12">
             <div>
-              <div className="bg-navy-900 p-8 rounded-sm shadow-xl relative">
+              <div className="bg-navy-900 p-8 rounded-sm border border-gold-500/30 shadow-xl relative">
                 <div className="absolute -top-3 -left-3 w-16 h-16 bg-gold-500 rounded-sm flex items-center justify-center">
                   <Stamp size={64} />
                 </div>
@@ -120,7 +123,7 @@ export function ContactContent({ locale }: ContactContentProps) {
                 <p className="text-paper-100/70 mb-8 text-sm">{t.contact.formIntro}</p>
 
                 {isSuccess ? (
-                  <div className="bg-green-500/10 border border-green-500/30 p-6 rounded-sm text-center">
+                  <div role="status" aria-live="polite" className="bg-green-500/10 border border-green-500/30 p-6 rounded-sm text-center">
                     <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
                       <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -130,7 +133,7 @@ export function ContactContent({ locale }: ContactContentProps) {
                     <p className="text-green-600 text-sm">{t.contact.successDesc}</p>
                   </div>
                 ) : (
-                  <form onSubmit={handleSubmit} className="space-y-6">
+                  <form onSubmit={handleSubmit} className="space-y-6" aria-busy={isSubmitting}>
                     <div>
                       <label htmlFor="name" className="block text-paper-100 font-medium mb-2">
                         {t.contact.name}
@@ -216,7 +219,7 @@ export function ContactContent({ locale }: ContactContentProps) {
                     </div>
 
                     {errorMessage && (
-                      <p role="alert" className="text-red-400 text-sm text-center">
+                      <p role="alert" aria-live="assertive" className="text-red-400 text-sm text-center">
                         {errorMessage}
                       </p>
                     )}
@@ -265,16 +268,16 @@ export function ContactContent({ locale }: ContactContentProps) {
 
               <div className="mt-10">
                 <h3 className="font-bold text-navy-900 mb-4">{t.contact.socialTitle}</h3>
-                <div className="flex gap-3">
-                  <a href="" target="_blank" rel="noopener noreferrer" className="flex-1 bg-navy-900 hover:bg-navy-800 text-paper-100 py-3 rounded-sm text-center transition-colors font-medium">
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <span aria-disabled="true" className="flex-1 bg-navy-900/40 text-paper-100/50 py-3 rounded-sm text-center font-medium cursor-not-allowed">
                     {t.contact.instagram}
-                  </a>
+                  </span>
                   <a href="https://t.me/aminundfatane" target="_blank" rel="noopener noreferrer" className="flex-1 bg-navy-900 hover:bg-navy-800 text-paper-100 py-3 rounded-sm text-center transition-colors font-medium">
                     {t.contact.telegram}
                   </a>
-                  <a href="" target="_blank" rel="noopener noreferrer" className="flex-1 bg-navy-900 hover:bg-navy-800 text-paper-100 py-3 rounded-sm text-center transition-colors font-medium">
+                  <span aria-disabled="true" className="flex-1 bg-navy-900/40 text-paper-100/50 py-3 rounded-sm text-center font-medium cursor-not-allowed">
                     {t.contact.youtube}
-                  </a>
+                  </span>
                 </div>
               </div>
             </div>

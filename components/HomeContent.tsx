@@ -38,43 +38,21 @@ export function HomeContent({ locale }: HomeContentProps) {
             }}
           />
         </div>
+        <div className="notebook-band notebook-band-red notebook-band-home-red" aria-hidden="true" />
+        <div className="notebook-band notebook-band-gold notebook-band-home-gold" aria-hidden="true" />
 
         <div className="max-w-6xl mx-auto relative">
           <div className="flex flex-col lg:flex-row items-center gap-16">
-            <div className="lg:w-1/2">
-              <Badge variant="red" className="mb-6">
-                {t.home.heroBadge}
-              </Badge>
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-paper-100 leading-[1.3] mb-8">
-                {t.home.heroTitleBefore}
-                <span className="relative inline-block mx-3 text-gold-400">
-                  {t.home.heroHighlight}
-                  <svg
-                    className="absolute -bottom-2 right-0 w-full"
-                    height="8"
-                    viewBox="0 0 100 8"
-                    preserveAspectRatio="none"
-                    aria-hidden="true"
-                  >
-                    <path d="M0,5 Q24,0 50,4 T100,5" stroke="currentColor" strokeWidth="3" fill="none" />
-                  </svg>
-                </span>
-                {t.home.heroTitleAfter}
-              </h1>
-              <p className="text-paper-100/80 text-xl mb-10 leading-relaxed max-w-2xl">{t.home.heroSubtitle}</p>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Button href={`/${locale}/contact`} size="lg" className="font-mono">
-                  {t.home.heroCta}
-                </Button>
-                <Button href={`/${locale}/courses`} variant="outline" size="lg">
-                  {t.home.heroViewCourses}
-                </Button>
-              </div>
+            <div className="lg:w-1/2 max-w-[36rem]">
+              <Badge variant="red" className="mb-6 tracking-[0.12em] text-[0.68rem] uppercase">{t.home.heroBadge}</Badge>
+              <h1 className="text-4xl md:text-6xl lg:text-[clamp(2.75rem,7vw,4.75rem)] font-bold text-paper-100 leading-[1.02] tracking-[-0.04em] mb-8 max-w-[13ch]">{t.home.heroTitleBefore}<span className="relative inline-block mx-3 text-gold-400 align-middle">{t.home.heroHighlight}<svg className="absolute -bottom-2 right-0 w-full" height="8" viewBox="0 0 100 8" preserveAspectRatio="none" aria-hidden="true"><path d="M0,5 Q24,0 50,4 T100,5" stroke="currentColor" strokeWidth="3" fill="none" /></svg></span>{t.home.heroTitleAfter}</h1>
+              <p className="text-paper-100/80 text-lg md:text-xl mb-10 leading-relaxed max-w-[32rem] border-t border-gold-400/50 pt-5">{t.home.heroSubtitle}</p>
+              <div className="flex flex-col sm:flex-row gap-4"><Button href={`/${locale}/contact`} size="lg" className="font-mono tracking-[0.08em]">{t.home.heroCta}</Button><Button href={`/${locale}/courses`} variant="outline" size="lg" className="tracking-[0.08em]">{t.home.heroViewCourses}</Button></div>
             </div>
 
             <div className="lg:w-1/2 flex justify-center lg:justify-end">
               <div className="relative">
-                <div className="bg-paper-100 p-12 rounded-sm shadow-2xl relative">
+                <div className="bg-paper-100 p-12 rounded-sm border border-gold-500/30 shadow-2xl relative">
                   <div className="relative">
                     <div className="w-48 h-48 mx-auto">
                       <Stamp size={192} />
@@ -93,19 +71,19 @@ export function HomeContent({ locale }: HomeContentProps) {
         <div className="absolute inset-0 bg-paper-50" />
         <div className="max-w-4xl mx-auto relative z-10">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-navy-900 mb-4">{t.home.statsTitle}</h2>
-            <p className="text-navy-900/60 text-lg">{t.home.statsSubtitle}</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-navy-900 mb-4 tracking-[-0.04em]">{t.home.statsTitle}</h2>
+            <p className="text-navy-900/60 text-lg leading-relaxed">{t.home.statsSubtitle}</p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
-            <Card rotate="left">
+            <Card rotate="left" className="border-t-2 border-red-600/70">
               <CardTitle>{t.home.reason1Title}</CardTitle>
               <CardDescription>{t.home.reason1Desc}</CardDescription>
             </Card>
-            <Card rotate="none">
+            <Card rotate="none" className="border-t-2 border-gold-500/70">
               <CardTitle>{t.home.reason2Title}</CardTitle>
               <CardDescription>{t.home.reason2Desc}</CardDescription>
             </Card>
-            <Card rotate="right">
+            <Card rotate="right" className="border-t-2 border-navy-700">
               <CardTitle>{t.home.reason3Title}</CardTitle>
               <CardDescription>{t.home.reason3Desc}</CardDescription>
             </Card>
@@ -120,23 +98,29 @@ export function HomeContent({ locale }: HomeContentProps) {
               <Badge variant="gold" className="mb-4">
                 {t.home.coursesBadge}
               </Badge>
-              <h2 className="text-3xl font-bold text-paper-100 mb-6">{t.home.coursesTitle}</h2>
-              <p className="text-paper-100/80 text-lg mb-8">{t.home.coursesDesc}</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-paper-100 mb-6 tracking-[-0.04em]">{t.home.coursesTitle}</h2>
+              <p className="text-paper-100/80 text-lg leading-relaxed mb-8 max-w-[34rem]">{t.home.coursesDesc}</p>
               <Button href={`/${locale}/courses`} variant="secondary" size="lg">
                 {t.home.coursesAll}
               </Button>
             </div>
             <div className="grid grid-cols-2 gap-6">
-              {coursePreview.map((course) => (
+              {coursePreview.map((course, index) => (
                 <div
                   key={course.level}
-                  className="bg-navy-800 hover:bg-navy-700 p-6 rounded-sm transition-all hover:scale-105 group"
+                  className={`p-6 rounded-sm border transition-all duration-200 hover:-translate-y-0.5 group ${
+                    index % 3 === 0
+                      ? "bg-red-600/20 border-red-400/30 hover:bg-red-600/30"
+                      : index % 3 === 1
+                        ? "bg-gold-500/20 border-gold-300/30 hover:bg-gold-500/30"
+                        : "bg-navy-800 border-navy-700 hover:bg-navy-700"
+                  }`}
                 >
-                  <div className="text-3xl font-bold text-gold-500 mb-2 group-hover:text-gold-400 transition-colors">
+                  <div className="text-3xl font-bold text-gold-500 mb-2 group-hover:text-gold-400 transition-colors tracking-[-0.04em]">
                     {course.level}
                   </div>
-                  <div className="text-paper-100 font-bold mb-1">{course.title}</div>
-                  <div className="text-paper-100/60 text-sm">{course.desc}</div>
+                  <div className="text-paper-100 font-bold mb-1 text-base md:text-lg leading-snug">{course.title}</div>
+                  <div className="text-paper-100/60 text-sm leading-relaxed">{course.desc}</div>
                 </div>
               ))}
             </div>
@@ -164,7 +148,7 @@ export function HomeContent({ locale }: HomeContentProps) {
             <div className="absolute -bottom-3 right-12 w-10 h-4 bg-red-600/20 -rotate-12" />
 
             <div className="relative z-10">
-              <h3 className="text-2xl font-bold text-navy-900 mb-6">{t.home.testimonialsTitle}</h3>
+              <h3 className="text-2xl md:text-3xl font-bold text-navy-900 mb-6 tracking-[-0.04em]">{t.home.testimonialsTitle}</h3>
               <Testimonials locale={locale} />
             </div>
           </div>
@@ -173,9 +157,9 @@ export function HomeContent({ locale }: HomeContentProps) {
 
       <Section variant="navy" className="relative">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-paper-100 mb-6">{t.home.ctaTitle}</h2>
-          <p className="text-paper-100/80 text-xl mb-10 max-w-2xl mx-auto">{t.home.ctaSubtitle}</p>
-          <Button href={`/${locale}/contact`} size="lg" className="text-lg px-10 py-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-paper-100 mb-6 tracking-[-0.04em]">{t.home.ctaTitle}</h2>
+          <p className="text-paper-100/80 text-lg md:text-xl mb-10 max-w-[32rem] mx-auto leading-relaxed">{t.home.ctaSubtitle}</p>
+          <Button href={`/${locale}/contact`} size="lg" className="text-base md:text-lg px-10 py-4 tracking-[0.08em]">
             {t.home.ctaButton}
           </Button>
         </div>

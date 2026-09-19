@@ -24,7 +24,7 @@ export function Button({
   const variants = {
     primary: "bg-navy-900 hover:bg-navy-800 text-paper-100 shadow-lg hover:shadow-xl",
     secondary: "bg-red-600 hover:bg-red-700 text-paper-100",
-    outline: "border-2 border-navy-900 text-navy-900 hover:bg-navy-900 hover:text-paper-100",
+    outline: "border-2 border-paper-100/80 text-paper-100 hover:bg-paper-100 hover:text-navy-900",
     ghost: "text-navy-900 hover:bg-navy-900/5",
   };
 
@@ -34,7 +34,7 @@ export function Button({
     lg: "px-8 py-4 text-lg",
   };
 
-  const baseStyles = "inline-flex items-center justify-center font-bold rounded-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-mono";
+  const baseStyles = "inline-flex items-center justify-center font-bold rounded-sm transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-300 disabled:opacity-50 disabled:cursor-not-allowed font-mono";
 
   const classes = `${baseStyles} ${variants[variant]} ${sizes[size]} ${className}`;
 

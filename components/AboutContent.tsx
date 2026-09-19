@@ -56,12 +56,16 @@ export function AboutContent({ locale }: AboutContentProps) {
   return (
     <div className="min-h-screen">
       <Section variant="navy" className="relative overflow-hidden">
-        <div className="max-w-6xl mx-auto text-center">
+        <div className="notebook-band notebook-band-red notebook-band-about-red" aria-hidden="true" />
+        <div className="notebook-band notebook-band-gold notebook-band-about-gold" aria-hidden="true" />
+        <div className="max-w-6xl mx-auto">
           <Badge variant="red" className="mb-6">
             {t.about.badge}
           </Badge>
-          <h1 className="text-4xl md:text-6xl font-bold text-paper-100 leading-[1.3] mb-6">{t.about.heroTitle}</h1>
-          <p className="text-paper-100/80 text-xl mb-10 max-w-3xl mx-auto leading-relaxed">{t.about.heroSubtitle}</p>
+          <div className="max-w-3xl">
+            <h1 className="text-4xl md:text-6xl lg:text-[4.4rem] font-bold text-paper-100 leading-[1.08] tracking-[-0.04em] mb-6">{t.about.heroTitle}</h1>
+            <p className="text-paper-100/80 text-lg md:text-xl mb-10 leading-relaxed">{t.about.heroSubtitle}</p>
+          </div>
           <Button href={`/${locale}/contact`} variant="secondary" size="lg">
             {t.about.heroCta}
           </Button>
@@ -70,14 +74,14 @@ export function AboutContent({ locale }: AboutContentProps) {
 
       <Section className="relative">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-navy-900 mb-4">{t.about.teachersTitle}</h2>
-            <p className="text-navy-900/60 text-lg">{t.about.teachersSubtitle}</p>
+          <div className="max-w-2xl mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-navy-900 mb-4 tracking-[-0.04em]">{t.about.teachersTitle}</h2>
+            <p className="text-navy-900/60 text-lg leading-relaxed">{t.about.teachersSubtitle}</p>
           </div>
 
           <div className="grid lg:grid-cols-2 gap-8 mb-20">
             {teachers.map((teacher) => (
-              <Card key={teacher.id} rotate={teacher.id === "amin" ? "left" : "right"} className="h-full">
+              <Card key={teacher.id} rotate={teacher.id === "amin" ? "left" : "right"} className={`h-full border-t-2 ${teacher.id === "amin" ? "border-red-600/70" : "border-gold-500/70"}`}>
                 <div className="flex flex-col items-center text-center">
                   <div className="w-32 h-32 rounded-full border-4 border-gold-500/20 mb-6 flex items-center justify-center bg-gradient-to-br from-gold-500/5 to-transparent">
                     <span className="text-4xl font-bold text-navy-900">{teacher.name.charAt(0)}</span>
@@ -125,12 +129,12 @@ export function AboutContent({ locale }: AboutContentProps) {
 
       <Section variant="navy" className="relative">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
+          <div className="max-w-2xl mb-16">
             <Badge variant="gold" className="mb-4">
               {t.about.storyBadge}
             </Badge>
-            <h2 className="text-3xl font-bold text-paper-100 mb-4">{t.about.storyTitle}</h2>
-            <p className="text-paper-100/80 text-lg">{t.about.storySubtitle}</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-paper-100 mb-4 tracking-[-0.04em]">{t.about.storyTitle}</h2>
+            <p className="text-paper-100/80 text-lg leading-relaxed">{t.about.storySubtitle}</p>
           </div>
 
           <div className="relative">
@@ -157,8 +161,8 @@ export function AboutContent({ locale }: AboutContentProps) {
 
       <Section className="relative">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-navy-900 mb-4">{t.about.valuesTitle}</h2>
+          <div className="max-w-2xl mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-navy-900 mb-4 tracking-[-0.04em]">{t.about.valuesTitle}</h2>
             <p className="text-navy-900/60 text-lg">{t.about.valuesSubtitle}</p>
           </div>
 
@@ -180,11 +184,11 @@ export function AboutContent({ locale }: AboutContentProps) {
 
       <Section variant="navy" className="relative">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
+          <div className="max-w-2xl mb-16">
             <Badge variant="red" className="mb-4">
               {t.about.whyBadge}
             </Badge>
-            <h2 className="text-3xl font-bold text-paper-100 mb-6">{t.about.whyTitle}</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-paper-100 mb-6 tracking-[-0.04em]">{t.about.whyTitle}</h2>
           </div>
 
           <div className="grid lg:grid-cols-3 gap-8">
@@ -209,8 +213,8 @@ export function AboutContent({ locale }: AboutContentProps) {
 
       <Section className="relative">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-navy-900 mb-6">{t.about.ctaTitle}</h2>
-          <p className="text-navy-900/70 text-xl mb-10 max-w-2xl mx-auto">{t.about.ctaSubtitle}</p>
+          <h2 className="text-3xl md:text-4xl font-bold text-navy-900 mb-6 tracking-[-0.04em]">{t.about.ctaTitle}</h2>
+          <p className="text-navy-900/70 text-lg md:text-xl mb-10 max-w-2xl mx-auto leading-relaxed">{t.about.ctaSubtitle}</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button href={`/${locale}/contact`} size="lg">
               {t.about.ctaContact}

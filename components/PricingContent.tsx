@@ -89,12 +89,16 @@ export function PricingContent({ locale }: PricingContentProps) {
   return (
     <div className="min-h-screen">
       <Section variant="navy" className="relative overflow-hidden">
-        <div className="max-w-6xl mx-auto text-center">
+        <div className="notebook-band notebook-band-red notebook-band-pricing-red" aria-hidden="true" />
+        <div className="notebook-band notebook-band-gold notebook-band-pricing-gold" aria-hidden="true" />
+        <div className="max-w-6xl mx-auto">
           <Badge variant="red" className="mb-6">
             {t.pricing.badge}
           </Badge>
-          <h1 className="text-4xl md:text-6xl font-bold text-paper-100 leading-[1.3] mb-6">{t.pricing.heroTitle}</h1>
-          <p className="text-paper-100/80 text-xl mb-10 max-w-3xl mx-auto leading-relaxed">{t.pricing.heroSubtitle}</p>
+          <div className="max-w-3xl">
+            <h1 className="text-4xl md:text-6xl lg:text-[4.4rem] font-bold text-paper-100 leading-[1.08] tracking-[-0.04em] mb-6">{t.pricing.heroTitle}</h1>
+            <p className="text-paper-100/80 text-lg md:text-xl mb-10 leading-relaxed">{t.pricing.heroSubtitle}</p>
+          </div>
           <Button href={`/${locale}/contact`} variant="secondary" size="lg">
             {t.pricing.heroCta}
           </Button>
@@ -103,8 +107,8 @@ export function PricingContent({ locale }: PricingContentProps) {
 
       <Section className="relative">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-navy-900 mb-4">{t.pricing.chooseTitle}</h2>
+          <div className="max-w-2xl mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-navy-900 mb-4 tracking-[-0.04em]">{t.pricing.chooseTitle}</h2>
             <p className="text-navy-900/60 text-lg">{t.pricing.chooseSubtitle}</p>
           </div>
 
@@ -112,7 +116,7 @@ export function PricingContent({ locale }: PricingContentProps) {
             {pricingTiers.map((tier) => (
               <div
                 key={tier.title}
-                className={`relative bg-white rounded-sm shadow-lg p-8 transition-all hover:shadow-xl ${
+                className={`relative bg-white rounded-sm shadow-lg p-8 transition-all hover:-translate-y-1 hover:shadow-xl ${
                   tier.recommended
                     ? "border-2 border-gold-500 transform scale-105 z-10"
                     : tier.popular
@@ -121,7 +125,7 @@ export function PricingContent({ locale }: PricingContentProps) {
                 }`}
               >
                 {tier.recommended && (
-                  <div className="absolute -top-4 right-1/2 -translate-x-1/2 bg-gold-500 text-paper-100 px-4 py-1 rounded-sm font-bold text-sm">
+                  <div className="absolute -top-4 right-1/2 -translate-x-1/2 bg-gold-300 text-navy-900 px-4 py-1 rounded-sm font-bold text-sm">
                     {t.pricing.bestChoice}
                   </div>
                 )}
@@ -165,8 +169,8 @@ export function PricingContent({ locale }: PricingContentProps) {
 
       <Section variant="navy" className="relative">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-paper-100 mb-4">{t.pricing.payTitle}</h2>
+          <div className="max-w-2xl mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-paper-100 mb-4 tracking-[-0.04em]">{t.pricing.payTitle}</h2>
             <p className="text-paper-100/70">{t.pricing.paySubtitle}</p>
           </div>
 
@@ -199,8 +203,8 @@ export function PricingContent({ locale }: PricingContentProps) {
 
       <Section className="relative">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-navy-900 mb-4">{t.pricing.faqTitle}</h2>
+          <div className="max-w-2xl mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-navy-900 mb-4 tracking-[-0.04em]">{t.pricing.faqTitle}</h2>
             <p className="text-navy-900/60 text-lg">{t.pricing.faqSubtitle}</p>
           </div>
 
@@ -222,8 +226,8 @@ export function PricingContent({ locale }: PricingContentProps) {
 
       <Section variant="navy" className="relative">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-paper-100 mb-6">{t.pricing.ctaTitle}</h2>
-          <p className="text-paper-100/80 text-xl mb-10 max-w-2xl mx-auto">{t.pricing.ctaSubtitle}</p>
+          <h2 className="text-3xl md:text-4xl font-bold text-paper-100 mb-6 tracking-[-0.04em]">{t.pricing.ctaTitle}</h2>
+          <p className="text-paper-100/80 text-lg md:text-xl mb-10 max-w-2xl mx-auto leading-relaxed">{t.pricing.ctaSubtitle}</p>
           <Button href={`/${locale}/contact`} size="lg" className="text-lg px-10 py-4">
             {t.pricing.ctaButton}
           </Button>

@@ -25,20 +25,39 @@ export function Testimonials({ locale, className = "" }: TestimonialsProps) {
   const { t } = useLocale();
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
-    fetch(`/api/testimonials?locale=${locale}`)
-      .then((res) => res.json())
+    const controller = new AbortController();
+    let active = true;
+
+    setLoading(true);
+    setError(false);
+    fetch(`/api/testimonials?locale=${locale}`, { signal: controller.signal })
+      .then((res) => {
+        if (!res.ok) throw new Error("Unable to load testimonials");
+        return res.json();
+      })
       .then((data) => {
+        if (!active) return;
         setTestimonials(data.testimonials || []);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch((fetchError: unknown) => {
+        if (!active || (fetchError instanceof DOMException && fetchError.name === "AbortError")) return;
+        setError(true);
+        setLoading(false);
+      });
+
+    return () => {
+      active = false;
+      controller.abort();
+    };
   }, [locale]);
 
   if (loading) {
     return (
-      <div className={className}>
+      <div className={className} aria-busy="true" aria-live="polite">
         <div className="animate-pulse space-y-8">
           {[1, 2, 3].map((i) => (
             <div key={i} className="border-b border-navy-900/10 pb-8 last:border-0 last:pb-0">
@@ -59,13 +78,13 @@ export function Testimonials({ locale, className = "" }: TestimonialsProps) {
 
   if (testimonials.length === 0) {
     return (
-      <div className={className}>
-        <p className="text-navy-900/60 text-center py-8">
+      <div className={className} aria-live="polite">
+        <p className="text-navy-900/60 text-center py-8" role={error ? "alert" : undefined}>
           {locale === "fa" 
-            ? "هنوز نظر تاییدشده‌ای وجود ندارد." 
+            ? error ? "نمایش نظرات ممکن نشد. لطفاً صفحه را دوباره بارگذاری کنید." : "هنوز نظر تاییدشده‌ای وجود ندارد." 
             : locale === "de"
-            ? "Noch keine genehmigten Bewertungen."
-            : "No approved reviews yet."}
+            ? error ? "Bewertungen konnten nicht geladen werden. Bitte laden Sie die Seite neu." : "Noch keine genehmigten Bewertungen."
+            : error ? "Reviews could not be loaded. Please reload the page." : "No approved reviews yet."}
         </p>
       </div>
     );

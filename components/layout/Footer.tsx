@@ -17,6 +17,7 @@ export function Footer() {
     company: [
       { label: t.footer.aboutUs, href: `/${locale}/about` },
       { label: t.footer.pricing, href: `/${locale}/pricing` },
+      { label: t.footer.tools, href: `/${locale}/tools` },
       { label: t.footer.contact, href: `/${locale}/contact` },
       { label: t.footer.blog, href: `/${locale}/blog` },
     ],

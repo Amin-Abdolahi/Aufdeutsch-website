@@ -99,12 +99,16 @@ export function CoursesContent({ locale }: CoursesContentProps) {
   return (
     <div className="min-h-screen">
       <Section variant="navy" className="relative overflow-hidden">
-        <div className="max-w-6xl mx-auto text-center">
+        <div className="notebook-band notebook-band-red notebook-band-courses-red" aria-hidden="true" />
+        <div className="notebook-band notebook-band-gold notebook-band-courses-gold" aria-hidden="true" />
+        <div className="max-w-6xl mx-auto">
           <Badge variant="gold" className="mb-6">
             {t.courses.badge}
           </Badge>
-          <h1 className="text-4xl md:text-6xl font-bold text-paper-100 leading-[1.3] mb-6">{t.courses.heroTitle}</h1>
-          <p className="text-paper-100/80 text-xl mb-10 max-w-3xl mx-auto leading-relaxed">{t.courses.heroSubtitle}</p>
+          <div className="max-w-3xl">
+            <h1 className="text-4xl md:text-6xl lg:text-[4.4rem] font-bold text-paper-100 leading-[1.08] tracking-[-0.04em] mb-6">{t.courses.heroTitle}</h1>
+            <p className="text-paper-100/80 text-lg md:text-xl mb-10 leading-relaxed">{t.courses.heroSubtitle}</p>
+          </div>
           <Button href={`/${locale}/contact`} variant="secondary" size="lg">
             {t.courses.heroCta}
           </Button>
@@ -113,14 +117,14 @@ export function CoursesContent({ locale }: CoursesContentProps) {
 
       <Section className="relative">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-navy-900 mb-4">{t.courses.levelsTitle}</h2>
+          <div className="max-w-2xl mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-navy-900 mb-4 tracking-[-0.04em]">{t.courses.levelsTitle}</h2>
             <p className="text-navy-900/60 text-lg">{t.courses.levelsSubtitle}</p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {courses.map((course) => (
-              <Card key={course.level} className="h-full hover:shadow-lg transition-shadow">
+              <Card key={course.level} className="h-full border-t-2 border-gold-500/60 hover:shadow-lg transition-shadow">
                 <div className="relative">
                   <div className="absolute -top-3 left-8 w-10 h-4 bg-gold-500/30 -rotate-5" />
                   <div className="absolute -bottom-3 right-8 w-10 h-4 bg-gold-500/30 -rotate-175" />
@@ -166,8 +170,8 @@ export function CoursesContent({ locale }: CoursesContentProps) {
 
       <Section variant="navy" className="relative">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-paper-100 mb-4">{t.courses.whyTitle}</h2>
+          <div className="max-w-2xl mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-paper-100 mb-4 tracking-[-0.04em]">{t.courses.whyTitle}</h2>
             <p className="text-paper-100/70">{t.courses.whySubtitle}</p>
           </div>
 
@@ -185,8 +189,8 @@ export function CoursesContent({ locale }: CoursesContentProps) {
 
       <Section className="relative">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-navy-900 mb-4">{t.courses.plansTitle}</h2>
+          <div className="max-w-2xl mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-navy-900 mb-4 tracking-[-0.04em]">{t.courses.plansTitle}</h2>
             <p className="text-navy-900/60 text-lg">{t.courses.plansSubtitle}</p>
           </div>
 
@@ -235,8 +239,8 @@ export function CoursesContent({ locale }: CoursesContentProps) {
 
       <Section variant="navy" className="relative">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-paper-100 mb-6">{t.courses.ctaTitle}</h2>
-          <p className="text-paper-100/80 text-xl mb-10 max-w-2xl mx-auto">{t.courses.ctaSubtitle}</p>
+          <h2 className="text-3xl md:text-4xl font-bold text-paper-100 mb-6 tracking-[-0.04em]">{t.courses.ctaTitle}</h2>
+          <p className="text-paper-100/80 text-lg md:text-xl mb-10 max-w-2xl mx-auto leading-relaxed">{t.courses.ctaSubtitle}</p>
           <Button href={`/${locale}/contact`} size="lg" className="text-lg px-10 py-4">
             {t.courses.ctaButton}
           </Button>

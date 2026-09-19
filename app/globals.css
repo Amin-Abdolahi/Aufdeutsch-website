@@ -21,4 +21,104 @@
 body {
   font-family: var(--font-sans), Arial, sans-serif;
   background-color: var(--color-paper-100);
+  color: var(--color-navy-900);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  text-wrap: balance;
+}
+
+p,
+li {
+  text-wrap: pretty;
+}
+
+.notebook-band {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  width: 6rem;
+  height: 16rem;
+  opacity: 0.7;
+  animation: notebook-band-drift 6s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+.notebook-band-red {
+  background: color-mix(in srgb, var(--color-red-600) 35%, transparent);
+}
+
+.notebook-band-gold {
+  background: color-mix(in srgb, var(--color-gold-500) 35%, transparent);
+  animation-delay: -4s;
+}
+
+.notebook-band-about-red { top: -4rem; right: 12%; transform: rotate(-16deg); }
+.notebook-band-about-gold { bottom: -5rem; left: 10%; transform: rotate(18deg); height: 20rem; }
+.notebook-band-courses-red { bottom: -5rem; left: 16%; transform: rotate(22deg); height: 20rem; }
+.notebook-band-courses-gold { top: -5rem; right: 10%; transform: rotate(-20deg); }
+.notebook-band-pricing-red { top: -6rem; left: 42%; transform: rotate(8deg); height: 18rem; }
+.notebook-band-pricing-gold { bottom: -6rem; right: 8%; transform: rotate(-26deg); height: 22rem; }
+.notebook-band-contact-red { bottom: -5rem; right: 14%; transform: rotate(-18deg); height: 20rem; }
+.notebook-band-contact-gold { top: -5rem; left: 9%; transform: rotate(20deg); }
+.notebook-band-tools-red { top: -6rem; left: 12%; transform: rotate(12deg); height: 18rem; }
+.notebook-band-tools-gold { bottom: -6rem; right: 14%; transform: rotate(-18deg); height: 20rem; }
+.notebook-band-home-red { top: -4rem; left: 8%; transform: rotate(12deg); }
+.notebook-band-home-gold { bottom: -5rem; right: 12%; transform: rotate(-12deg); height: 20rem; }
+
+@keyframes notebook-band-drift {
+  from { translate: 0 -8px; opacity: 0.48; }
+  to { translate: 0 18px; opacity: 0.78; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notebook-band {
+    animation: none;
+  }
+}
+
+.passport-stamp > .stamp-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-30deg);
+}
+
+.passport-stamp .circle-outer {
+  stroke-width: 1;
+}
+
+.passport-stamp .circle-inner {
+  stroke-width: 2;
+}
+
+.passport-stamp .text-curve {
+  font-size: 12px;
+  letter-spacing: 2px;
+}
+
+.passport-stamp .mark {
+  font-size: 38px;
+  font-weight: 700;
+}
+
+.passport-stamp .est {
+  font-size: 10px;
+}
+
+.passport-stamp .visa-curve {
+  fill: #B23A2E;
+  font-size: 9px;
+  letter-spacing: 1px;
+}
+
+.passport-stamp .date-red {
+  fill: #B23A2E;
+  font-size: 10px;
 }
