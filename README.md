@@ -7,6 +7,7 @@
 ## 🌐 Website
 
 **Live:** https://aufdeutsch.ir
+**website** https://aufdeutsch-website.vercel.app/fa
 
 ## ✨ Highlights
 
