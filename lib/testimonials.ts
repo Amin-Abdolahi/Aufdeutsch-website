@@ -28,8 +28,14 @@ async function readTestimonials(): Promise<TestimonialsFile> {
   }
 }
 
-async function writeTestimonials(data: TestimonialsFile): Promise<void> {
-  await fs.writeFile(DATA_PATH, JSON.stringify(data, null, 2), "utf-8");
+async function writeTestimonials(data: TestimonialsFile): Promise<boolean> {
+  try {
+    await fs.writeFile(DATA_PATH, JSON.stringify(data, null, 2), "utf-8");
+    return true;
+  } catch (writeError) {
+    console.error("Failed to write testimonials file (likely read-only filesystem on Vercel):", writeError);
+    return false;
+  }
 }
 
 export async function getApprovedTestimonials(locale: "fa" | "de" | "en"): Promise<Testimonial[]> {
@@ -58,7 +64,11 @@ export async function addTestimonial(
   };
   
   testimonials.unshift(newTestimonial);
-  await writeTestimonials({ testimonials });
+  const saved = await writeTestimonials({ testimonials });
+  
+  if (!saved) {
+    throw new Error("Filesystem write failed — likely running on a read-only environment (e.g. Vercel). Consider using a database or KV store.");
+  }
   
   return newTestimonial;
 }
@@ -69,8 +79,8 @@ export async function approveTestimonial(id: string): Promise<boolean> {
   if (idx === -1) return false;
   
   testimonials[idx].approved = true;
-  await writeTestimonials({ testimonials });
-  return true;
+  const saved = await writeTestimonials({ testimonials });
+  return saved;
 }
 
 export async function rejectTestimonial(id: string): Promise<boolean> {
@@ -78,6 +88,6 @@ export async function rejectTestimonial(id: string): Promise<boolean> {
   const filtered = testimonials.filter((t) => t.id !== id);
   if (filtered.length === testimonials.length) return false;
   
-  await writeTestimonials({ testimonials: filtered });
-  return true;
+  const saved = await writeTestimonials({ testimonials: filtered });
+  return saved;
 }

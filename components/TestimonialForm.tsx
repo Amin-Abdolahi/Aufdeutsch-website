@@ -47,14 +47,16 @@ export function TestimonialForm({ locale }: TestimonialFormProps) {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to submit");
+        throw new Error(data.error || data.message || "Failed to submit");
       }
 
       setIsSuccess(true);
       setFormState({ authorName: "", course: "", text: "", rating: 5 });
       setTimeout(() => setIsSuccess(false), 3000);
     } catch (err) {
-      setErrorMessage(err instanceof Error ? err.message : t.contact.testimonialErrorDesc);
+      // Show server error message if available, otherwise use the translated fallback
+      const serverMsg = err instanceof Error ? err.message : "";
+      setErrorMessage(serverMsg && serverMsg !== "Failed to submit" ? serverMsg : t.contact.testimonialErrorDesc);
     } finally {
       setIsSubmitting(false);
     }
