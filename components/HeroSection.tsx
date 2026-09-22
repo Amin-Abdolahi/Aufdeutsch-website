@@ -6,6 +6,7 @@ import { type Locale } from "@/lib/i18n";
 import { Button } from "@/components/ui/Button";
 import { MouseTrackingCharacter } from "@/components/MouseTrackingCharacter";
 import { CharacterWithBubble } from "@/components/CharacterWithBubble";
+import { AnimatedEntrance } from "@/components/AnimatedEntrance";
 
 interface HeroSectionProps {
   locale: Locale;
@@ -45,7 +46,6 @@ function useTypewriter(text: string, speed = 55, startDelay = 500) {
 
 export function HeroSection({ locale }: HeroSectionProps) {
   const { t } = useLocale();
-  const [showButtons, setShowButtons] = useState(false);
 
   // تیتر کامل بر اساس زبان
   const fullTitle =
@@ -64,12 +64,6 @@ export function HeroSection({ locale }: HeroSectionProps) {
       : "German School AUF Deutsch";
 
   const { displayed, done } = useTypewriter(fullTitle, 55, 500);
-
-  // دکمه‌ها ۴۰۰ms بعد از لود ظاهر می‌شن
-  useEffect(() => {
-    const timer = setTimeout(() => setShowButtons(true), 400);
-    return () => clearTimeout(timer);
-  }, []);
 
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden bg-navy-900">
@@ -91,97 +85,97 @@ export function HeroSection({ locale }: HeroSectionProps) {
 
       <div className="max-w-6xl mx-auto px-5 sm:px-8 md:px-10 relative z-10 w-full">
         <div className="flex flex-col lg:flex-row items-center gap-16">
-          {/* ============ سمت راست: متن ============ */}
-          <div className="lg:w-1/2 max-w-[36rem]">
-            {/* ۱. برچسب blur */}
-            <p
-              className="pointer-events-none select-none mb-5 sm:mb-6 text-paper-100"
-              style={{
-                fontSize: "clamp(18px, 4vw, 26px)",
-                lineHeight: 1.3,
-                fontWeight: 400,
-                filter: "blur(2px)",
-                opacity: 0.7,
-              }}
-            >
-              {badge}
-            </p>
+{/* ============ سمت راست: متن ============ */}
+<div className="lg:w-1/2 max-w-[36rem]">
+  {/* ۱. برچسب blur */}
+  <AnimatedEntrance delay={0} direction="left" duration={600}>
+    <p
+      className="pointer-events-none select-none mb-5 sm:mb-6 text-paper-100"
+      style={{
+        fontSize: "clamp(18px, 4vw, 26px)",
+        lineHeight: 1.3,
+        fontWeight: 400,
+        filter: "blur(2px)",
+        opacity: 0.7,
+      }}
+    >
+      {badge}
+    </p>
+  </AnimatedEntrance>
 
-            {/* ۲. تیتر Typewriter */}
-            <h1
-              className="font-bold text-paper-100 leading-[1.1] tracking-[-0.04em] mb-8"
-              style={{
-                fontSize: "clamp(2rem, 6vw, 4.5rem)",
-                minHeight: "1.2em",
-              }}
-            >
-              {displayed}
-              {!done && (
-                <span
-                  className="inline-block w-[3px] h-[1em] bg-gold-400 align-middle ml-1"
-                  style={{
-                    animation: "blink 1s step-end infinite",
-                  }}
-                />
-              )}
-            </h1>
+  {/* ۲. تیتر Typewriter */}
+  <AnimatedEntrance delay={150} direction="left" duration={600}>
+    <h1
+      className="font-bold text-paper-100 leading-[1.1] tracking-[-0.04em] mb-8"
+      style={{
+        fontSize: "clamp(2rem, 6vw, 4.5rem)",
+        minHeight: "1.2em",
+      }}
+    >
+      {displayed}
+      {!done && (
+        <span
+          className="inline-block w-[3px] h-[1em] bg-gold-400 align-middle ml-1"
+          style={{ animation: "blink 1s step-end infinite" }}
+        />
+      )}
+    </h1>
+  </AnimatedEntrance>
 
-            {/* ۳. خط SVG زیر تیتر */}
-            <svg
-              width="100%"
-              height="12"
-              viewBox="0 0 300 12"
-              preserveAspectRatio="none"
-              className="mb-8 -mt-4"
-              aria-hidden="true"
-            >
-              <path
-                d="M0,8 Q75,2 150,7 T300,5"
-                stroke="#D4AF37"
-                strokeWidth="3"
-                fill="none"
-                strokeLinecap="round"
-                style={{
-                  strokeDasharray: 400,
-                  strokeDashoffset: done ? 0 : 400,
-                  transition: "stroke-dashoffset 1.2s ease-out 0.3s",
-                }}
-              />
-            </svg>
+  {/* ۳. خط SVG زیر تیتر */}
+  <AnimatedEntrance delay={300} direction="left" duration={600}>
+    <svg
+      width="100%"
+      height="12"
+      viewBox="0 0 300 12"
+      preserveAspectRatio="none"
+      className="mb-8 -mt-4"
+      aria-hidden="true"
+    >
+      <path
+        d="M0,8 Q75,2 150,7 T300,5"
+        stroke="#D4AF37"
+        strokeWidth="3"
+        fill="none"
+        strokeLinecap="round"
+        style={{
+          strokeDasharray: 400,
+          strokeDashoffset: done ? 0 : 400,
+          transition: "stroke-dashoffset 1.2s ease-out 0.3s",
+        }}
+      />
+    </svg>
+  </AnimatedEntrance>
 
-            {/* ۴. توضیح */}
-            <p className="text-paper-100/80 text-lg md:text-xl mb-10 leading-relaxed max-w-[32rem] border-t border-gold-400/40 pt-5">
-              {t.home.heroSubtitle}
-            </p>
+  {/* ۴. توضیح */}
+  <AnimatedEntrance delay={400} direction="left" duration={600}>
+    <p className="text-paper-100/80 text-lg md:text-xl mb-10 leading-relaxed max-w-[32rem] border-t border-gold-400/40 pt-5">
+      {t.home.heroSubtitle}
+    </p>
+  </AnimatedEntrance>
 
-            {/* ۵. دکمه‌ها */}
-            <div
-              className="flex flex-col sm:flex-row gap-4"
-              style={{
-                opacity: showButtons ? 1 : 0,
-                transform: showButtons ? "translateY(0)" : "translateY(8px)",
-                transition: "opacity 0.4s ease, transform 0.4s ease",
-              }}
-            >
-              <Button
-                href={`/${locale}/contact`}
-                size="lg"
-                className="font-mono tracking-[0.08em]"
-              >
-                {t.home.heroCta}
-              </Button>
-              <Button
-                href={`/${locale}/courses`}
-                variant="outline"
-                size="lg"
-                className="tracking-[0.08em]"
-              >
-                {t.home.heroViewCourses}
-              </Button>
-            </div>
-          </div>
+  {/* ۵. دکمه‌ها */}
+  <AnimatedEntrance delay={500} direction="left" duration={600}>
+    <div className="flex flex-col sm:flex-row gap-4">
+      <Button
+        href={`/${locale}/contact`}
+        size="lg"
+        className="font-mono tracking-[0.08em]"
+      >
+        {t.home.heroCta}
+      </Button>
+      <Button
+        href={`/${locale}/courses`}
+        variant="outline"
+        size="lg"
+        className="tracking-[0.08em]"
+      >
+        {t.home.heroViewCourses}
+      </Button>
+    </div>
+  </AnimatedEntrance>
+</div>
 
-         {/* ============ سمت کاراکترها (دو مدرس) ============ */}
 {/* ============ سمت کاراکترها (دو مدرس) ============ */}
 <div className="lg:w-1/2 flex justify-center items-end relative order-1 lg:order-2 min-h-[400px]">
   {/* هاله‌ی طلایی پشت */}
@@ -195,41 +189,45 @@ export function HeroSection({ locale }: HeroSectionProps) {
 
   {/* دو کاراکتر کنار هم */}
   <div className="flex items-end justify-center -space-x-8 sm:-space-x-12 lg:-space-x-16">
-    {/* مرد */}
-    <CharacterWithBubble
-      person="man"
-      size={280}
-      defaultMessage="Guten Tag!"
-      messages={{
-        center: "Guten Tag!",
-        top: "Willkommen!",
-        "top-right": "Wie geht's?",
-        right: "Los geht's!",
-        "bottom-right": "Bereit?",
-        bottom: "Alles klar?",
-        "bottom-left": "Fragen?",
-        left: "Interessant!",
-        "top-left": "Schön!",
-      }}
-    />
+    {/* مرد — از راست با تاخیر ۱۰۰ms */}
+    <AnimatedEntrance delay={100} direction="right" duration={1500}>
+      <CharacterWithBubble
+        person="man"
+        size={280}
+        defaultMessage="Guten Tag!"
+        messages={{
+          center: "Guten Tag!",
+          top: "Willkommen!",
+          "top-right": "Wie geht's?",
+          right: "Los geht's!",
+          "bottom-right": "Bereit?",
+          bottom: "Alles klar?",
+          "bottom-left": "Fragen?",
+          left: "Interessant!",
+          "top-left": "Schön!",
+        }}
+      />
+    </AnimatedEntrance>
 
-    {/* زن */}
-    <CharacterWithBubble
-      person="woman"
-      size={280}
-      defaultMessage="Hallo!"
-      messages={{
-        center: "Hallo!",
-        top: "Herzlich willkommen!",
-        "top-right": "Alles gut?",
-        right: "Na, bereit?",
-        "bottom-right": "Fragen?",
-        bottom: "Verstanden?",
-        "bottom-left": "Interessant!",
-        left: "Schön dich zu sehen!",
-        "top-left": "Super!",
-      }}
-    />
+    {/* زن — از چپ با تاخیر ۳۰۰ms */}
+    <AnimatedEntrance delay={300} direction="left" duration={1500}>
+      <CharacterWithBubble
+        person="woman"
+        size={280}
+        defaultMessage="Hallo!"
+        messages={{
+          center: "Hallo!",
+          top: "Herzlich willkommen!",
+          "top-right": "Alles gut?",
+          right: "Na, bereit?",
+          "bottom-right": "Fragen?",
+          bottom: "Verstanden?",
+          "bottom-left": "Interessant!",
+          left: "Schön dich zu sehen!",
+          "top-left": "Super!",
+        }}
+      />
+    </AnimatedEntrance>
   </div>
 </div>
         </div>
