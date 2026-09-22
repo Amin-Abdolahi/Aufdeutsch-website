@@ -11,7 +11,7 @@ interface HeroSectionProps {
 }
 
 // ---------- هوک Typewriter ----------
-function useTypewriter(text: string, speed = 38, startDelay = 600) {
+function useTypewriter(text: string, speed = 55, startDelay = 500) {
   const [displayed, setDisplayed] = useState("");
   const [done, setDone] = useState(false);
 
@@ -62,7 +62,7 @@ export function HeroSection({ locale }: HeroSectionProps) {
       ? "Deutschschule AUF Deutsch"
       : "German School AUF Deutsch";
 
-  const { displayed, done } = useTypewriter(fullTitle, 55, 800);
+  const { displayed, done } = useTypewriter(fullTitle, 55, 500);
 
   // دکمه‌ها ۴۰۰ms بعد از لود ظاهر می‌شن
   useEffect(() => {
@@ -73,7 +73,7 @@ export function HeroSection({ locale }: HeroSectionProps) {
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden bg-navy-900">
       {/* پس‌زمینه‌ی نقطه‌چین */}
-      <div className="absolute inset-0 opacity-5">
+      <div className="absolute inset-0 opacity-10">
         <div
           className="absolute inset-0"
           style={{
@@ -86,7 +86,7 @@ export function HeroSection({ locale }: HeroSectionProps) {
 
       {/* نوارهای تزئینی */}
       <div className="absolute top-0 left-0 w-32 h-full bg-red-600/10 -skew-x-12 origin-top-left" />
-      <div className="absolute bottom-0 right-0 w-40 h-full bg-gold-500/10 skew-x-12 origin-bottom-right" />
+      <div className="absolute bottom-0 right-0 w-40 h-60 bg-gold-500/10 skew-x-12 origin-bottom-right" />
 
       <div className="max-w-6xl mx-auto px-5 sm:px-8 md:px-10 relative z-10 w-full">
         <div className="flex flex-col lg:flex-row items-center gap-16">
@@ -99,7 +99,7 @@ export function HeroSection({ locale }: HeroSectionProps) {
                 fontSize: "clamp(18px, 4vw, 26px)",
                 lineHeight: 1.3,
                 fontWeight: 400,
-                filter: "blur(4px)",
+                filter: "blur(2px)",
                 opacity: 0.7,
               }}
             >
@@ -207,133 +207,5 @@ export function HeroSection({ locale }: HeroSectionProps) {
         </div>
       </div>
     </section>
-  );
-}
-
-// ---------- کارت پستال ----------
-function PostcardCard({ locale }: { locale: Locale }) {
-  return (
-    <div className="relative group">
-      {/* نوار چسب گوشه */}
-      <div className="absolute -top-3 -left-3 w-20 h-6 bg-yellow-100/60 rotate-[-15deg] z-20 shadow-sm" />
-      <div className="absolute -top-3 -right-3 w-16 h-6 bg-blue-100/60 rotate-[12deg] z-20 shadow-sm" />
-
-      {/* کارت پستال اصلی */}
-      <div
-        className="relative w-[320px] sm:w-[380px] aspect-[3/4] p-6 sm:p-8"
-        style={{
-          background: "linear-gradient(180deg, #fefcf6 0%, #faf5e8 100%)",
-          clipPath:
-            "polygon(0 0, 100% 0, 100% calc(100% - 8px), 97% 100%, 94% calc(100% - 5px), 90% 100%, 86% calc(100% - 7px), 82% 100%, 78% calc(100% - 4px), 74% 100%, 70% calc(100% - 6px), 66% 100%, 62% calc(100% - 3px), 58% 100%, 54% calc(100% - 6px), 50% 100%, 46% calc(100% - 4px), 42% 100%, 38% calc(100% - 7px), 34% 100%, 30% calc(100% - 5px), 26% 100%, 22% calc(100% - 6px), 18% 100%, 14% calc(100% - 3px), 10% 100%, 6% calc(100% - 5px), 3% 100%, 0 calc(100% - 7px))",
-          filter:
-            "drop-shadow(0 20px 30px rgba(0,0,0,0.35)) drop-shadow(0 4px 8px rgba(0,0,0,0.15))",
-        }}
-      >
-        <div className="flex flex-col h-full">
-          {/* تمبر */}
-          <div className="flex justify-end mb-4">
-            <div
-              className="w-16 h-20 border-2 border-dashed border-navy-900/30 flex items-center justify-center relative"
-              style={{
-                background: "linear-gradient(135deg, #fefcf6, #f5efe0)",
-              }}
-            >
-              <svg viewBox="0 0 40 50" className="w-10 h-12">
-                {/* Brandenburg Gate ساده */}
-                <rect x="4" y="20" width="32" height="20" fill="#1B2A44" />
-                <rect x="6" y="22" width="4" height="18" fill="#fefcf6" />
-                <rect x="12" y="22" width="4" height="18" fill="#fefcf6" />
-                <rect x="18" y="22" width="4" height="18" fill="#fefcf6" />
-                <rect x="24" y="22" width="4" height="18" fill="#fefcf6" />
-                <rect x="30" y="22" width="4" height="18" fill="#fefcf6" />
-                {/* سقف */}
-                <polygon points="4,20 20,12 36,20" fill="#8B1A1A" />
-                {/* ستاره */}
-                <circle cx="20" cy="8" r="2" fill="#D4AF37" />
-              </svg>
-            </div>
-          </div>
-
-          {/* خط جداکننده */}
-          <div className="border-t-2 border-dashed border-navy-900/20 mb-4" />
-
-          {/* متن دست‌نویس */}
-          <div className="flex-1 flex flex-col justify-center items-center text-center">
-            <p
-              className="text-navy-900 mb-3"
-              style={{
-                fontFamily: "'Caveat', cursive",
-                fontSize: "2rem",
-                fontWeight: 700,
-                lineHeight: 1.2,
-              }}
-            >
-              {locale === "fa" ? "سلام!" : locale === "de" ? "Hallo!" : "Hello!"}
-            </p>
-            <p
-              className="text-navy-900/80 mb-4"
-              style={{
-                fontFamily: "'Caveat', cursive",
-                fontSize: "1.4rem",
-                lineHeight: 1.3,
-              }}
-            >
-              {locale === "fa"
-                ? "به آلمان خوش آمدید"
-                : locale === "de"
-                ? "Willkommen in Deutschland"
-                : "Welcome to Germany"}
-            </p>
-
-            {/* خط تزئینی */}
-            <svg width="80" height="8" viewBox="0 0 80 8" className="my-2">
-              <path
-                d="M0,4 Q20,1 40,4 T80,4"
-                stroke="#D4AF37"
-                strokeWidth="2"
-                fill="none"
-                strokeLinecap="round"
-              />
-            </svg>
-
-            <p
-              className="text-navy-900/60 text-xs tracking-widest mt-2"
-              style={{ fontFamily: "ui-monospace, monospace" }}
-            >
-              AUF DEUTSCH
-            </p>
-          </div>
-
-          {/* خطوط پایین (شبیه کارت پستال) */}
-          <div className="space-y-1.5 mt-4">
-            <div className="border-b border-navy-900/20 h-2" />
-            <div className="border-b border-navy-900/20 h-2" />
-            <div className="border-b border-navy-900/20 h-2 w-3/4" />
-          </div>
-        </div>
-      </div>
-
-      {/* مهر پاسپورت کوچیک گوشه */}
-      <div
-        className="absolute -bottom-4 -right-4 opacity-70 z-20 pointer-events-none"
-        style={{
-          color: "#8B1A1A",
-          transform: "rotate(-12deg)",
-        }}
-      >
-        <div
-          className="w-20 h-20 rounded-full border-2 flex items-center justify-center text-center"
-          style={{ borderColor: "#8B1A1A" }}
-        >
-          <div className="text-[8px] font-bold leading-tight" style={{ color: "#8B1A1A" }}>
-            AUF
-            <br />
-            DEUTSCH
-            <br />
-            ★★★
-          </div>
-        </div>
-      </div>
-    </div>
   );
 }

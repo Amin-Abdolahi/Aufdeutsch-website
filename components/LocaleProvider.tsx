@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { usePathname, useRouter } from "next/navigation";   // ← اضافه کن
 import {
   type Locale,
   type Dictionary,
@@ -25,6 +26,8 @@ interface LocaleProviderProps {
 export function LocaleProvider({ children, initialLocale }: LocaleProviderProps) {
   const [locale, setLocaleState] = useState<Locale>(initialLocale);
   const [mounted, setMounted] = useState(false);
+  const pathname = usePathname();    // ← اضافه کن
+  const router = useRouter();        // ← اضافه کن
 
   useEffect(() => {
     const saved = localStorage.getItem("locale");
@@ -48,6 +51,16 @@ export function LocaleProvider({ children, initialLocale }: LocaleProviderProps)
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ locale: newLocale }),
     }).catch(() => {});
+
+    // ✅ URL رو هم عوض کن
+    if (pathname) {
+      const segments = pathname.split("/");
+      // segments[0] = "" (چون pathname با / شروع می‌شه)
+      // segments[1] = locale فعلی (fa, de, en)
+      segments[1] = newLocale;
+      const newPath = segments.join("/") || "/";
+      router.push(newPath);
+    }
   };
 
   const value: LocaleContextType = {
@@ -58,7 +71,13 @@ export function LocaleProvider({ children, initialLocale }: LocaleProviderProps)
 
   if (!mounted) {
     return (
-      <LocaleContext.Provider value={{ locale: initialLocale, setLocale: () => {}, t: dictionaries[initialLocale] }}>
+      <LocaleContext.Provider
+        value={{
+          locale: initialLocale,
+          setLocale: () => {},
+          t: dictionaries[initialLocale],
+        }}
+      >
         {children}
       </LocaleContext.Provider>
     );

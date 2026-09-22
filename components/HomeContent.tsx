@@ -28,7 +28,7 @@ export function HomeContent({ locale }: HomeContentProps) {
   return (
     <div className="min-h-screen">
       {/* ============ HERO ============ */}
-      <HeroSection locale={locale} />
+      <HeroSection key={locale} locale={locale} />
 
       {/* ============ چرا AUF Deutsch ============ */}
       <Section className="relative">
