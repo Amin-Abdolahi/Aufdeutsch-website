@@ -19,12 +19,14 @@ interface MouseTrackingCharacterProps {
   person?: Person;
   size?: number;
   className?: string;
+  onDirectionChange?: (direction: Direction) => void;
 }
 
 export function MouseTrackingCharacter({
   person = "man",
   size = 420,
   className = "",
+  onDirectionChange,
 }: MouseTrackingCharacterProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [direction, setDirection] = useState<Direction>("center");
@@ -42,28 +44,23 @@ export function MouseTrackingCharacter({
       const distance = Math.sqrt(dx * dx + dy * dy);
       const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
 
-      // --- تشخیص جهت ---
-      if (distance < 80) {
-        setDirection("center");
-      } else if (angle >= -157.5 && angle < -112.5) {
-        setDirection("top-left");
-      } else if (angle >= -112.5 && angle < -67.5) {
-        setDirection("top");
-      } else if (angle >= -67.5 && angle < -22.5) {
-        setDirection("top-right");
-      } else if (angle >= -22.5 && angle < 22.5) {
-        setDirection("right");
-      } else if (angle >= 22.5 && angle < 67.5) {
-        setDirection("bottom-right");
-      } else if (angle >= 67.5 && angle < 112.5) {
-        setDirection("bottom");
-      } else if (angle >= 112.5 && angle < 157.5) {
-        setDirection("bottom-left");
-      } else {
-        setDirection("left");
+      // محاسبه‌ی جهت
+      let newDirection: Direction = "center";
+      if (distance >= 80) {
+        if (angle >= -157.5 && angle < -112.5) newDirection = "top-left";
+        else if (angle >= -112.5 && angle < -67.5) newDirection = "top";
+        else if (angle >= -67.5 && angle < -22.5) newDirection = "top-right";
+        else if (angle >= -22.5 && angle < 22.5) newDirection = "right";
+        else if (angle >= 22.5 && angle < 67.5) newDirection = "bottom-right";
+        else if (angle >= 67.5 && angle < 112.5) newDirection = "bottom";
+        else if (angle >= 112.5 && angle < 157.5) newDirection = "bottom-left";
+        else newDirection = "left";
       }
 
-      // --- offset برای tilt سه‌بعدی ---
+      setDirection(newDirection);
+      if (onDirectionChange) onDirectionChange(newDirection);
+
+      // offset
       const maxOffset = 6;
       const offsetX = (dx / window.innerWidth) * maxOffset * 2;
       const offsetY = (dy / window.innerHeight) * maxOffset;
@@ -76,7 +73,7 @@ export function MouseTrackingCharacter({
 
     window.addEventListener("mousemove", handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
+  }, [onDirectionChange]);
 
   const imageMap: Record<Direction, string> = {
     center: `/teacher/${person}/center.png`,
@@ -94,11 +91,7 @@ export function MouseTrackingCharacter({
     <div
       ref={containerRef}
       className={`relative select-none pointer-events-none ${className}`}
-      style={{
-        width: size,
-        height: size,
-        perspective: "1000px",
-      }}
+      style={{ width: size, height: size, perspective: "1000px" }}
       aria-hidden="true"
     >
       <div
@@ -114,9 +107,7 @@ export function MouseTrackingCharacter({
           src={imageMap[direction]}
           alt={`AUF Deutsch ${person === "man" ? "Lehrer" : "Lehrerin"}`}
           className="w-full h-full object-contain transition-opacity duration-200"
-          style={{
-            filter: "drop-shadow(0 20px 30px rgba(0,0,0,0.3))",
-          }}
+          style={{ filter: "drop-shadow(0 20px 30px rgba(0,0,0,0.3))" }}
           draggable={false}
         />
       </div>

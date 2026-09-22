@@ -5,6 +5,7 @@ import { useLocale } from "@/components/LocaleProvider";
 import { type Locale } from "@/lib/i18n";
 import { Button } from "@/components/ui/Button";
 import { MouseTrackingCharacter } from "@/components/MouseTrackingCharacter";
+import { CharacterWithBubble } from "@/components/CharacterWithBubble";
 
 interface HeroSectionProps {
   locale: Locale;
@@ -181,6 +182,7 @@ export function HeroSection({ locale }: HeroSectionProps) {
           </div>
 
          {/* ============ سمت کاراکترها (دو مدرس) ============ */}
+{/* ============ سمت کاراکترها (دو مدرس) ============ */}
 <div className="lg:w-1/2 flex justify-center items-end relative order-1 lg:order-2 min-h-[400px]">
   {/* هاله‌ی طلایی پشت */}
   <div
@@ -193,15 +195,41 @@ export function HeroSection({ locale }: HeroSectionProps) {
 
   {/* دو کاراکتر کنار هم */}
   <div className="flex items-end justify-center -space-x-8 sm:-space-x-12 lg:-space-x-16">
-    {/* مرد (چپ) */}
-    <div className="relative" style={{ width: 280, height: 280 }}>
-      <MouseTrackingCharacter person="man" size={280} />
-    </div>
+    {/* مرد */}
+    <CharacterWithBubble
+      person="man"
+      size={280}
+      defaultMessage="Guten Tag!"
+      messages={{
+        center: "Guten Tag!",
+        top: "Willkommen!",
+        "top-right": "Wie geht's?",
+        right: "Los geht's!",
+        "bottom-right": "Bereit?",
+        bottom: "Alles klar?",
+        "bottom-left": "Fragen?",
+        left: "Interessant!",
+        "top-left": "Schön!",
+      }}
+    />
 
-    {/* زن (راست) */}
-    <div className="relative" style={{ width: 280, height: 280 }}>
-      <MouseTrackingCharacter person="woman" size={280} />
-    </div>
+    {/* زن */}
+    <CharacterWithBubble
+      person="woman"
+      size={280}
+      defaultMessage="Hallo!"
+      messages={{
+        center: "Hallo!",
+        top: "Herzlich willkommen!",
+        "top-right": "Alles gut?",
+        right: "Na, bereit?",
+        "bottom-right": "Fragen?",
+        bottom: "Verstanden?",
+        "bottom-left": "Interessant!",
+        left: "Schön dich zu sehen!",
+        "top-left": "Super!",
+      }}
+    />
   </div>
 </div>
         </div>
