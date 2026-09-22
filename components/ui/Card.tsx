@@ -20,15 +20,6 @@ export function Card({ children, className = "", rotate = "none" }: CardProps) {
   );
 }
 
-interface CardHeaderProps {
-  children: React.ReactNode;
-  className?: string;
-}
-
-export function CardHeader({ children, className = "" }: CardHeaderProps) {
-  return <div className={`mb-6 ${className}`}>{children}</div>;
-}
-
 interface CardTitleProps {
   children: React.ReactNode;
   className?: string;

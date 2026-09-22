@@ -128,7 +128,7 @@ export function HomeContent({ locale }: HomeContentProps) {
         </div>
       </Section>
 
-      <Section className="relative overflow-hidden">
+            <Section className="relative overflow-hidden">
         <div className="absolute inset-0 opacity-5">
           <div
             className="absolute inset-0"
@@ -140,15 +140,42 @@ export function HomeContent({ locale }: HomeContentProps) {
           />
         </div>
 
-        <div className="max-w-3xl mx-auto relative z-10">
-          <div className="bg-paper-100 p-10 md:p-14 shadow-2xl relative -rotate-1">
-            <div className="absolute -top-3 left-10 w-14 h-6 bg-gold-500/30 rotate-[-4deg]" />
-            <div className="absolute -top-3 right-10 w-14 h-6 bg-gold-500/30 rotate-3" />
-            <div className="absolute -bottom-3 left-12 w-10 h-4 bg-red-600/20 rotate-12" />
-            <div className="absolute -bottom-3 right-12 w-10 h-4 bg-red-600/20 -rotate-12" />
+        <div className="max-w-5xl mx-auto relative z-10">
+          {/* تیتر مستقل، بیرون از تخته */}
+          <div className="text-center mb-10">
+            <h2 className="text-3xl md:text-4xl font-bold text-navy-900 tracking-[-0.04em] inline-block relative">
+              {t.home.testimonialsTitle}
+              <span className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-24 h-1 bg-gold-500/70 rounded-full" />
+            </h2>
+          </div>
+
+          {/* تخته اصلی */}
+          <div
+            className="relative rounded-lg shadow-2xl p-6 md:p-10 border-[6px] md:border-8"
+            style={{
+              background:
+                "linear-gradient(135deg, #3a4a5a 0%, #2b3a4a 55%, #1f2b38 100%)",
+              borderColor: "#141c26",
+              boxShadow:
+                "0 25px 50px -12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)",
+            }}
+          >
+            {/* بافت چوب */}
+            <div
+              className="absolute inset-0 rounded opacity-[0.06] pointer-events-none"
+              style={{
+                backgroundImage:
+                  "repeating-linear-gradient(90deg, transparent, transparent 38px, #000 38px, #000 39px)",
+              }}
+            />
+
+            {/* میخ‌های تزئینی گوشه تخته */}
+            <div className="absolute top-3 left-3 w-2 h-2 rounded-full bg-gold-500/40 shadow-inner" />
+            <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-gold-500/40 shadow-inner" />
+            <div className="absolute bottom-3 left-3 w-2 h-2 rounded-full bg-gold-500/40 shadow-inner" />
+            <div className="absolute bottom-3 right-3 w-2 h-2 rounded-full bg-gold-500/40 shadow-inner" />
 
             <div className="relative z-10">
-              <h3 className="text-2xl md:text-3xl font-bold text-navy-900 mb-6 tracking-[-0.04em]">{t.home.testimonialsTitle}</h3>
               <Testimonials locale={locale} />
             </div>
           </div>
