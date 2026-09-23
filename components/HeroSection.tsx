@@ -12,7 +12,9 @@ interface HeroSectionProps {
   locale: Locale;
 }
 
-// ---------- هوک Typewriter ----------
+// ---------- Typewriter Hook ----------
+// Reveals text character by character after a delay.
+// Returns the partial text and whether typing is complete.
 function useTypewriter(text: string, speed = 55, startDelay = 500) {
   const [displayed, setDisplayed] = useState("");
   const [done, setDone] = useState(false);
@@ -46,22 +48,29 @@ function useTypewriter(text: string, speed = 55, startDelay = 500) {
 
 export function HeroSection({ locale }: HeroSectionProps) {
   const { t } = useLocale();
+
+  // Respect user's reduced-motion preference
   const [reducedMotion, setReducedMotion] = useState(false);
-const [charSize, setCharSize] = useState(
-  typeof window !== "undefined"
-    ? window.innerWidth < 480
-      ? 140
-      : window.innerWidth < 768
-      ? 180
-      : window.innerWidth < 1024
-      ? 240
+
+  // Responsive character size (SSR-safe initial value)
+  const [charSize, setCharSize] = useState(
+    typeof window !== "undefined"
+      ? window.innerWidth < 480
+        ? 140
+        : window.innerWidth < 768
+        ? 180
+        : window.innerWidth < 1024
+        ? 240
+        : 280
       : 280
-    : 280
-);
+  );
+
+  // Detect mobile viewport (SSR-safe initial value)
   const [isMobile, setIsMobile] = useState(
-  typeof window !== "undefined" ? window.innerWidth < 768 : false
-);
-  // چک کن کاربر reduced motion می‌خواد یا نه
+    typeof window !== "undefined" ? window.innerWidth < 768 : false
+  );
+
+  // Check if user prefers reduced motion
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     setReducedMotion(mediaQuery.matches);
@@ -74,7 +83,7 @@ const [charSize, setCharSize] = useState(
     return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
 
-  // 🎯 سایز ریسپانسیو کاراکتر + تشخیص موبایل
+  // 🎯 Responsive character size + mobile detection
   useEffect(() => {
     const updateSize = () => {
       const w = window.innerWidth;
@@ -89,7 +98,7 @@ const [charSize, setCharSize] = useState(
     return () => window.removeEventListener("resize", updateSize);
   }, []);
 
-  // 🎯 تیتر پایه
+  // 🎯 Base title (without the emphasis word)
   const baseTitle =
     locale === "fa"
       ? "آلمانی را یاد بگیر"
@@ -97,9 +106,11 @@ const [charSize, setCharSize] = useState(
       ? "Deutsch lernen"
       : "Learn German";
 
+  // 🎯 Emphasis word that gets added after typing completes
   const emphasisWord =
     locale === "fa" ? "درست" : locale === "de" ? "richtig" : "the right way";
 
+  // Top blurred badge label
   const badge =
     locale === "fa"
       ? "مدرسه زبان آلمانی AUF Deutsch"
@@ -113,7 +124,7 @@ const [charSize, setCharSize] = useState(
 
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden bg-navy-900">
-      {/* پس‌زمینه‌ی نقطه‌چین */}
+      {/* Dotted background pattern */}
       <div className="absolute inset-0 opacity-10">
         <div
           className="absolute inset-0"
@@ -125,15 +136,18 @@ const [charSize, setCharSize] = useState(
         />
       </div>
 
+      {/* Floating golden particles */}
       <GoldenParticles count={30} />
 
+      {/* Decorative slanted bands */}
       <div className="absolute top-0 left-0 w-32 h-full bg-red-600/10 -skew-x-12 origin-top-left" />
       <div className="absolute bottom-0 right-0 w-40 h-60 bg-gold-500/10 skew-x-12 origin-bottom-right" />
 
       <div className="max-w-6xl mx-auto px-5 sm:px-8 md:px-10 relative z-10 w-full">
         <div className="flex flex-col lg:flex-row items-center gap-8 sm:gap-12 lg:gap-16">
-          {/* ============ سمت متن ============ */}
+          {/* ============ Text side ============ */}
           <div className="lg:w-1/2 max-w-[36rem] order-2 lg:order-1">
+            {/* 1. Blurred intro badge */}
             <AnimatedEntrance delay={0} direction="left" duration={600}>
               <p
                 className="pointer-events-none select-none mb-5 sm:mb-6 text-paper-100"
@@ -149,19 +163,21 @@ const [charSize, setCharSize] = useState(
               </p>
             </AnimatedEntrance>
 
+            {/* 2. Main heading with typewriter + emphasis word */}
             <AnimatedEntrance delay={150} direction="left" duration={600}>
               <div
-                className="relative mb-8"
+                className="relative mb-9"
                 style={{
                   minHeight: isMobile ? "5rem" : "7rem",
-                  paddingTop: isMobile ? "3rem" : "5rem",   // ← فضا برای "درست"
+                  paddingTop: isMobile ? "3rem" : "6rem", // space for emphasis word
                 }}
               >
                 <h1
                   className="font-bold text-paper-100 leading-[1.1] tracking-[-0.04em] relative inline-block"
-                  style={{ fontSize: "clamp(1.75rem, 5vw, 4rem)" }}
+                  style={{ fontSize: "clamp(1.75rem, 5vw, 4.2rem)" }}
                 >
                   {displayed}
+                  {/* Blinking cursor while typing */}
                   {!isDone && (
                     <span
                       className="inline-block w-[3px] h-[1em] bg-gold-400 align-middle ml-1"
@@ -170,12 +186,13 @@ const [charSize, setCharSize] = useState(
                   )}
                 </h1>
 
+                {/* Emphasis word ("درست") + curved connector lines */}
                 {isDone && (
                   <div
                     className="absolute pointer-events-none"
                     style={{
-                      top: isMobile ? "-3.7rem" : "-9rem",   // ← بالاتر از تیتر
-                      right:isMobile ? "3.5rem" : "30%",
+                      top: isMobile ? "-3.7rem" : "-9rem",
+                      right: isMobile ? "3.5rem" : "30%",
                     }}
                   >
                     <div
@@ -186,12 +203,12 @@ const [charSize, setCharSize] = useState(
                           : "clamp(4rem, 12vw, 10rem)",
                         fontWeight: 800,
                         letterSpacing: "-0.02em",
-                            color: "#D4AF37",  
-
+                        color: "#D4AF37",
                       }}
                     >
                       {emphasisWord}
 
+                      {/* Curved connector lines pointing to "یاد" */}
                       <svg
                         width="180"
                         height="80"
@@ -204,6 +221,7 @@ const [charSize, setCharSize] = useState(
                         }}
                         aria-hidden="true"
                       >
+                        {/* Left curve */}
                         <path
                           d="M 6,60 Q 50,50 60,80"
                           stroke="#D4AF37"
@@ -216,6 +234,7 @@ const [charSize, setCharSize] = useState(
                             transition: "stroke-dashoffset 1.8s ease-out 0.4s",
                           }}
                         />
+                        {/* Right curve */}
                         <path
                           d="M 100,20 Q 50,50 60,90"
                           stroke="#D4AF37"
@@ -235,6 +254,7 @@ const [charSize, setCharSize] = useState(
               </div>
             </AnimatedEntrance>
 
+            {/* 3. Underline SVG below the title */}
             <AnimatedEntrance delay={300} direction="left" duration={600}>
               <svg
                 width="100%"
@@ -259,12 +279,14 @@ const [charSize, setCharSize] = useState(
               </svg>
             </AnimatedEntrance>
 
+            {/* 4. Subtitle */}
             <AnimatedEntrance delay={400} direction="left" duration={600}>
               <p className="text-paper-100/80 text-base sm:text-lg md:text-xl mb-8 sm:mb-10 leading-relaxed max-w-[32rem] border-t border-gold-400/40 pt-5">
                 {t.home.heroSubtitle}
               </p>
             </AnimatedEntrance>
 
+            {/* 5. Call-to-action buttons */}
             <AnimatedEntrance delay={500} direction="left" duration={600}>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button
@@ -286,8 +308,9 @@ const [charSize, setCharSize] = useState(
             </AnimatedEntrance>
           </div>
 
-          {/* ============ سمت کاراکترها ============ */}
+          {/* ============ Characters side (two teachers) ============ */}
           <div className="lg:w-1/2 flex justify-center items-end relative order-1 lg:order-2 min-h-[300px] sm:min-h-[380px] lg:min-h-[450px]">
+            {/* Soft golden glow behind characters */}
             <div
               className="absolute inset-0 -z-10 opacity-40 blur-3xl pointer-events-none"
               style={{
@@ -296,7 +319,9 @@ const [charSize, setCharSize] = useState(
               }}
             />
 
+            {/* Two characters side by side */}
             <div className="flex items-end justify-center -space-x-6 sm:-space-x-10 md:-space-x-14 lg:-space-x-16">
+              {/* Man (Amin) */}
               <AnimatedEntrance delay={100} direction="right" duration={1500}>
                 <CharacterWithBubble
                   person="man"
@@ -317,6 +342,7 @@ const [charSize, setCharSize] = useState(
                 />
               </AnimatedEntrance>
 
+              {/* Woman (Fataneh) */}
               <AnimatedEntrance delay={300} direction="left" duration={1500}>
                 <CharacterWithBubble
                   person="woman"

@@ -19,9 +19,13 @@ export function SpeechBubble({
   maxWidth = 220,
   multiline = false,
 }: SpeechBubbleProps) {
+  // Controls the fade-in / slide-up animation
   const [show, setShow] = useState(false);
+
+  // Whether user prefers reduced motion
   const [reducedMotion, setReducedMotion] = useState(false);
 
+  // Respect the user's reduced-motion preference
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     setReducedMotion(mediaQuery.matches);
@@ -34,7 +38,7 @@ export function SpeechBubble({
     return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
 
-  
+  // Show the bubble after a delay (instant if reduced motion)
   useEffect(() => {
     if (reducedMotion) {
       setShow(true);
@@ -45,8 +49,7 @@ export function SpeechBubble({
     return () => clearTimeout(timer);
   }, [delay, reducedMotion]);
 
-
-  // موقعیت حباب
+  // Bubble position (relative to parent)
   const positionClasses = {
     top: "bottom-full left-1/2 -translate-x-1/2 mb-4",
     left: "right-full top-1/2 -translate-y-1/2 mr-4",
@@ -55,7 +58,7 @@ export function SpeechBubble({
     "top-right": "bottom-full left-0 mb-4",
   };
 
-  // موقعیت دُم (فلش کوچیک زیر حباب)
+  // Tail (small arrow) position for each bubble position
   const tailClasses = {
     top: "top-full left-1/2 -translate-x-1/2 -mt-1",
     left: "left-full top-1/2 -translate-y-1/2 -ml-1",
@@ -65,11 +68,11 @@ export function SpeechBubble({
   };
 
   return (
-    
     <div
       className={`absolute ${positionClasses[position]} z-30 pointer-events-none`}
       style={{
         opacity: show && visible ? 1 : 0,
+        // Subtle slide-up + scale entrance (skipped when reduced motion)
         transform: reducedMotion
           ? "translateX(-50%)"
           : `translateX(-50%) translateY(${show ? 0 : 8}px) scale(${
@@ -78,13 +81,14 @@ export function SpeechBubble({
         transition: reducedMotion
           ? "opacity 0.01ms"
           : "opacity 0.5s ease, transform 0.5s ease",
-          maxWidth: `min(${maxWidth}px, 60vw)`,
+        // Cap width so bubbles don't overflow on small screens
+        maxWidth: `min(${maxWidth}px, 60vw)`,
       }}
       aria-hidden="true"
     >
-      {/* حباب */}
+      {/* The bubble itself */}
       <div
-        className="relative px-5 py-3 rounded-2xl shadow-lg "
+        className="relative px-5 py-3 rounded-2xl shadow-lg"
         style={{
           minWidth: "80px",
           background: "linear-gradient(180deg, #fefcf6 0%, #faf5e8 100%)",
@@ -96,18 +100,19 @@ export function SpeechBubble({
         <p
           dir="ltr"
           className={`text-navy-900 font-bold text-xs sm:text-sm text-center ${
-            multiline ? "break-words whitespace-normal" : "whitespace-nowrap"   // ← اگه چند خطی، nowrap نباشه
-            }`}
+            // Allow wrapping only when multiline is enabled
+            multiline ? "break-words whitespace-normal" : "whitespace-nowrap"
+          }`}
           style={{
             fontFamily: "ui-monospace, 'Courier New', monospace",
             letterSpacing: "0.02em",
             fontSize: "clamp(10px, 2.5vw, 14px)",
           }}
->
-  {text}
-</p>
+        >
+          {text}
+        </p>
 
-        {/* دُم حباب */}
+        {/* Small tail (arrow) pointing to the character */}
         <div
           className={`absolute ${tailClasses[position]}`}
           style={{

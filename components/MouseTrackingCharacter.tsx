@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
+// All possible directions the character can look at
 type Direction =
   | "center"
   | "top"
@@ -31,11 +32,17 @@ export function MouseTrackingCharacter({
   onClick,
 }: MouseTrackingCharacterProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [direction, setDirection] = useState<Direction>("center");
-  const [offset, setOffset] = useState({ x: 0, y: 0 });
-  const [reducedMotion, setReducedMotion] = useState(false);   // ← ✅ این خط اضافه شد
 
-  // چک کن کاربر reduced motion می‌خواد یا نه
+  // Currently displayed direction image
+  const [direction, setDirection] = useState<Direction>("center");
+
+  // Slight 3D offset for a subtle tilt based on cursor position
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+
+  // Whether user prefers reduced motion
+  const [reducedMotion, setReducedMotion] = useState(false);
+
+  // Respect the user's reduced-motion preference
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     setReducedMotion(mediaQuery.matches);
@@ -48,8 +55,9 @@ export function MouseTrackingCharacter({
     return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
 
+  // Eye-tracking: update direction + tilt based on mouse position
   useEffect(() => {
-    // اگه reduced motion، eye-tracking رو غیرفعال کن
+    // Skip eye-tracking when reduced motion is enabled
     if (reducedMotion) return;
 
     const handleMouseMove = (e: MouseEvent) => {
@@ -58,12 +66,15 @@ export function MouseTrackingCharacter({
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
 
+      // Vector from character center to cursor
       const dx = e.clientX - centerX;
       const dy = e.clientY - centerY;
       const distance = Math.sqrt(dx * dx + dy * dy);
+
+      // Angle in degrees (-180 to 180)
       const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
 
-      // محاسبه‌ی جهت
+      // Map angle ranges to 9 discrete directions
       let newDirection: Direction = "center";
       if (distance >= 80) {
         if (angle >= -157.5 && angle < -112.5) newDirection = "top-left";
@@ -79,7 +90,7 @@ export function MouseTrackingCharacter({
       setDirection(newDirection);
       if (onDirectionChange) onDirectionChange(newDirection);
 
-      // offset
+      // Compute subtle 3D tilt offset (clamped)
       const maxOffset = 6;
       const offsetX = (dx / window.innerWidth) * maxOffset * 2;
       const offsetY = (dy / window.innerHeight) * maxOffset;
@@ -92,8 +103,9 @@ export function MouseTrackingCharacter({
 
     window.addEventListener("mousemove", handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [onDirectionChange, reducedMotion]);   // ← ✅ reducedMotion به وابستگی اضافه شد
+  }, [onDirectionChange, reducedMotion]);
 
+  // Map each direction to its corresponding image asset
   const imageMap: Record<Direction, string> = {
     center: `/teacher/${person}/center.png`,
     top: `/teacher/${person}/top.png`,
@@ -109,7 +121,7 @@ export function MouseTrackingCharacter({
   return (
     <div
       ref={containerRef}
-      className={`relative select-none cursor-pointer ${className}`} 
+      className={`relative select-none cursor-pointer ${className}`}
       onClick={onClick}
       style={{ width: size, height: size, perspective: "1000px" }}
       aria-hidden="true"
@@ -117,7 +129,7 @@ export function MouseTrackingCharacter({
       <div
         className="relative w-full h-full"
         style={{
-          // اگه reduced motion، بدون تیلت و ترنزیشن
+          // Disable 3D tilt when reduced motion is enabled
           transform: reducedMotion
             ? "none"
             : `translate3d(${offset.x}px, ${offset.y}px, 0) rotateY(${
@@ -128,6 +140,7 @@ export function MouseTrackingCharacter({
         }}
       >
         <img
+          // Force "center" image when reduced motion is enabled
           src={imageMap[reducedMotion ? "center" : direction]}
           alt={`AUF Deutsch ${person === "man" ? "Lehrer" : "Lehrerin"}`}
           className="w-full h-full object-contain"

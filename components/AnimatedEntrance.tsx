@@ -17,11 +17,14 @@ export function AnimatedEntrance({
   duration = 700,
   className = "",
 }: AnimatedEntranceProps) {
+  // Controls whether the entrance animation has started
   const [visible, setVisible] = useState(false);
+
+  // Whether user prefers reduced motion
   const [reducedMotion, setReducedMotion] = useState(false);
 
+  // Respect the user's reduced-motion preference
   useEffect(() => {
-    // چک کن کاربر reduced motion می‌خواد یا نه
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     setReducedMotion(mediaQuery.matches);
 
@@ -33,8 +36,9 @@ export function AnimatedEntrance({
     return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
 
+  // Trigger the entrance after the specified delay
+  // (instant if reduced motion is enabled)
   useEffect(() => {
-    // اگه reduced motion، فوری نشون بده
     if (reducedMotion) {
       setVisible(true);
       return;
@@ -44,7 +48,7 @@ export function AnimatedEntrance({
     return () => clearTimeout(timer);
   }, [delay, reducedMotion]);
 
-  // موقعیت اولیه (قبل از ورود)
+  // Starting transform for each entrance direction
   const initialTransforms = {
     up: "translateY(40px)",
     down: "translateY(-40px)",
@@ -53,7 +57,7 @@ export function AnimatedEntrance({
     scale: "scale(0.85)",
   };
 
-  // اگه reduced motion، بدون افکت
+  // Skip the animation entirely when reduced motion is enabled
   if (reducedMotion) {
     return <div className={className}>{children}</div>;
   }
@@ -63,10 +67,13 @@ export function AnimatedEntrance({
       className={className}
       style={{
         opacity: visible ? 1 : 0,
+        // Snap to final position once visible
         transform: visible
           ? "translate(0, 0) scale(1)"
           : initialTransforms[direction],
+        // Smooth easing for both opacity and transform
         transition: `opacity ${duration}ms ease-out, transform ${duration}ms cubic-bezier(0.16, 1, 0.3, 1)`,
+        // Hint the browser to optimize for these properties
         willChange: "opacity, transform",
       }}
     >

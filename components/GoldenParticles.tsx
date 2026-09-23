@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useRef } from "react";
 
+// ---------- Types ----------
+// Static twinkling star
 interface Star {
   id: number;
   left: number;
@@ -11,6 +13,7 @@ interface Star {
   twinkleDuration: number;
 }
 
+// Animated shooting star that travels across the section
 interface ShootingStar {
   id: number;
   startX: number;
@@ -23,16 +26,18 @@ interface ShootingStar {
 }
 
 export function GoldenParticles({
-   count = 30,
+  count = 30,
   className = "",
 }: {
   count?: number;
-  className?:string }) {
+  className?: string;
+}) {
   const [stars, setStars] = useState<Star[]>([]);
   const [shooting, setShooting] = useState<ShootingStar[]>([]);
   const [reducedMotion, setReducedMotion] = useState(false);
   const idRef = useRef(0);
 
+  // Check if user prefers reduced motion
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     setReducedMotion(mediaQuery.matches);
@@ -42,7 +47,7 @@ export function GoldenParticles({
     return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
 
-  // ⭐ ساخت ستاره‌های ثابت چشمک‌زن
+  // ⭐ Create static twinkling stars
   useEffect(() => {
     if (reducedMotion) return;
 
@@ -58,27 +63,27 @@ export function GoldenParticles({
     setStars(newStars);
   }, [count, reducedMotion]);
 
-  // 🌠 شهاب‌سنگ هر ۵ ثانیه
+  // 🌠 Spawn a shooting star every 5 seconds
   useEffect(() => {
     if (reducedMotion) return;
 
     const createShootingStar = () => {
-      // ۸ جهت ممکن
+      // 8 possible directions (diagonals + horizontals)
       const directions = [
-        { x: -1, y: 1 },      // پایین-چپ
-        { x: 1, y: 1 },       // پایین-راست
-        { x: -1, y: 0.5 },    // چپ (کمی پایین)
-        { x: 1, y: 0.5 },     // راست (کمی پایین)
-        { x: -1, y: -1 },     // بالا-چپ
-        { x: 1, y: -1 },      // بالا-راست
-        { x: 0.7, y: 1 },     // پایین-راست تند
-        { x: -0.7, y: 1 },    // پایین-چپ تند
+        { x: -1, y: 1 }, // bottom-left
+        { x: 1, y: 1 }, // bottom-right
+        { x: -1, y: 0.5 }, // left (slightly down)
+        { x: 1, y: 0.5 }, // right (slightly down)
+        { x: -1, y: -1 }, // top-left
+        { x: 1, y: -1 }, // top-right
+        { x: 0.7, y: 1 }, // bottom-right (steep)
+        { x: -0.7, y: 1 }, // bottom-left (steep)
       ];
 
       const dir = directions[Math.floor(Math.random() * directions.length)];
       const distance = 600 + Math.random() * 500;
 
-      // نقطه‌ی شروع بر اساس جهت
+      // Starting point depends on direction (offscreen edge)
       let startX = 50;
       let startY = 50;
 
@@ -96,20 +101,20 @@ export function GoldenParticles({
         endY: dir.y * distance,
         duration: 1.5 + Math.random() * 2,
         size: 2 + Math.random() * 2,
-        curve: Math.random() < 0.4, // ۴۰٪ منحنی
+        curve: Math.random() < 0.4, // ~40% of stars follow a curved path
       };
 
       setShooting((prev) => [...prev, newStar]);
 
-      // حذف بعد از اتمام
+      // Remove after animation ends
       setTimeout(() => {
         setShooting((prev) => prev.filter((s) => s.id !== newStar.id));
       }, newStar.duration * 1000 + 200);
     };
 
-    // اولین شهاب بعد از ۲ ثانیه
+    // First shooting star after 2 seconds
     const initialTimeout = setTimeout(createShootingStar, 2000);
-    // هر ۵ ثانیه بعدی
+    // Then every 5 seconds
     const interval = setInterval(createShootingStar, 5000);
 
     return () => {
@@ -118,16 +123,16 @@ export function GoldenParticles({
     };
   }, [reducedMotion]);
 
+  // Skip rendering entirely if user prefers reduced motion
   if (reducedMotion) return null;
 
   return (
     <div
-        className={`absolute inset-0 overflow-hidden pointer-events-none ${className}`}
-
+      className={`absolute inset-0 overflow-hidden pointer-events-none ${className}`}
       dir="ltr"
       aria-hidden="true"
     >
-      {/* ⭐ ذرات ستاره‌ای چشمک‌زن */}
+      {/* ⭐ Twinkling stars */}
       {stars.map((s) => (
         <div
           key={s.id}
@@ -145,8 +150,9 @@ export function GoldenParticles({
         />
       ))}
 
-      {/* 🌠 شهاب‌سنگ‌ها با هاله‌ی نرم */}
+      {/* 🌠 Shooting stars with soft halo */}
       {shooting.map((s) => {
+        // If curved, we animate through a midpoint; otherwise straight line
         const curveStyle = s.curve
           ? {
               "--mid-x": `${s.endX * 0.6}px`,
@@ -174,7 +180,7 @@ export function GoldenParticles({
                 : `shoot-straight ${s.duration}s linear forwards`,
             }}
           >
-            {/* 🌀 هاله‌ی نرم پشت شهاب (دنباله‌ی محو) */}
+            {/* Soft blurred halo (acts as a fading tail) */}
             <div
               className="absolute rounded-full"
               style={{
@@ -190,7 +196,7 @@ export function GoldenParticles({
               }}
             />
 
-            {/* ✨ سر شهاب (نقطه‌ی درخشان) */}
+            {/* Bright core of the shooting star */}
             <div
               className="absolute rounded-full"
               style={{
@@ -209,9 +215,10 @@ export function GoldenParticles({
       })}
 
       <style jsx>{`
-        /* ⭐ چشمک‌زدن ستاره */
+        /* ⭐ Star twinkle animation */
         @keyframes twinkle {
-          0%, 100% {
+          0%,
+          100% {
             opacity: 0.2;
             transform: scale(1);
           }
@@ -221,7 +228,7 @@ export function GoldenParticles({
           }
         }
 
-        /* 🌠 شهاب مستقیم */
+        /* 🌠 Straight shooting star */
         @keyframes shoot-straight {
           0% {
             transform: translate(0, 0);
@@ -239,7 +246,7 @@ export function GoldenParticles({
           }
         }
 
-        /* 🌊 شهاب منحنی */
+        /* 🌊 Curved shooting star */
         @keyframes shoot-curve {
           0% {
             transform: translate(0, 0);
