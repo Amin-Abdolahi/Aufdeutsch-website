@@ -78,7 +78,7 @@ export function SpeechBubble({
         transition: reducedMotion
           ? "opacity 0.01ms"
           : "opacity 0.5s ease, transform 0.5s ease",
-          maxWidth: `${maxWidth}px`,
+          maxWidth: `min(${maxWidth}px, 80vw)`,
       }}
       aria-hidden="true"
     >
@@ -101,6 +101,7 @@ export function SpeechBubble({
           style={{
             fontFamily: "ui-monospace, 'Courier New', monospace",
             letterSpacing: "0.02em",
+            fontSize: "clamp(10px, 2.5vw, 14px)",
           }}
 >
   {text}

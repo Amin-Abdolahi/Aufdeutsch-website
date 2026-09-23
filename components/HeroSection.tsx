@@ -6,6 +6,7 @@ import { type Locale } from "@/lib/i18n";
 import { Button } from "@/components/ui/Button";
 import { CharacterWithBubble } from "@/components/CharacterWithBubble";
 import { AnimatedEntrance } from "@/components/AnimatedEntrance";
+import { GoldenParticles } from "@/components/GoldenParticles";
 
 interface HeroSectionProps {
   locale: Locale;
@@ -46,6 +47,8 @@ function useTypewriter(text: string, speed = 55, startDelay = 500) {
 export function HeroSection({ locale }: HeroSectionProps) {
   const { t } = useLocale();
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [charSize, setCharSize] = useState(280);
+  const [isMobile, setIsMobile] = useState(false);
 
   // چک کن کاربر reduced motion می‌خواد یا نه
   useEffect(() => {
@@ -60,15 +63,32 @@ export function HeroSection({ locale }: HeroSectionProps) {
     return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
 
-  // تیتر کامل بر اساس زبان
-  const fullTitle =
-    locale === "fa"
-      ? "آلمانی را درست یاد بگیر"
-      : locale === "de"
-      ? "Deutsch richtig lernen"
-      : "Learn German the right way";
+  // 🎯 سایز ریسپانسیو کاراکتر + تشخیص موبایل
+  useEffect(() => {
+    const updateSize = () => {
+      const w = window.innerWidth;
+      setIsMobile(w < 768);
+      if (w < 480) setCharSize(140);
+      else if (w < 768) setCharSize(180);
+      else if (w < 1024) setCharSize(240);
+      else setCharSize(280);
+    };
+    updateSize();
+    window.addEventListener("resize", updateSize);
+    return () => window.removeEventListener("resize", updateSize);
+  }, []);
 
-  // برچسب blur بالای تیتر
+  // 🎯 تیتر پایه
+  const baseTitle =
+    locale === "fa"
+      ? "آلمانی را یاد بگیر"
+      : locale === "de"
+      ? "Deutsch lernen"
+      : "Learn German";
+
+  const emphasisWord =
+    locale === "fa" ? "درست" : locale === "de" ? "richtig" : "the right way";
+
   const badge =
     locale === "fa"
       ? "مدرسه زبان آلمانی AUF Deutsch"
@@ -76,9 +96,8 @@ export function HeroSection({ locale }: HeroSectionProps) {
       ? "Deutschschule AUF Deutsch"
       : "German School AUF Deutsch";
 
-  // Typewriter
-  const { displayed: typedText, done } = useTypewriter(fullTitle, 55, 500);
-  const displayed = reducedMotion ? fullTitle : typedText;
+  const { displayed: typedText, done } = useTypewriter(baseTitle, 55, 500);
+  const displayed = reducedMotion ? baseTitle : typedText;
   const isDone = reducedMotion ? true : done;
 
   return (
@@ -95,20 +114,20 @@ export function HeroSection({ locale }: HeroSectionProps) {
         />
       </div>
 
-      {/* نوارهای تزئینی */}
+      <GoldenParticles count={30} />
+
       <div className="absolute top-0 left-0 w-32 h-full bg-red-600/10 -skew-x-12 origin-top-left" />
       <div className="absolute bottom-0 right-0 w-40 h-60 bg-gold-500/10 skew-x-12 origin-bottom-right" />
 
       <div className="max-w-6xl mx-auto px-5 sm:px-8 md:px-10 relative z-10 w-full">
-        <div className="flex flex-col lg:flex-row items-center gap-16">
-          {/* ============ سمت راست: متن ============ */}
-          <div className="lg:w-1/2 max-w-[36rem]">
-            {/* ۱. برچسب blur */}
+        <div className="flex flex-col lg:flex-row items-center gap-8 sm:gap-12 lg:gap-16">
+          {/* ============ سمت متن ============ */}
+          <div className="lg:w-1/2 max-w-[36rem] order-2 lg:order-1">
             <AnimatedEntrance delay={0} direction="left" duration={600}>
               <p
                 className="pointer-events-none select-none mb-5 sm:mb-6 text-paper-100"
                 style={{
-                  fontSize: "clamp(18px, 4vw, 26px)",
+                  fontSize: "clamp(16px, 3.5vw, 26px)",
                   lineHeight: 1.3,
                   fontWeight: 400,
                   filter: "blur(2px)",
@@ -119,33 +138,97 @@ export function HeroSection({ locale }: HeroSectionProps) {
               </p>
             </AnimatedEntrance>
 
-            {/* ۲. تیتر Typewriter */}
             <AnimatedEntrance delay={150} direction="left" duration={600}>
-              <h1
-                className="font-bold text-paper-100 leading-[1.1] tracking-[-0.04em] mb-8"
+              <div
+                className="relative mb-8"
                 style={{
-                  fontSize: "clamp(2rem, 6vw, 4.5rem)",
-                  minHeight: "1.2em",
+                  minHeight: isMobile ? "5rem" : "7rem",
+                  paddingTop: isMobile ? "3rem" : "5rem",   // ← فضا برای "درست"
                 }}
               >
-                {displayed}
-                {!isDone && (
-                  <span
-                    className="inline-block w-[3px] h-[1em] bg-gold-400 align-middle ml-1"
-                    style={{ animation: "blink 1s step-end infinite" }}
-                  />
+                <h1
+                  className="font-bold text-paper-100 leading-[1.1] tracking-[-0.04em] relative inline-block"
+                  style={{ fontSize: "clamp(1.75rem, 5vw, 4rem)" }}
+                >
+                  {displayed}
+                  {!isDone && (
+                    <span
+                      className="inline-block w-[3px] h-[1em] bg-gold-400 align-middle ml-1"
+                      style={{ animation: "blink 1s step-end infinite" }}
+                    />
+                  )}
+                </h1>
+
+                {isDone && (
+                  <div
+                    className="absolute pointer-events-none"
+                    style={{
+                      top: isMobile ? "-3.7rem" : "-9rem",   // ← بالاتر از تیتر
+                      right:isMobile ? "3.5rem" : "30%",
+                    }}
+                  >
+                    <div
+                      className="relative inline-block emphasis-word"
+                      style={{
+                        fontSize: isMobile
+                          ? "clamp(3rem, 12vw, 5rem)"
+                          : "clamp(4rem, 12vw, 10rem)",
+                        fontWeight: 800,
+                        letterSpacing: "-0.02em",
+                      }}
+                    >
+                      {emphasisWord}
+
+                      <svg
+                        width="180"
+                        height="80"
+                        viewBox="0 0 180 80"
+                        className="absolute"
+                        style={{
+                          bottom: "-10px",
+                          left: "90%",
+                          transform: "translateX(-50%)",
+                        }}
+                        aria-hidden="true"
+                      >
+                        <path
+                          d="M 6,60 Q 50,50 60,80"
+                          stroke="#D4AF37"
+                          strokeWidth="2.5"
+                          fill="none"
+                          strokeLinecap="round"
+                          style={{
+                            strokeDasharray: 120,
+                            strokeDashoffset: isDone ? 0 : 120,
+                            transition: "stroke-dashoffset 1.8s ease-out 0.4s",
+                          }}
+                        />
+                        <path
+                          d="M 100,20 Q 50,50 60,90"
+                          stroke="#D4AF37"
+                          strokeWidth="2.5"
+                          fill="none"
+                          strokeLinecap="round"
+                          style={{
+                            strokeDasharray: 120,
+                            strokeDashoffset: isDone ? 0 : 120,
+                            transition: "stroke-dashoffset 1.8s ease-out 0.8s",
+                          }}
+                        />
+                      </svg>
+                    </div>
+                  </div>
                 )}
-              </h1>
+              </div>
             </AnimatedEntrance>
 
-            {/* ۳. خط SVG زیر تیتر */}
             <AnimatedEntrance delay={300} direction="left" duration={600}>
               <svg
                 width="100%"
                 height="12"
                 viewBox="0 0 300 12"
                 preserveAspectRatio="none"
-                className="mb-8 -mt-4"
+                className="mb-8 -mt-2"
                 aria-hidden="true"
               >
                 <path
@@ -157,20 +240,18 @@ export function HeroSection({ locale }: HeroSectionProps) {
                   style={{
                     strokeDasharray: 400,
                     strokeDashoffset: isDone ? 0 : 400,
-                    transition: "stroke-dashoffset 1.2s ease-out 0.3s",
+                    transition: "stroke-dashoffset 1.8s ease-out 1.2s",
                   }}
                 />
               </svg>
             </AnimatedEntrance>
 
-            {/* ۴. توضیح */}
             <AnimatedEntrance delay={400} direction="left" duration={600}>
-              <p className="text-paper-100/80 text-lg md:text-xl mb-10 leading-relaxed max-w-[32rem] border-t border-gold-400/40 pt-5">
+              <p className="text-paper-100/80 text-base sm:text-lg md:text-xl mb-8 sm:mb-10 leading-relaxed max-w-[32rem] border-t border-gold-400/40 pt-5">
                 {t.home.heroSubtitle}
               </p>
             </AnimatedEntrance>
 
-            {/* ۵. دکمه‌ها */}
             <AnimatedEntrance delay={500} direction="left" duration={600}>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button
@@ -192,9 +273,8 @@ export function HeroSection({ locale }: HeroSectionProps) {
             </AnimatedEntrance>
           </div>
 
-          {/* ============ سمت کاراکترها (دو مدرس) ============ */}
-          <div className="lg:w-1/2 flex justify-center items-end relative order-1 lg:order-2 min-h-[400px]">
-            {/* هاله‌ی طلایی پشت */}
+          {/* ============ سمت کاراکترها ============ */}
+          <div className="lg:w-1/2 flex justify-center items-end relative order-1 lg:order-2 min-h-[260px] sm:min-h-[340px] lg:min-h-[400px]">
             <div
               className="absolute inset-0 -z-10 opacity-40 blur-3xl pointer-events-none"
               style={{
@@ -203,13 +283,11 @@ export function HeroSection({ locale }: HeroSectionProps) {
               }}
             />
 
-            {/* دو کاراکتر کنار هم */}
-            <div className="flex items-end justify-center -space-x-8 sm:-space-x-12 lg:-space-x-16">
-              {/* مرد */}
+            <div className="flex items-end justify-center -space-x-6 sm:-space-x-10 md:-space-x-14 lg:-space-x-16">
               <AnimatedEntrance delay={100} direction="right" duration={1500}>
                 <CharacterWithBubble
                   person="man"
-                  size={300}
+                  size={charSize}
                   defaultMessage="Guten Tag!"
                   clickMessage="Hi 👋, ich bin Amin! Ich helfe dir bei der Prüfungsvorbereitung. 🎯"
                   messages={{
@@ -226,11 +304,10 @@ export function HeroSection({ locale }: HeroSectionProps) {
                 />
               </AnimatedEntrance>
 
-              {/* زن */}
               <AnimatedEntrance delay={300} direction="left" duration={1500}>
                 <CharacterWithBubble
                   person="woman"
-                  size={280}
+                  size={charSize - 20}
                   defaultMessage="Hallo!"
                   clickMessage="Hallo, ich bin Fataneh! Mit mir lernst du Deutsch von Null an. 🌱💜"
                   messages={{
