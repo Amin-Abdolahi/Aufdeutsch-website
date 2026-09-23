@@ -127,7 +127,9 @@ export function HomeContent({ locale }: HomeContentProps) {
           </div>
 
           <div
+            id="testimonials-board"
             className="relative rounded-lg shadow-2xl p-6 md:p-10 border-[6px] md:border-8"
+
             style={{
               background:
                 "linear-gradient(135deg, #3a4a5a 0%, #2b3a4a 55%, #1f2b38 100%)",

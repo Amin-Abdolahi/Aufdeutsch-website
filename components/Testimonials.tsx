@@ -74,7 +74,7 @@ export function Testimonials({
   // ---------- حالت بارگذاری ----------
   if (loading) {
     return (
-      <div className={className} aria-busy="true" aria-live="polite">
+      <div id="testimonials-board" className={className} aria-busy="true" aria-live="polite">
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
           {[1, 2, 3].map((i) => (
             <div
@@ -131,6 +131,14 @@ export function Testimonials({
 
   const handleShowMore = () => {
     setVisibleCount((prev) => Math.min(prev + 5, testimonials.length));
+  };
+
+  const handleCloseReviews = () => {
+    setVisibleCount(initialCount);
+    const board = document.getElementById("testimonials-board");
+    if (board) {
+      board.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
   };
 
   return (
@@ -340,58 +348,97 @@ export function Testimonials({
         })}
       </div>
 
-      {/* دکمه نظرات بیشتر */}
-      {hasMore && (
-        <div className="text-center pt-12 relative z-10">
-          <button
-            onClick={handleShowMore}
-            className="group/more inline-flex flex-col items-center gap-3
-                       text-paper-100/70 hover:text-gold-400
-                       transition-all duration-300 cursor-pointer"
-            aria-label={
-              locale === "fa"
-                ? "نمایش نظرات بیشتر"
-                : locale === "de"
-                ? "Weitere Bewertungen anzeigen"
-                : "Show more reviews"
-            }
-          >
-            {/* فلش گچی رو به پایین */}
-            <svg
-              width="40"
-              height="48"
-              viewBox="0 0 40 48"
-              color="#D4AF37"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              className="transition-transform duration-300 group-hover/more:translate-y-2"
-            >
-              <path
-                d="M20 4 Q22 14 19 26 Q21 32 20 36"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                fill="none"
-                opacity="0.9"
-              />
-              <path
-                d="M10 32 Q15 36 20 42 Q25 36 30 32"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                fill="none"
-                opacity="0.9"
-              />
-              <circle cx="8" cy="30" r="0.8" fill="currentColor" opacity="0.4" />
-              <circle cx="33" cy="34" r="0.6" fill="currentColor" opacity="0.3" />
-              <circle cx="6" cy="42" r="0.5" fill="currentColor" opacity="0.3" />
-              <circle cx="1" cy="20" r="1" fill="currentColor" opacity="0.5" />
-              <circle cx="30" cy="7" r="1" fill="currentColor" opacity="0.3" />
-            </svg>
-          </button>
-        </div>
-      )}
+    {/* دکمه‌های نمایش/بستن نظرات */}
+{(hasMore || visibleCount > initialCount) && (
+  <div className="text-center pt-12 relative z-10 flex flex-col items-center gap-6">
+    {/* دکمه‌ی نظرات بیشتر */}
+    {hasMore && (
+      <button
+        onClick={handleShowMore}
+        className="group/more inline-flex flex-col items-center gap-3 text-paper-100/70 hover:text-gold-400 transition-all duration-300 cursor-pointer"
+        aria-label={
+          locale === "fa"
+            ? "نمایش نظرات بیشتر"
+            : locale === "de"
+            ? "Weitere Bewertungen anzeigen"
+            : "Show more reviews"
+        }
+      >
+        <svg
+          width="40"
+          height="48"
+          viewBox="0 0 40 48"
+          color="#D4AF37"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="transition-transform duration-300 group-hover/more:translate-y-2"
+        >
+          <path
+            d="M20 4 Q22 14 19 26 Q21 32 20 36"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            fill="none"
+            opacity="0.9"
+          />
+          <path
+            d="M10 32 Q15 36 20 42 Q25 36 30 32"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            fill="none"
+            opacity="0.9"
+          />
+          <circle cx="8" cy="30" r="0.8" fill="currentColor" opacity="0.4" />
+          <circle cx="33" cy="34" r="0.6" fill="currentColor" opacity="0.3" />
+          <circle cx="6" cy="42" r="0.5" fill="currentColor" opacity="0.3" />
+          <circle cx="1" cy="20" r="1" fill="currentColor" opacity="0.5" />
+          <circle cx="30" cy="7" r="1" fill="currentColor" opacity="0.3" />
+        </svg>
+      </button>
+    )}
+
+    {/* دکمه‌ی بستن (اگه بیشتر از initialCount نمایش داده شده) */}
+    {visibleCount > initialCount && (
+      <button
+        onClick={handleCloseReviews}
+        className="group/close inline-flex items-center gap-2
+                   text-paper-100/70 hover:text-gold-400
+                   transition-all duration-300 cursor-pointer
+                   px-5 py-2 rounded-full
+                   border border-paper-100/30 hover:border-gold-400/50"
+        aria-label={
+          locale === "fa"
+            ? "بستن نظرات"
+            : locale === "de"
+            ? "Bewertungen schließen"
+            : "Close reviews"
+        }
+      >
+        {/* آیکون X */}
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+        >
+          <path d="M18 6L6 18M6 6l12 12" />
+        </svg>
+        <span className="text-sm font-mono tracking-wider">
+          {locale === "fa"
+            ? "بستن"
+            : locale === "de"
+            ? "Schließen"
+            : "Close"}
+        </span>
+      </button>
+    )}
+  </div>
+)}  
     </div>
   );
 }

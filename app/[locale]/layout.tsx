@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { LocaleProvider } from "@/components/LocaleProvider";
 import { locales, languageMeta, type Locale } from "@/lib/i18n";
 import { Vazirmatn } from "next/font/google";
+import { ScrollToTop } from "@/components/ui/ScrollToTop";
 
 const vazirmatn = Vazirmatn({
   variable: "--font-vazirmatn",
@@ -23,7 +23,6 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: LocaleLayoutProps): Promise<Metadata> {
   const { locale } = await params;
   const validLocale = locales.includes(locale as Locale) ? locale : "fa";
-  const meta = languageMeta[validLocale as Locale];
 
   const metadata: Record<Locale, Metadata> = {
     fa: {
@@ -64,7 +63,11 @@ export default async function LocaleLayout({
   const meta = languageMeta[validLocale];
 
   return (
-    <html lang={meta.htmlLang} dir={meta.dir} className={`${vazirmatn.variable} antialiased`}>
+    <html
+      lang={meta.htmlLang}
+      dir={meta.dir}
+      className={`${vazirmatn.variable} antialiased`}
+    >
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -76,6 +79,7 @@ export default async function LocaleLayout({
           <Header />
           <main className="flex-1">{children}</main>
           <Footer />
+          <ScrollToTop />
         </LocaleProvider>
       </body>
     </html>
