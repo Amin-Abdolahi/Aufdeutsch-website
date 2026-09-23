@@ -5,8 +5,10 @@ import { useEffect, useState } from "react";
 interface SpeechBubbleProps {
   text: string;
   visible?: boolean;
-  position?: "top" | "left" | "right";
+  position?: "top" | "left" | "right" | "top-left" | "top-right";
   delay?: number;
+  maxWidth?: number;
+  multiline?: boolean;
 }
 
 export function SpeechBubble({
@@ -14,6 +16,8 @@ export function SpeechBubble({
   visible = true,
   position = "top",
   delay = 0,
+  maxWidth = 220,
+  multiline = false,
 }: SpeechBubbleProps) {
   const [show, setShow] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
@@ -47,6 +51,8 @@ export function SpeechBubble({
     top: "bottom-full left-1/2 -translate-x-1/2 mb-4",
     left: "right-full top-1/2 -translate-y-1/2 mr-4",
     right: "left-full top-1/2 -translate-y-1/2 ml-4",
+    "top-left": "bottom-full right-0 mb-4",
+    "top-right": "bottom-full left-0 mb-4",
   };
 
   // موقعیت دُم (فلش کوچیک زیر حباب)
@@ -54,6 +60,8 @@ export function SpeechBubble({
     top: "top-full left-1/2 -translate-x-1/2 -mt-1",
     left: "left-full top-1/2 -translate-y-1/2 -ml-1",
     right: "right-full top-1/2 -translate-y-1/2 -mr-1",
+    "top-left": "top-full right-8 -mt-1",
+    "top-right": "top-full left-8 -mt-1",
   };
 
   return (
@@ -70,6 +78,7 @@ export function SpeechBubble({
         transition: reducedMotion
           ? "opacity 0.01ms"
           : "opacity 0.5s ease, transform 0.5s ease",
+          maxWidth: `${maxWidth}px`,
       }}
       aria-hidden="true"
     >
@@ -84,14 +93,15 @@ export function SpeechBubble({
             "0 8px 20px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.9)",
         }}
       >
-       <p
-  dir="ltr"
-  className="text-navy-900 font-bold text-sm sm:text-base"
-  style={{
-    fontFamily: "ui-monospace, 'Courier New', monospace",
-    letterSpacing: "0.02em",
-    whiteSpace: "nowrap"
-  }}
+        <p
+          dir="ltr"
+          className={`text-navy-900 font-bold text-xs sm:text-sm text-center ${
+            multiline ? "break-words whitespace-normal" : "whitespace-nowrap"   // ← اگه چند خطی، nowrap نباشه
+            }`}
+          style={{
+            fontFamily: "ui-monospace, 'Courier New', monospace",
+            letterSpacing: "0.02em",
+          }}
 >
   {text}
 </p>

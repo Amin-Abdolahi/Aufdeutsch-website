@@ -63,7 +63,7 @@ export function HeroSection({ locale }: HeroSectionProps) {
   // تیتر کامل بر اساس زبان
   const fullTitle =
     locale === "fa"
-      ? "آلمانی را درست یاد بگیرید"
+      ? "آلمانی را درست یاد بگیر"
       : locale === "de"
       ? "Deutsch richtig lernen"
       : "Learn German the right way";
@@ -209,8 +209,9 @@ export function HeroSection({ locale }: HeroSectionProps) {
               <AnimatedEntrance delay={100} direction="right" duration={1500}>
                 <CharacterWithBubble
                   person="man"
-                  size={280}
+                  size={300}
                   defaultMessage="Guten Tag!"
+                  clickMessage="Hi 👋, ich bin Amin! Ich helfe dir bei der Prüfungsvorbereitung. 🎯"
                   messages={{
                     center: "Guten Tag!",
                     top: "Willkommen!",
@@ -231,6 +232,7 @@ export function HeroSection({ locale }: HeroSectionProps) {
                   person="woman"
                   size={280}
                   defaultMessage="Hallo!"
+                  clickMessage="Hallo, ich bin Fataneh! Mit mir lernst du Deutsch von Null an. 🌱💜"
                   messages={{
                     center: "Hallo!",
                     top: "Herzlich willkommen!",

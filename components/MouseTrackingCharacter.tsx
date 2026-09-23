@@ -20,6 +20,7 @@ interface MouseTrackingCharacterProps {
   size?: number;
   className?: string;
   onDirectionChange?: (direction: Direction) => void;
+  onClick?: () => void;
 }
 
 export function MouseTrackingCharacter({
@@ -27,6 +28,7 @@ export function MouseTrackingCharacter({
   size = 420,
   className = "",
   onDirectionChange,
+  onClick,
 }: MouseTrackingCharacterProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [direction, setDirection] = useState<Direction>("center");
@@ -107,7 +109,8 @@ export function MouseTrackingCharacter({
   return (
     <div
       ref={containerRef}
-      className={`relative select-none pointer-events-none ${className}`}
+      className={`relative select-none cursor-pointer ${className}`} 
+      onClick={onClick}
       style={{ width: size, height: size, perspective: "1000px" }}
       aria-hidden="true"
     >
