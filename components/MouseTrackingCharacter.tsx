@@ -31,8 +31,25 @@ export function MouseTrackingCharacter({
   const containerRef = useRef<HTMLDivElement>(null);
   const [direction, setDirection] = useState<Direction>("center");
   const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const [reducedMotion, setReducedMotion] = useState(false);   // ← ✅ این خط اضافه شد
+
+  // چک کن کاربر reduced motion می‌خواد یا نه
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReducedMotion(mediaQuery.matches);
+
+    const handleChange = (e: MediaQueryListEvent) => {
+      setReducedMotion(e.matches);
+    };
+
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, []);
 
   useEffect(() => {
+    // اگه reduced motion، eye-tracking رو غیرفعال کن
+    if (reducedMotion) return;
+
     const handleMouseMove = (e: MouseEvent) => {
       if (!containerRef.current) return;
       const rect = containerRef.current.getBoundingClientRect();
@@ -73,7 +90,7 @@ export function MouseTrackingCharacter({
 
     window.addEventListener("mousemove", handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [onDirectionChange]);
+  }, [onDirectionChange, reducedMotion]);   // ← ✅ reducedMotion به وابستگی اضافه شد
 
   const imageMap: Record<Direction, string> = {
     center: `/teacher/${person}/center.png`,
@@ -95,19 +112,26 @@ export function MouseTrackingCharacter({
       aria-hidden="true"
     >
       <div
-        className="relative w-full h-full transition-transform duration-300 ease-out"
+        className="relative w-full h-full"
         style={{
-          transform: `translate3d(${offset.x}px, ${offset.y}px, 0) rotateY(${
-            offset.x * 0.3
-          }deg) rotateX(${-offset.y * 0.2}deg)`,
+          // اگه reduced motion، بدون تیلت و ترنزیشن
+          transform: reducedMotion
+            ? "none"
+            : `translate3d(${offset.x}px, ${offset.y}px, 0) rotateY(${
+                offset.x * 0.3
+              }deg) rotateX(${-offset.y * 0.2}deg)`,
           transformStyle: "preserve-3d",
+          transition: reducedMotion ? "none" : "transform 300ms ease-out",
         }}
       >
         <img
-          src={imageMap[direction]}
+          src={imageMap[reducedMotion ? "center" : direction]}
           alt={`AUF Deutsch ${person === "man" ? "Lehrer" : "Lehrerin"}`}
-          className="w-full h-full object-contain transition-opacity duration-200"
-          style={{ filter: "drop-shadow(0 20px 30px rgba(0,0,0,0.3))" }}
+          className="w-full h-full object-contain"
+          style={{
+            filter: "drop-shadow(0 20px 30px rgba(0,0,0,0.3))",
+            transition: reducedMotion ? "none" : "opacity 200ms",
+          }}
           draggable={false}
         />
       </div>

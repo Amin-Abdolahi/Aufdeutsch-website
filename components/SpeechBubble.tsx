@@ -16,11 +16,31 @@ export function SpeechBubble({
   delay = 0,
 }: SpeechBubbleProps) {
   const [show, setShow] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
 
   useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReducedMotion(mediaQuery.matches);
+
+    const handleChange = (e: MediaQueryListEvent) => {
+      setReducedMotion(e.matches);
+    };
+
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, []);
+
+  
+  useEffect(() => {
+    if (reducedMotion) {
+      setShow(true);
+      return;
+    }
+
     const timer = setTimeout(() => setShow(true), delay);
     return () => clearTimeout(timer);
-  }, [delay]);
+  }, [delay, reducedMotion]);
+
 
   // موقعیت حباب
   const positionClasses = {
@@ -37,11 +57,19 @@ export function SpeechBubble({
   };
 
   return (
+    
     <div
-      className={`absolute ${positionClasses[position]} z-30 pointer-events-none transition-all duration-500 ease-out`}
+      className={`absolute ${positionClasses[position]} z-30 pointer-events-none`}
       style={{
         opacity: show && visible ? 1 : 0,
-        transform: `translateX(-50%) translateY(${show ? 0 : 8}px) scale(${show ? 1 : 0.9})`,
+        transform: reducedMotion
+          ? "translateX(-50%)"
+          : `translateX(-50%) translateY(${show ? 0 : 8}px) scale(${
+              show ? 1 : 0.9
+            })`,
+        transition: reducedMotion
+          ? "opacity 0.01ms"
+          : "opacity 0.5s ease, transform 0.5s ease",
       }}
       aria-hidden="true"
     >

@@ -74,7 +74,7 @@ export default async function LocaleLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
-      <body className="font-sans min-h-screen flex flex-col">
+      <body className="font-sans min-h-screen flex flex-col" suppressHydrationWarning>
         <LocaleProvider initialLocale={validLocale}>
           <Header />
           <main className="flex-1">{children}</main>
