@@ -47,9 +47,20 @@ function useTypewriter(text: string, speed = 55, startDelay = 500) {
 export function HeroSection({ locale }: HeroSectionProps) {
   const { t } = useLocale();
   const [reducedMotion, setReducedMotion] = useState(false);
-  const [charSize, setCharSize] = useState(280);
-  const [isMobile, setIsMobile] = useState(false);
-
+const [charSize, setCharSize] = useState(
+  typeof window !== "undefined"
+    ? window.innerWidth < 480
+      ? 140
+      : window.innerWidth < 768
+      ? 180
+      : window.innerWidth < 1024
+      ? 240
+      : 280
+    : 280
+);
+  const [isMobile, setIsMobile] = useState(
+  typeof window !== "undefined" ? window.innerWidth < 768 : false
+);
   // چک کن کاربر reduced motion می‌خواد یا نه
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -175,6 +186,8 @@ export function HeroSection({ locale }: HeroSectionProps) {
                           : "clamp(4rem, 12vw, 10rem)",
                         fontWeight: 800,
                         letterSpacing: "-0.02em",
+                            color: "#D4AF37",  
+
                       }}
                     >
                       {emphasisWord}
@@ -274,7 +287,7 @@ export function HeroSection({ locale }: HeroSectionProps) {
           </div>
 
           {/* ============ سمت کاراکترها ============ */}
-          <div className="lg:w-1/2 flex justify-center items-end relative order-1 lg:order-2 min-h-[260px] sm:min-h-[340px] lg:min-h-[400px]">
+          <div className="lg:w-1/2 flex justify-center items-end relative order-1 lg:order-2 min-h-[300px] sm:min-h-[380px] lg:min-h-[450px]">
             <div
               className="absolute inset-0 -z-10 opacity-40 blur-3xl pointer-events-none"
               style={{

@@ -78,7 +78,7 @@ export function SpeechBubble({
         transition: reducedMotion
           ? "opacity 0.01ms"
           : "opacity 0.5s ease, transform 0.5s ease",
-          maxWidth: `min(${maxWidth}px, 80vw)`,
+          maxWidth: `min(${maxWidth}px, 60vw)`,
       }}
       aria-hidden="true"
     >

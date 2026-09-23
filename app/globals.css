@@ -237,11 +237,10 @@ li {
 
 /* کلاس "درست" */
 .emphasis-word {
-  color: #D4AF37;
-  transform: rotate(-5deg);
+  color: #D4AF37 !important; 
   animation:
-    flickerIn 3s ease-out forwards,
-    starGlow 4s ease-in-out 3.5s infinite;
+    flickerIn 2.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
+    starGlow 4s ease-in-out 3s infinite;
 }
 .star-glow {
   animation: starGlow 4s ease-in-out infinite;
