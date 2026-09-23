@@ -13,8 +13,6 @@ interface HeroSectionProps {
 }
 
 // ---------- Typewriter Hook ----------
-// Reveals text character by character after a delay.
-// Returns the partial text and whether typing is complete.
 function useTypewriter(text: string, speed = 55, startDelay = 500) {
   const [displayed, setDisplayed] = useState("");
   const [done, setDone] = useState(false);
@@ -48,11 +46,7 @@ function useTypewriter(text: string, speed = 55, startDelay = 500) {
 
 export function HeroSection({ locale }: HeroSectionProps) {
   const { t } = useLocale();
-
-  // Respect user's reduced-motion preference
   const [reducedMotion, setReducedMotion] = useState(false);
-
-  // Responsive character size (SSR-safe initial value)
   const [charSize, setCharSize] = useState(
     typeof window !== "undefined"
       ? window.innerWidth < 480
@@ -65,12 +59,7 @@ export function HeroSection({ locale }: HeroSectionProps) {
       : 280
   );
 
-  // Detect mobile viewport (SSR-safe initial value)
-  const [isMobile, setIsMobile] = useState(
-    typeof window !== "undefined" ? window.innerWidth < 768 : false
-  );
-
-  // Check if user prefers reduced motion
+  // Respect reduced-motion preference
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     setReducedMotion(mediaQuery.matches);
@@ -83,11 +72,10 @@ export function HeroSection({ locale }: HeroSectionProps) {
     return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
 
-  // 🎯 Responsive character size + mobile detection
+  // Responsive character size
   useEffect(() => {
     const updateSize = () => {
       const w = window.innerWidth;
-      setIsMobile(w < 768);
       if (w < 480) setCharSize(140);
       else if (w < 768) setCharSize(180);
       else if (w < 1024) setCharSize(240);
@@ -98,19 +86,26 @@ export function HeroSection({ locale }: HeroSectionProps) {
     return () => window.removeEventListener("resize", updateSize);
   }, []);
 
-  // 🎯 Base title (without the emphasis word)
-  const baseTitle =
+  // ---- Title parts ----
+  // The title is split into 3 parts so the emphasis word can be highlighted
+  // in gold in the middle of the sentence (works for all 3 languages).
+  const prefixTitle =
     locale === "fa"
-      ? "آلمانی را یاد بگیر"
+      ? "آلمانی را "
       : locale === "de"
-      ? "Deutsch lernen"
-      : "Learn German";
+      ? "Deutsch "
+      : "Learn German ";
 
-  // 🎯 Emphasis word that gets added after typing completes
   const emphasisWord =
     locale === "fa" ? "درست" : locale === "de" ? "richtig" : "the right way";
 
-  // Top blurred badge label
+  const suffixTitle =
+    locale === "fa"
+      ? " یاد بگیر"
+      : locale === "de"
+      ? " lernen"
+      : "";
+
   const badge =
     locale === "fa"
       ? "مدرسه زبان آلمانی AUF Deutsch"
@@ -118,8 +113,8 @@ export function HeroSection({ locale }: HeroSectionProps) {
       ? "Deutschschule AUF Deutsch"
       : "German School AUF Deutsch";
 
-  const { displayed: typedText, done } = useTypewriter(baseTitle, 55, 500);
-  const displayed = reducedMotion ? baseTitle : typedText;
+  const { displayed: typedText, done } = useTypewriter(prefixTitle, 55, 500);
+  const displayed = reducedMotion ? prefixTitle : typedText;
   const isDone = reducedMotion ? true : done;
 
   return (
@@ -136,7 +131,7 @@ export function HeroSection({ locale }: HeroSectionProps) {
         />
       </div>
 
-      {/* Floating golden particles */}
+      {/* Golden particles */}
       <GoldenParticles count={30} />
 
       {/* Decorative slanted bands */}
@@ -163,20 +158,29 @@ export function HeroSection({ locale }: HeroSectionProps) {
               </p>
             </AnimatedEntrance>
 
-            {/* 2. Main heading with typewriter + emphasis word */}
+            {/* 2. Main heading with typewriter + gold emphasis word */}
             <AnimatedEntrance delay={150} direction="left" duration={600}>
-              <div
-                className="relative mb-9"
-                style={{
-                  minHeight: isMobile ? "5rem" : "7rem",
-                  paddingTop: isMobile ? "3rem" : "6rem", // space for emphasis word
-                }}
-              >
+              <div className="relative mb-9">
                 <h1
-                  className="font-bold text-paper-100 leading-[1.1] tracking-[-0.04em] relative inline-block"
+                  className="font-bold text-paper-100 leading-[1.1] tracking-[-0.04em]"
                   style={{ fontSize: "clamp(1.75rem, 5vw, 4.2rem)" }}
                 >
+                  {/* Typewriter prefix */}
                   {displayed}
+
+                  {/* Gold emphasis word — appears after typing finishes */}
+                  {isDone && (
+                    <span
+                      className="emphasis-word"
+                      style={{ color: "#D4AF37" }}
+                    >
+                      {emphasisWord}
+                    </span>
+                  )}
+
+                  {/* Suffix after emphasis (empty for English) */}
+                  {isDone && <span>{suffixTitle}</span>}
+
                   {/* Blinking cursor while typing */}
                   {!isDone && (
                     <span
@@ -185,72 +189,6 @@ export function HeroSection({ locale }: HeroSectionProps) {
                     />
                   )}
                 </h1>
-
-                {/* Emphasis word ("درست") + curved connector lines */}
-                {isDone && (
-                  <div
-                    className="absolute pointer-events-none"
-                    style={{
-                      top: isMobile ? "-3.7rem" : "-9rem",
-                      right: isMobile ? "3.5rem" : "30%",
-                    }}
-                  >
-                    <div
-                      className="relative inline-block emphasis-word"
-                      style={{
-                        fontSize: isMobile
-                          ? "clamp(3rem, 12vw, 5rem)"
-                          : "clamp(4rem, 12vw, 10rem)",
-                        fontWeight: 800,
-                        letterSpacing: "-0.02em",
-                        color: "#D4AF37",
-                      }}
-                    >
-                      {emphasisWord}
-
-                      {/* Curved connector lines pointing to "یاد" */}
-                      <svg
-                        width="180"
-                        height="80"
-                        viewBox="0 0 180 80"
-                        className="absolute"
-                        style={{
-                          bottom: "-10px",
-                          left: "90%",
-                          transform: "translateX(-50%)",
-                        }}
-                        aria-hidden="true"
-                      >
-                        {/* Left curve */}
-                        <path
-                          d="M 6,60 Q 50,50 60,80"
-                          stroke="#D4AF37"
-                          strokeWidth="2.5"
-                          fill="none"
-                          strokeLinecap="round"
-                          style={{
-                            strokeDasharray: 120,
-                            strokeDashoffset: isDone ? 0 : 120,
-                            transition: "stroke-dashoffset 1.8s ease-out 0.4s",
-                          }}
-                        />
-                        {/* Right curve */}
-                        <path
-                          d="M 100,20 Q 50,50 60,90"
-                          stroke="#D4AF37"
-                          strokeWidth="2.5"
-                          fill="none"
-                          strokeLinecap="round"
-                          style={{
-                            strokeDasharray: 120,
-                            strokeDashoffset: isDone ? 0 : 120,
-                            transition: "stroke-dashoffset 1.8s ease-out 0.8s",
-                          }}
-                        />
-                      </svg>
-                    </div>
-                  </div>
-                )}
               </div>
             </AnimatedEntrance>
 
@@ -286,7 +224,7 @@ export function HeroSection({ locale }: HeroSectionProps) {
               </p>
             </AnimatedEntrance>
 
-            {/* 5. Call-to-action buttons */}
+            {/* 5. CTA buttons */}
             <AnimatedEntrance delay={500} direction="left" duration={600}>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button
@@ -308,9 +246,8 @@ export function HeroSection({ locale }: HeroSectionProps) {
             </AnimatedEntrance>
           </div>
 
-          {/* ============ Characters side (two teachers) ============ */}
+          {/* ============ Characters side ============ */}
           <div className="lg:w-1/2 flex justify-center items-end relative order-1 lg:order-2 min-h-[300px] sm:min-h-[380px] lg:min-h-[450px]">
-            {/* Soft golden glow behind characters */}
             <div
               className="absolute inset-0 -z-10 opacity-40 blur-3xl pointer-events-none"
               style={{
@@ -319,7 +256,6 @@ export function HeroSection({ locale }: HeroSectionProps) {
               }}
             />
 
-            {/* Two characters side by side */}
             <div className="flex items-end justify-center -space-x-6 sm:-space-x-10 md:-space-x-14 lg:-space-x-16">
               {/* Man (Amin) */}
               <AnimatedEntrance delay={100} direction="right" duration={1500}>
