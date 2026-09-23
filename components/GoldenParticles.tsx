@@ -22,7 +22,12 @@ interface ShootingStar {
   curve: boolean;
 }
 
-export function GoldenParticles({ count = 30 }: { count?: number }) {
+export function GoldenParticles({
+   count = 30,
+  className = "",
+}: {
+  count?: number;
+  className?:string }) {
   const [stars, setStars] = useState<Star[]>([]);
   const [shooting, setShooting] = useState<ShootingStar[]>([]);
   const [reducedMotion, setReducedMotion] = useState(false);
@@ -117,7 +122,8 @@ export function GoldenParticles({ count = 30 }: { count?: number }) {
 
   return (
     <div
-      className="absolute inset-0 overflow-hidden pointer-events-none"
+        className={`absolute inset-0 overflow-hidden pointer-events-none ${className}`}
+
       dir="ltr"
       aria-hidden="true"
     >
