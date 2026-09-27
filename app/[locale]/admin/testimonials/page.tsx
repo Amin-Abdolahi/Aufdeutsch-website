@@ -14,9 +14,61 @@ interface Testimonial {
 }
 
 export default function AdminTestimonialsPage() {
+  // ---------- Auth state ----------
+  const [authenticated, setAuthenticated] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
+  const [password, setPassword] = useState("");
+  const [loginError, setLoginError] = useState(false);
+
+  // ---------- Testimonials state ----------
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+
+  // Check if user is already logged in (on mount)
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await fetch("/api/admin/check-auth");
+        setAuthenticated(res.ok);
+      } catch {
+        setAuthenticated(false);
+      } finally {
+        setCheckingAuth(false);
+      }
+    };
+    checkAuth();
+  }, []);
+
+  // Handle login form submit
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginError(false);
+
+    try {
+      const res = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+      });
+
+      if (res.ok) {
+        setAuthenticated(true);
+        setPassword("");
+      } else {
+        setLoginError(true);
+      }
+    } catch {
+      setLoginError(true);
+    }
+  };
+
+  // Handle logout
+  const handleLogout = async () => {
+    await fetch("/api/admin/logout", { method: "POST" });
+    setAuthenticated(false);
+    setTestimonials([]);
+  };
 
   // Fetch all testimonials (approved + pending)
   const fetchTestimonials = async () => {
@@ -31,9 +83,12 @@ export default function AdminTestimonialsPage() {
     }
   };
 
+  // Load testimonials once authenticated
   useEffect(() => {
-    fetchTestimonials();
-  }, []);
+    if (authenticated) {
+      fetchTestimonials();
+    }
+  }, [authenticated]);
 
   // Approve or reject a testimonial
   const handleAction = async (id: string, action: "approve" | "reject") => {
@@ -46,7 +101,6 @@ export default function AdminTestimonialsPage() {
       });
 
       if (res.ok) {
-        // Remove from list or refresh
         await fetchTestimonials();
       } else {
         alert("خطا در انجام عملیات");
@@ -58,10 +112,57 @@ export default function AdminTestimonialsPage() {
     }
   };
 
-  // Filter pending testimonials
+  // Filter pending vs approved
   const pending = testimonials.filter((t) => !t.approved);
   const approved = testimonials.filter((t) => t.approved);
 
+  // ---------- Render: checking auth ----------
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen bg-paper-100 flex items-center justify-center">
+        <p className="text-navy-900">در حال بررسی...</p>
+      </div>
+    );
+  }
+
+  // ---------- Render: login form ----------
+  if (!authenticated) {
+    return (
+      <div className="min-h-screen bg-paper-100 flex items-center justify-center px-4">
+        <form
+          onSubmit={handleLogin}
+          className="bg-white p-8 rounded-sm shadow-lg w-full max-w-md border border-navy-900/10"
+        >
+          <h1 className="text-2xl font-bold text-navy-900 mb-6 text-center">
+            ورود به پنل مدیریت
+          </h1>
+
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="پسورد"
+            className="w-full p-3 border border-navy-900/20 rounded-sm mb-4 text-navy-900"
+            autoFocus
+            dir="ltr"
+          />
+
+          {loginError && (
+            <p className="text-red-500 text-sm mb-4">پسورد اشتباه است</p>
+          )}
+
+          <button
+            type="submit"
+            className="w-full bg-navy-900 hover:bg-navy-800 text-white font-bold p-3 rounded-sm transition-colors"
+          >
+            ورود
+          </button>
+        </form>
+      </div>
+    );
+  }
+
+  // ---------- Render: loading testimonials ----------
   if (loading) {
     return (
       <div className="min-h-screen bg-paper-100 flex items-center justify-center">
@@ -70,9 +171,18 @@ export default function AdminTestimonialsPage() {
     );
   }
 
+  // ---------- Render: main admin panel ----------
   return (
     <div className="min-h-screen bg-paper-100 py-12 px-4">
       <div className="max-w-4xl mx-auto">
+        {/* Logout button */}
+        <button
+          onClick={handleLogout}
+          className="fixed top-20 left-4 bg-red-500 hover:bg-red-600 text-white font-bold px-4 py-2 rounded-sm transition-colors z-50 shadow-md"
+        >
+          خروج
+        </button>
+
         {/* Header */}
         <h1 className="text-3xl font-bold text-navy-900 mb-2">
           مدیریت نظرات
@@ -116,7 +226,9 @@ export default function AdminTestimonialsPage() {
                     </div>
                     <div>
                       <span className="font-bold text-navy-900">زبان: </span>
-                      <span className="text-navy-900/80">{t.locale.toUpperCase()}</span>
+                      <span className="text-navy-900/80">
+                        {t.locale.toUpperCase()}
+                      </span>
                     </div>
                   </div>
 
