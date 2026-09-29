@@ -1,27 +1,25 @@
 "use client";
 
 /**
- * Word Tree — Main Page (نسخه ۶.۰)
+ * Word Tree — Main Page (نسخه ۷.۰ — کلمات سفارشی)
  *
  * ⚠️ نکته برای توسعه‌دهنده‌های آینده:
  *
- * ۱. Spaced Repetition:
- *    - هر کلمه `reviewStage` و `nextReviewAt` داره.
- *    - وقتی کاربر «روز بعد» رو می‌زنه، `startNextDay` میوه‌های
- *      مرور رو برای کلمات آماده اضافه می‌کنه.
- *    - این میوه‌ها با رنگ بر اساس مرحله ظاهر می‌شن:
- *      - yellow: مرحله ۱-۲
- *      - golden: مرحله ۳-۵
+ * ۱. کاربر می‌تونه کلمه‌ی سفارشی اضافه کنه (دکمه‌ی «+ افزودن کلمه»).
+ *    کلمه توی localStorage ذخیره می‌شه و به `gameState.words` اضافه می‌شه.
  *
- * ۲. کلمات جدید روزانه از `getDailyWords(5, learnedIds)` میان.
- *    `learnedIds` لیست کلماتی‌ست که کاربر قبلاً یاد گرفته.
+ * ۲. جایزه‌ی افزودن کلمه: REWARD_CUSTOM_WORD (۵ سکه).
+ *
+ * ۳. کلمات سفارشی با `source: "custom"` مشخص می‌شن.
+ *
+ * ۴. برای فاز ۲ (Supabase)، کلمات عمومی اضافه می‌شن.
  */
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { getDictionary, isLocale, Locale } from "@/lib/i18n";
-import { GameState, Word } from "@/lib/wordtree/types";
+import { GameState, Word, WordEntry } from "@/lib/wordtree/types";
 import { loadGameState, saveGameState } from "@/lib/wordtree/storage";
 import {
   createInitialState,
@@ -36,11 +34,18 @@ import {
   hasNewWords,
   WORDS_DE,
 } from "@/data/wordtree/words-de";
+import {
+  loadCustomWords,
+  addCustomWord,
+  generateCustomWordId,
+} from "@/lib/wordtree/customWords";
+import { REWARD_CUSTOM_WORD } from "@/lib/wordtree/constants";
 import { Tree } from "./components/Tree";
 import { CoinDisplay } from "./components/CoinDisplay";
 import { ProgressBar } from "./components/ProgressBar";
 import { WateringPanel } from "./components/WateringPanel";
 import { HarvestPanel } from "./components/HarvestPanel";
+import { AddWordModal } from "./components/AddWordModal";
 import { Button } from "@/components/ui/Button";
 
 export default function WordTreePage() {
@@ -52,12 +57,16 @@ export default function WordTreePage() {
 
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [showWateringPanel, setShowWateringPanel] = useState(false);
+  const [showAddWordModal, setShowAddWordModal] = useState(false);
   const [selectedFruitId, setSelectedFruitId] = useState<string | null>(null);
+  const [customWords, setCustomWords] = useState<WordEntry[]>([]);
+  const [rewardMessage, setRewardMessage] = useState<string | null>(null);
 
   // ─── بارگذاری از localStorage ───
   useEffect(() => {
     const saved = loadGameState();
     setGameState(saved || createInitialState());
+    setCustomWords(loadCustomWords());
   }, []);
 
   // ─── ذخیره در localStorage ───
@@ -76,14 +85,26 @@ export default function WordTreePage() {
   const canWater = canWaterToday(gameState);
   const readyFruits = countReadyFruits(gameState);
 
+  // ⚠️ کلمات سفارشی اول، بعد داخلی‌ها
+  // اینطوری توی لیست روزانه، اولویت دارن
+  const allWords = [...customWords, ...WORDS_DE];
+
   // ─── لیست کلماتی که کاربر قبلاً یاد گرفته ───
   const learnedIds = gameState.words.map((w) => w.id);
 
-  // ─── آیا کلمه‌ی جدیدی برای یادگیری مونده؟ ───
-  const hasNew = hasNewWords(learnedIds);
+  // ─── آیا کلمه‌ی جدیدی مونده؟ ───
+  const hasNew = allWords.some((w) => !learnedIds.includes(w.id));
 
-  // ─── کلمات روزانه ───
-  const dailyWords = getDailyWords(5, learnedIds);
+// ─── کلمات روزانه ───
+// ⚠️ کلمات سفارشی اولویت دارن (کاربر خودش اضافه کرده)
+const availableWords = allWords.filter((w) => !learnedIds.includes(w.id));
+
+const customFirst = [
+  ...availableWords.filter((w) => w.source === "custom"),
+  ...availableWords.filter((w) => w.source !== "custom"),
+];
+
+const dailyWords = customFirst.slice(0, 5);
 
   // ─── شروع آبیاری ───
   const handleStartWatering = () => {
@@ -100,8 +121,9 @@ export default function WordTreePage() {
         translation: w.translations[safeLocale] || w.translations.fa,
         status: "learning" as const,
         reviewCount: 0,
-        reviewStage: 0,        // ← جدید: تازه اضافه شده
-        nextReviewDay: undefined, // ← جدید: هنوز آماده‌ی مرور نیست
+        reviewStage: 0,
+        nextReviewDay: undefined,
+        source: w.source,
       }));
 
     setGameState(waterTree(gameState, newWords));
@@ -126,6 +148,29 @@ export default function WordTreePage() {
     setGameState(startNextDay(gameState));
   };
 
+  // ─── افزودن کلمه‌ی سفارشی ───
+  const handleAddWord = (word: Omit<WordEntry, "source" | "createdAt">) => {
+    const result = addCustomWord(word);
+  if (result.success) {
+    // آپدیت لیست کلمات سفارشی
+    const updatedCustomWords = loadCustomWords();
+    setCustomWords(updatedCustomWords);
+
+    // اضافه کردن جایزه
+    setGameState({
+      ...gameState,
+      coins: gameState.coins + REWARD_CUSTOM_WORD,
+    });
+
+    // نمایش پیام جایزه
+    setRewardMessage(
+      `${t.rewardEarned} +${REWARD_CUSTOM_WORD} ${t.coins}`
+    );
+    setTimeout(() => setRewardMessage(null), 3000);
+  }
+    return result;
+  };
+
   // ─── کلمات برای پنل آبیاری ───
   const wateringWords = dailyWords.map((w) => ({
     id: w.id,
@@ -142,27 +187,23 @@ export default function WordTreePage() {
 
   // ─── پیدا کردن اطلاعات کامل کلمه ───
   const selectedWordEntry = selectedFruit
-    ? WORDS_DE.find((w) => w.id === selectedFruit.wordId)
+    ? allWords.find((w) => w.id === selectedFruit.wordId)
     : null;
 
   // ─── تعیین پیام راهنما ───
   const getGuidanceMessage = () => {
-    if (!hasNew && gameState.words.length >= WORDS_DE.length) {
+    if (!hasNew && gameState.words.length >= allWords.length) {
       return "🎉 تبریک! تو همه‌ی کلمات رو یاد گرفتی. حالا فقط مرورشون کن.";
     }
-
     if (gameState.dayState === "completed") {
       return `روز ${gameState.currentDay} تموم شد! 🎉`;
     }
-
     if (!gameState.wateredToday) {
       return t.firstWaterMessage;
     }
-
     if (readyFruits > 0) {
       return t.harvestMessage;
     }
-
     return `${t.wordsLearned}: ${gameState.tree.totalWords}`;
   };
 
@@ -193,11 +234,18 @@ export default function WordTreePage() {
           <p className="text-navy-900/60">{t.pageSubtitle}</p>
         </div>
 
+        {/* ─── پیام جایزه ─── */}
+        {rewardMessage && (
+          <div className="mb-4 text-center bg-gold-300/30 border border-gold-500/40 rounded-sm py-2 px-4 animate-panel-in">
+            <p className="text-navy-900 font-bold">🎁 {rewardMessage}</p>
+          </div>
+        )}
+
         {/* ─── نوار پیشرفت ─── */}
         <div className="mb-8">
           <ProgressBar
             current={gameState.tree.totalWords}
-            total={WORDS_DE.length}
+            total={allWords.length}
             label={t.progress}
           />
         </div>
@@ -217,13 +265,9 @@ export default function WordTreePage() {
         </div>
 
         {/* ─── دکمه‌ها ─── */}
-        <div className="flex justify-center gap-4">
+        <div className="flex justify-center gap-3 flex-wrap">
           {gameState.dayState === "completed" ? (
-            <Button
-              variant="secondary"
-              size="lg"
-              onClick={handleStartNextDay}
-            >
+            <Button variant="secondary" size="lg" onClick={handleStartNextDay}>
               🌅 روز بعد
             </Button>
           ) : (
@@ -240,6 +284,14 @@ export default function WordTreePage() {
                 : t.waterButtonDisabled}
             </Button>
           )}
+
+          {/* دکمه‌ی افزودن کلمه */}
+          <button
+            onClick={() => setShowAddWordModal(true)}
+            className="px-6 py-3 bg-gold-300 hover:bg-gold-500 text-navy-900 font-bold rounded-sm transition-all duration-200 shadow-md hover:shadow-lg"
+          >
+            ➕ {t.addWord}
+          </button>
         </div>
       </div>
 
@@ -275,6 +327,45 @@ export default function WordTreePage() {
             plural: t.plural,
             praeteritum: t.praeteritum,
             perfekt: t.perfekt,
+          }}
+        />
+      )}
+
+      {/* ─── مودال افزودن کلمه ─── */}
+      {showAddWordModal && (
+        <AddWordModal
+          onClose={() => setShowAddWordModal(false)}
+          onSave={handleAddWord}
+          labels={{
+            title: t.addWordTitle,
+            germanLabel: t.germanLabel,
+            germanPlaceholder: t.germanPlaceholder,
+            translationLabel: t.translationLabel,
+            translationPlaceholder: t.translationPlaceholder,
+            categoryLabel: t.categoryLabel,
+            levelLabel: t.levelLabel,
+            nounArticleLabel: t.nounArticleLabel,
+            nounPluralLabel: t.nounPluralLabel,
+            verbPraeteritumLabel: t.verbPraeteritumLabel,
+            verbPerfektLabel: t.verbPerfektLabel,
+            pronunciationLabel: t.pronunciationLabel,
+            pronunciationPlaceholder: t.pronunciationPlaceholder,
+            exampleLabel: t.exampleLabel,
+            examplePlaceholder: t.examplePlaceholder,
+            exampleTranslationLabel: t.exampleTranslationLabel,
+            exampleTranslationPlaceholder: t.exampleTranslationPlaceholder,
+            save: t.save,
+            cancel: t.cancel,
+            errorRequired: t.errorRequired,
+            rewardInfo: t.addWordReward,
+            categories: {
+              noun: t.categoryNoun,
+              verb: t.categoryVerb,
+              adjective: t.categoryAdjective,
+              phrase: t.categoryPhrase,
+              number: t.categoryNumber,
+              color: t.categoryColor,
+            },
           }}
         />
       )}

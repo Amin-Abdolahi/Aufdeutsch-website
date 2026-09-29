@@ -105,10 +105,13 @@ export function isWordDueForReview(word: Word, currentDay: number): boolean {
   return word.nextReviewDay <= currentDay;
 }
 
-// ─────────────────────────────────────────────────────────────
-// آبیاری (یادگیری کلمات جدید)
-// ─────────────────────────────────────────────────────────────
-
+/**
+ * آبیاری درخت — اضافه کردن کلمات جدید.
+ *
+ * ⚠️ نکته‌ی مهم:
+ * - کلمات جدید با `reviewStage: 0` و `nextReviewDay: undefined` اضافه می‌شن.
+ * - منبع کلمه (`source`) از `WordEntry` گرفته می‌شه.
+ */
 export function waterTree(state: GameState, newWords: Word[]): GameState {
   const totalWords = state.tree.totalWords + newWords.length;
   const newLevel = calculateTreeLevel(totalWords);

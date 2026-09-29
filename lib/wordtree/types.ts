@@ -1,5 +1,5 @@
 /**
- * Word Tree — Type Definitions (نسخه ۴.۰)
+ * Word Tree — Type Definitions (نسخه ۶.۰)
  *
  * این فایل، ساختار داده‌ای کل بازی رو تعریف می‌کنه.
  *
@@ -8,12 +8,15 @@
  * ۱. ساختار برای «آینده‌نگر بودن» طراحی شده.
  *
  * ۲. مفهوم Spaced Repetition:
- *    - هر کلمه یه `reviewStage` داره (0 تا 5)
- *    - هر مرحله یه فاصله‌ی زمانی مشخص داره (۱ روز، ۳ روز، ۷ روز...)
- *    - `nextReviewAt` = زمان مرور بعدی
- *    - وقتی این زمان برسه، میوه دوباره روی درخت ظاهر می‌شه
+ *    - هر کلمه یه `reviewStage` داره (0-5)
+ *    - `nextReviewDay` = شماره‌ی روز بازی که باید مرور بشه
  *
- * ۳. اگه می‌خوای فیلد جدیدی اضافه کنی:
+ * ۳. سه منبع کلمه داریم:
+ *    - builtin: کلمات پیش‌فرض ما (۵۰ تا)
+ *    - custom: کلمات کاربر (localStorage)
+ *    - community: کلمات عمومی (Supabase — فاز ۲)
+ *
+ * ۴. اگه می‌خوای فیلد جدیدی اضافه کنی:
  *    - اول ببین آیا می‌تونی از فیلدهای اختیاری (?) استفاده کنی.
  *    - اگه فیلد اجباریه، باید یه migration بنویسی (توی storage.ts).
  *    - کامنت بنویس که چرا اضافه شد.
@@ -32,20 +35,11 @@ export type TreeLevel = "seedling" | "young" | "mature" | "ancient";
 
 /**
  * نوع میوه روی درخت.
- *
- * - green: کال (کلمه‌ی جدید، هنوز مرور نشده) — reviewStage = 0
- * - yellow: نیمه‌رس (کلمه‌ی در حال یادگیری) — reviewStage = 1-2
- * - golden: رسیده (کلمه‌ی مرورشده) — reviewStage = 3-4
- * - orange: آسیب‌دیده (کلمه‌ای که کاربر یادش رفته)
  */
 export type FruitType = "green" | "yellow" | "golden" | "orange";
 
 /**
  * وضعیت یادگیری هر کلمه.
- *
- * - new: تازه اضافه شده، هنوز مرور نشده
- * - learning: در حال یادگیری (۱-۲ بار مرور شده)
- * - learned: یاد گرفته شده (۳+ بار مرور موفق)
  */
 export type WordStatus = "new" | "learning" | "learned";
 
@@ -64,6 +58,15 @@ export type WordCategory =
  * سطح زبان آلمانی (CEFR).
  */
 export type GermanLevel = "A1" | "A2" | "B1" | "B2" | "C1";
+
+/**
+ * منبع کلمه.
+ *
+ * - builtin: کلمات پیش‌فرض (فایل `words-de.ts`)
+ * - custom: کلمات سفارشی کاربر (localStorage)
+ * - community: کلمات عمومی (Supabase — فاز ۲)
+ */
+export type WordSource = "builtin" | "custom" | "community";
 
 // ─────────────────────────────────────────────────────────────
 // اطلاعات گرامری
@@ -91,7 +94,7 @@ export interface VerbInfo {
   perfekt: string;
   /** فعل کمکی: haben یا sein */
   auxiliary: "haben" | "sein";
-  /** آیا فعل بی‌قاعده‌ست؟ (برای فاز ۳) */
+  /** آیا فعل بی‌قاعده‌ست؟ */
   irregular?: boolean;
 }
 
@@ -127,6 +130,11 @@ export interface Pronunciation {
 
 /**
  * کلمه‌ی اصلی در دیتابیس بازی.
+ *
+ * ⚠️ اضافه شده در نسخه ۶.۰:
+ * - `source`: منبع کلمه (builtin, custom, community)
+ * - `createdAt`: زمان ایجاد
+ * - `createdBy`: شناسه‌ی کاربر (برای فاز ۲)
  */
 export interface WordEntry {
   /** شناسه‌ی یکتا */
@@ -147,6 +155,13 @@ export interface WordEntry {
   example?: Example;
   /** تگ‌ها برای فیلتر کردن (فاز ۳) */
   tags?: string[];
+  /** ─── جدید ─── */
+  /** منبع کلمه */
+  source: WordSource;
+  /** زمان ایجاد (برای کلمات سفارشی) */
+  createdAt?: number;
+  /** شناسه‌ی کاربر (برای فاز ۲ — Supabase) */
+  createdBy?: string;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -155,13 +170,6 @@ export interface WordEntry {
 
 /**
  * کلمه‌ی درون بازی (نسخه‌ی runtime).
- *
- * ⚠️ نکته برای توسعه‌دهنده‌های آینده:
- *
- * - `reviewStage`: مرحله‌ی مرور (0-5)
- * - `nextReviewDay`: شماره‌ی روز بازیه که این کلمه باید مرور بشه
- *   (به جای `nextReviewAt` که timestamp بود).
- *   اینطوری «زمان مرور» بر اساس روز بازی حساب می‌شه، نه زمان واقعی.
  */
 export interface Word {
   /** شناسه (مطابق با WordEntry.id) */
@@ -180,6 +188,9 @@ export interface Word {
   reviewStage: number;
   /** شماره‌ی روز بازی برای مرور بعدی */
   nextReviewDay?: number;
+  /** ─── جدید ─── */
+  /** منبع کلمه (برای تشخیص سفارشی از داخلی) */
+  source: WordSource;
 }
 
 /**
@@ -214,21 +225,12 @@ export interface TreeState {
   lastWatered?: number;
   /** تعداد روزهای متوالی (streak) */
   streak: number;
-  /** سلامت درخت (0-100) — برای فاز ۲ */
+  /** سلامت درخت (0-100) */
   health?: number;
 }
 
 /**
  * وضعیت کل بازی.
- *
- * ⚠️ نکته‌ی مهم درباره‌ی «روز بازی»:
- *
- * `currentDay` = شماره‌ی روز بازی فعلی (۱، ۲، ۳، ...)
- * `dayState` = وضعیت روز فعلی:
- *   - "watering": کاربر باید آبیاری کنه
- *   - "harvesting": کاربر باید میوه‌ها رو بچینه
- *   - "ready": هر دو کار انجام شده، آماده‌ی روز بعد
- *   - "completed": روز تموم شده
  */
 export interface GameState {
   /** وضعیت درخت */
@@ -249,4 +251,12 @@ export interface GameState {
   wordsLearnedToday: string[];
   /** آیا کاربر امروز آبیاری کرده؟ */
   wateredToday: boolean;
+  /** ─── جدید ─── */
+  /** تاریخچه‌ی جوایز روزانه (برای محدودیت) */
+  dailyRewardHistory?: {
+    /** تاریخ آخرین جایزه */
+    lastRewardDate: string;
+    /** مجموع سکه‌های جایزه در روز جاری */
+    coinsEarnedToday: number;
+  };
 }
