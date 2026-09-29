@@ -1,5 +1,21 @@
 "use client";
 
+/**
+ * Word Tree — Main Page (نسخه ۳.۰)
+ *
+ * این صفحه، رابط اصلی بازیه.
+ *
+ * ⚠️ نکته برای توسعه‌دهنده‌های آینده:
+ *
+ * ۱. اطلاعات کلمه از دو منبع میاد:
+ *    - `gameState.words`: اطلاعات وضعیت (status, reviewCount)
+ *    - `WORDS_DE`: اطلاعات ثابت (گرامر، مثال، تلفظ)
+ *    - برای نمایش کامل کلمه، باید این دو رو ترکیب کنیم.
+ *
+ * ۲. برای فاز ۲ (آزمون باغبان)، باید بتونیم کلمات بیشتری
+ *    توی یه روز باز کنیم. الان فقط ۵ کلمه در روز.
+ */
+
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
@@ -12,7 +28,7 @@ import {
   harvestFruit,
   canWaterToday,
 } from "@/lib/wordtree/gameLogic";
-import { getDailyWords } from "@/data/wordtree/words-de";
+import { getDailyWords, WORDS_DE } from "@/data/wordtree/words-de";
 import { Tree } from "./components/Tree";
 import { CoinDisplay } from "./components/CoinDisplay";
 import { ProgressBar } from "./components/ProgressBar";
@@ -31,11 +47,13 @@ export default function WordTreePage() {
   const [showWateringPanel, setShowWateringPanel] = useState(false);
   const [selectedFruitId, setSelectedFruitId] = useState<string | null>(null);
 
+  // ─── بارگذاری از localStorage ───
   useEffect(() => {
     const saved = loadGameState();
     setGameState(saved || createInitialState());
   }, []);
 
+  // ─── ذخیره در localStorage ───
   useEffect(() => {
     if (gameState) saveGameState(gameState);
   }, [gameState]);
@@ -50,10 +68,12 @@ export default function WordTreePage() {
 
   const canWater = canWaterToday(gameState);
 
+  // ─── شروع آبیاری ───
   const handleStartWatering = () => {
     setShowWateringPanel(true);
   };
 
+  // ─── پایان آبیاری ───
   const handleWateringComplete = (learnedWordIds: string[]) => {
     const dailyWords = getDailyWords(5);
     const newWords: Word[] = dailyWords
@@ -70,10 +90,12 @@ export default function WordTreePage() {
     setShowWateringPanel(false);
   };
 
+  // ─── کلیک روی میوه ───
   const handleFruitClick = (fruitId: string) => {
     setSelectedFruitId(fruitId);
   };
 
+  // ─── پاسخ به پنل چیدن ───
   const handleHarvestAnswer = (remembered: boolean) => {
     if (selectedFruitId) {
       setGameState(harvestFruit(gameState, selectedFruitId, remembered));
@@ -81,26 +103,29 @@ export default function WordTreePage() {
     }
   };
 
+  // ─── کلمات برای پنل آبیاری ───
   const wateringWords = getDailyWords(5).map((w) => ({
     id: w.id,
     german: w.translations.de,
     translation: w.translations[safeLocale] || w.translations.fa,
-    example: w.example?.[safeLocale] || w.example?.fa,
+    example: w.example?.de,
+    exampleTranslation: w.example?.translations?.[safeLocale],
   }));
 
-  // پیدا کردن میوه‌ی انتخاب شده
+  // ─── پیدا کردن میوه‌ی انتخاب‌شده ───
   const selectedFruit = selectedFruitId
     ? gameState.tree.fruits.find((f) => f.id === selectedFruitId)
     : null;
 
-  // پیدا کردن کلمه‌ی مربوط به میوه
-  const selectedWord = selectedFruit
-    ? gameState.words.find((w) => w.id === selectedFruit.wordId)
+  // ─── پیدا کردن اطلاعات کامل کلمه ───
+  const selectedWordEntry = selectedFruit
+    ? WORDS_DE.find((w) => w.id === selectedFruit.wordId)
     : null;
 
   return (
     <div className="min-h-screen bg-paper-100 py-8 px-4">
       <div className="max-w-3xl mx-auto">
+        {/* هدر */}
         <div className="flex items-center justify-between mb-6">
           <Link
             href={`/${safeLocale}/tools`}
@@ -111,6 +136,7 @@ export default function WordTreePage() {
           <CoinDisplay coins={gameState.coins} />
         </div>
 
+        {/* عنوان */}
         <div className="text-center mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-navy-900 font-mono mb-2">
             {t.pageTitle}
@@ -118,6 +144,7 @@ export default function WordTreePage() {
           <p className="text-navy-900/60">{t.pageSubtitle}</p>
         </div>
 
+        {/* نوار پیشرفت */}
         <div className="mb-8">
           <ProgressBar
             current={gameState.tree.totalWords}
@@ -126,6 +153,7 @@ export default function WordTreePage() {
           />
         </div>
 
+        {/* درخت */}
         <div className="my-8 flex justify-center">
           <Tree
             level={gameState.tree.level}
@@ -134,6 +162,7 @@ export default function WordTreePage() {
           />
         </div>
 
+        {/* پیام راهنما */}
         <div className="text-center mb-6">
           {gameState.tree.totalWords === 0 ? (
             <p className="text-navy-900/70">{t.firstWaterMessage}</p>
@@ -146,6 +175,7 @@ export default function WordTreePage() {
           )}
         </div>
 
+        {/* دکمه‌ی آبیاری */}
         <div className="flex justify-center">
           <Button
             variant="primary"
@@ -174,16 +204,10 @@ export default function WordTreePage() {
       )}
 
       {/* پنل چیدن */}
-      {selectedFruit && selectedWord && (
+      {selectedFruit && selectedWordEntry && (
         <HarvestPanel
-          german={selectedWord.german}
-          translation={selectedWord.translation}
-          example={
-            getDailyWords(5).find((w) => w.id === selectedWord.id)?.example?.[
-              safeLocale
-            ] ||
-            getDailyWords(5).find((w) => w.id === selectedWord.id)?.example?.fa
-          }
+          wordEntry={selectedWordEntry}
+          locale={safeLocale}
           onAnswer={handleHarvestAnswer}
           labels={{
             title: t.harvestPanelTitle,
@@ -191,6 +215,11 @@ export default function WordTreePage() {
             reveal: t.harvestReveal,
             forgot: t.harvestForgot,
             remembered: t.harvestRemembered,
+            grammar: t.grammar,
+            article: t.article,
+            plural: t.plural,
+            praeteritum: t.praeteritum,
+            perfekt: t.perfekt,
           }}
         />
       )}

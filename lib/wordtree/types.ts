@@ -1,45 +1,306 @@
+/**
+ * Word Tree — Type Definitions (نسخه ۲.۰ - نهایی)
+ *
+ * این فایل، ساختار داده‌ای کل بازی رو تعریف می‌کنه.
+ *
+ * ⚠️ نکته‌ی مهم برای توسعه‌دهنده‌های آینده:
+ * این ساختار برای «آینده‌نگر بودن» طراحی شده. یعنی حتی اگه الان
+ * از یه فیلد استفاده نمی‌کنیم، ولی می‌دونیم که بعداً لازیم می‌شه،
+ * الان تعریفش می‌کنیم تا بعداً نیاز به migration نداشته باشیم.
+ *
+ * اگه می‌خوای فیلد جدیدی اضافه کنی:
+ * ۱. اول ببین آیا می‌تونی از فیلدهای اختیاری (?) استفاده کنی.
+ * ۲. اگه فیلد اجباریه، باید یه migration بنویسی (توی storage.ts).
+ * ۳. کامنت بنویس که چرا اضافه شد.
+ */
+
 import { Locale } from "@/lib/i18n";
 
+// ─────────────────────────────────────────────────────────────
+// انواع پایه
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * سطح درخت بر اساس تعداد کلمات یادگرفته‌شده.
+ *
+ * آستانه‌ها توی `lib/wordtree/constants.ts` تعریف شدن:
+ * - seedling: 0-49 کلمه
+ * - young: 50-149 کلمه
+ * - mature: 150-399 کلمه
+ * - ancient: 400+ کلمه
+ */
 export type TreeLevel = "seedling" | "young" | "mature" | "ancient";
+
+/**
+ * نوع میوه روی درخت.
+ *
+ * - green: کال (کلمه‌ی جدید، هنوز مرور نشده)
+ * - yellow: نیمه‌رس (کلمه‌ی متوسط — برای فاز ۲)
+ * - golden: رسیده (کلمه‌ی مرورشده، آماده‌ی چیدن)
+ * - orange: آسیب‌دیده (کلمه‌ای که کاربر یادش رفته)
+ */
 export type FruitType = "green" | "yellow" | "golden" | "orange";
+
+/**
+ * وضعیت یادگیری هر کلمه.
+ *
+ * - new: تازه اضافه شده، هنوز مرور نشده
+ * - learning: در حال یادگیری (۱-۲ بار مرور شده)
+ * - learned: یاد گرفته شده (۳+ بار مرور موفق)
+ */
 export type WordStatus = "new" | "learning" | "learned";
 
-export interface WordEntry {
-  id: string;
-  level: "A1" | "A2" | "B1";
-  category: "noun" | "verb" | "adjective" | "phrase";
-  translations: Record<Locale, string>;
-  example?: Record<Locale, string>;
+/**
+ * دسته‌بندی کلمات.
+ *
+ * این دسته‌بندی برای:
+ * ۱. فیلتر کردن کلمات در پنل آبیاری
+ * ۲. ساخت درخت‌های تخصصی (فاز ۳)
+ * ۳. آمار و پیشرفت کاربر
+ */
+export type WordCategory =
+  | "noun"      // اسم
+  | "verb"      // فعل
+  | "adjective" // صفت
+  | "phrase"    // عبارت
+  | "number"    // عدد
+  | "color";    // رنگ
+
+/**
+ * سطح زبان آلمانی (CEFR).
+ *
+ * از A1 (مبتدی) تا C1 (پیشرفته).
+ * فعلاً فقط A1 استفاده می‌شه، ولی برای آینده آماده‌ست.
+ */
+export type GermanLevel = "A1" | "A2" | "B1" | "B2" | "C1";
+
+
+export type { Locale } from "@/lib/i18n";
+// ─────────────────────────────────────────────────────────────
+// اطلاعات گرامری
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * اطلاعات گرامری اسم‌ها (Nomen).
+ *
+ * در آلمانی، هر اسم سه ویژگی مهم داره:
+ * ۱. حرف تعریف (der/die/das) → جنسیت
+ * ۲. حالت جمع (Plural)
+ * ۳. حالت‌های گرامری (Akkusativ, Dativ, Genitiv) → برای فاز ۳
+ *
+ * مثال:
+ * - der Mann → die Männer
+ * - die Frau → die Frauen
+ * - das Kind → die Kinder
+ */
+export interface NounInfo {
+  /** حرف تعریف معین (Nominativ) */
+  article: "der" | "die" | "das";
+  /** حالت جمع */
+  plural: string;
+  /** حالت اضافی (Genitiv) — اختیاری، برای فاز ۳ */
+  genitive?: string;
 }
 
-export interface Word {
+/**
+ * اطلاعات گرامری فعل‌ها (Verben).
+ *
+ * افعال آلمانی سه شکل مهم دارن:
+ * ۱. مصدر (Infinitiv) → lesen
+ * ۲. گذشته‌ی ساده (Präteritum) → las
+ * ۳. گذشته‌ی کامل (Perfekt) → hat gelesen
+ *
+ * نکته: بعضی افعال با «sein» صرف می‌شن (افعال حرکتی):
+ * - gehen → ist gegangen
+ * - kommen → ist gekommen
+ */
+export interface VerbInfo {
+  /** گذشته‌ی ساده */
+  praeteritum: string;
+  /** گذشته‌ی کامل (با فعل کمکی) */
+  perfekt: string;
+  /** فعل کمکی: haben یا sein */
+  auxiliary: "haben" | "sein";
+  /** آیا فعل بی‌قاعده‌ست؟ (برای فاز ۳) */
+  irregular?: boolean;
+}
+
+// ─────────────────────────────────────────────────────────────
+// مثال‌ها و تلفظ
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * مثال دو زبانه.
+ *
+ * هر کلمه یه جمله‌ی آلمانی داره که به زبان مادری کاربر ترجمه شده.
+ *
+ * مثال:
+ * {
+ *   de: "Der Mann liest ein Buch.",
+ *   translations: {
+ *     fa: "مرد یک کتاب می‌خواند.",
+ *     en: "The man is reading a book.",
+ *     de: "Der Mann liest ein Buch.",
+ *   }
+ * }
+ */
+export interface Example {
+  /** جمله‌ی آلمانی */
+  de: string;
+  /** ترجمه به زبان‌های مختلف */
+  translations: Record<Locale, string>;
+}
+
+/**
+ * اطلاعات تلفظ.
+ *
+ * ⚠️ برای فاز ۲: فایل صوتی اضافه می‌شه.
+ *
+ * مثال:
+ * {
+ *   ipa: "[ˈman]",          // تلفظ استاندارد بین‌المللی
+ *   persian: "مان",          // تلفظ فارسی‌نویسی
+ *   audioUrl: "/wordtree/audio/w1.mp3",  // فایل صوتی
+ * }
+ */
+export interface Pronunciation {
+  /** تلفظ IPA (استاندارد بین‌المللی) */
+  ipa?: string;
+  /** تلفظ فارسی‌نویسی (برای فارسی‌زبان‌ها) */
+  persian?: string;
+  /** لینک فایل صوتی */
+  audioUrl?: string;
+}
+
+// ─────────────────────────────────────────────────────────────
+// کلمه‌ی اصلی (Word Entry)
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * کلمه‌ی اصلی در دیتابیس بازی.
+ *
+ * این ساختار، منبع اصلی همه‌ی کلمات بازیه.
+ *
+ * @example
+ * {
+ *   id: "w1",
+ *   level: "A1",
+ *   category: "noun",
+ *   translations: { fa: "مرد", de: "der Mann", en: "man" },
+ *   noun: { article: "der", plural: "die Männer" },
+ *   pronunciation: { persian: "مان", ipa: "[ˈman]" },
+ *   example: {
+ *     de: "Der Mann liest ein Buch.",
+ *     translations: { fa: "مرد یک کتاب می‌خواند.", en: "The man is reading a book.", de: "Der Mann liest ein Buch." },
+ *   },
+ * }
+ */
+export interface WordEntry {
+  /** شناسه‌ی یکتا */
   id: string;
+  /** سطح زبانی */
+  level: GermanLevel;
+  /** دسته‌بندی گرامری */
+  category: WordCategory;
+  /** ترجمه به زبان‌های مختلف */
+  translations: Record<Locale, string>;
+  /** اطلاعات گرامری اسم (فقط اگه category = noun باشه) */
+  noun?: NounInfo;
+  /** اطلاعات گرامری فعل (فقط اگه category = verb باشه) */
+  verb?: VerbInfo;
+  /** تلفظ */
+  pronunciation?: Pronunciation;
+  /** مثال */
+  example?: Example;
+  /** تگ‌ها برای فیلتر کردن (فاز ۳) */
+  tags?: string[];
+}
+
+// ─────────────────────────────────────────────────────────────
+// وضعیت بازی (Runtime State)
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * کلمه‌ی درون بازی (نسخه‌ی runtime).
+ *
+ * این ساختار، نسخه‌ی «فعال» یه کلمه‌ست که توی حافظه‌ی کاربر ذخیره می‌شه.
+ * اطلاعات گرامری (noun, verb) رو نداره چون اون اطلاعات از `WordEntry` میاد.
+ */
+export interface Word {
+  /** شناسه (مطابق با WordEntry.id) */
+  id: string;
+  /** کلمه‌ی آلمانی */
   german: string;
+  /** ترجمه به زبان کاربر */
   translation: string;
+  /** وضعیت یادگیری */
   status: WordStatus;
+  /** تعداد مرور موفق */
   reviewCount: number;
+  /** آخرین زمان مرور (timestamp) */
   lastReviewed?: number;
 }
 
+/**
+ * میوه‌ی روی درخت.
+ *
+ * هر میوه به یه کلمه متصل‌ه. وقتی کاربر میوه رو می‌چینه،
+ * ازش پرسیده می‌شه «یادت موند؟» و بر اساس جواب:
+ * - یادش مونده → میوه حذف، سکه اضافه
+ * - یادش رفته → میوه به نارنجی تغییر می‌کنه
+ */
 export interface Fruit {
+  /** شناسه‌ی یکتا */
   id: string;
+  /** شناسه‌ی کلمه‌ای که میوه بهش وصله */
   wordId: string;
+  /** نوع میوه (رنگ) */
   type: FruitType;
+  /** زمان ایجاد (timestamp) */
   createdAt: number;
+  /** آیا آماده‌ی چیدنه؟ (برای فاز ۲) */
   isReady: boolean;
 }
 
+/**
+ * وضعیت درخت.
+ *
+ * ⚠️ برای فاز ۲: فیلدهای `health`, `lastHarvested`, `waterLevel` اضافه می‌شن.
+ */
 export interface TreeState {
+  /** سطح درخت */
   level: TreeLevel;
+  /** تعداد کل کلمات یادگرفته‌شده */
   totalWords: number;
+  /** میوه‌های روی درخت */
   fruits: Fruit[];
+  /** آخرین زمان آبیاری (timestamp) */
   lastWatered?: number;
+  /** تعداد روزهای متوالی (streak) */
   streak: number;
+  /** سلامت درخت (0-100) — برای فاز ۲ */
+  health?: number;
 }
 
+/**
+ * وضعیت کل بازی.
+ *
+ * این ساختار توی localStorage ذخیره می‌شه.
+ * کلید ذخیره‌سازی: `wordtree_game_state_v1` (توی constants.ts)
+ *
+ * ⚠️ برای توسعه‌دهنده‌های آینده:
+ * اگه ساختار رو تغییر دادی، باید یه migration بنویسی
+ * که داده‌های قدیمی رو به ساختار جدید تبدیل کنه (توی storage.ts).
+ */
 export interface GameState {
+  /** وضعیت درخت */
   tree: TreeState;
+  /** کلمات یادگرفته‌شده */
   words: Word[];
+  /** سکه‌ها */
   coins: number;
+  /** آخرین زمان بازی (timestamp) */
   lastPlayed: number;
+  /** نسخه‌ی ساختار (برای migration) */
+  version: number;
 }

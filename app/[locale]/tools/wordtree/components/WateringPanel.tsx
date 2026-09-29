@@ -1,5 +1,15 @@
 "use client";
 
+/**
+ * WateringPanel — پنل آبیاری (نسخه ۲.۰)
+ *
+ * این پنل وقتی باز می‌شه که کاربر دکمه‌ی آبیاری رو می‌زنه.
+ *
+ * ⚠️ نکته برای توسعه‌دهنده‌های آینده:
+ * - `example`: مثال آلمانی
+ * - `exampleTranslation`: ترجمه‌ی مثال به زبان کاربر
+ */
+
 import { useState } from "react";
 import { WordCard } from "./WordCard";
 
@@ -8,6 +18,7 @@ interface WordItem {
   german: string;
   translation: string;
   example?: string;
+  exampleTranslation?: string;
 }
 
 interface WateringPanelProps {
@@ -70,6 +81,7 @@ export function WateringPanel({
           german={currentWord.german}
           translation={currentWord.translation}
           example={currentWord.example}
+          exampleTranslation={currentWord.exampleTranslation}
           onLearned={handleLearned}
           learnedLabel={isLast ? labels.finish : labels.learned}
           exampleLabel={labels.example}

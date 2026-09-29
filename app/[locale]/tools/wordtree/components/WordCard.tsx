@@ -1,11 +1,23 @@
 "use client";
 
+/**
+ * WordCard — کارت کلمه (نسخه ۲.۰)
+ *
+ * این کامپوننت، یه کلمه رو با معنی و مثال نشون می‌ده.
+ *
+ * ⚠️ نکته برای توسعه‌دهنده‌های آینده:
+ * - `example`: مثال آلمانی
+ * - `exampleTranslation`: ترجمه‌ی مثال
+ * - برای فاز ۳ (تلفظ صوتی)، دکمه‌ی پخش صدا اضافه می‌شه.
+ */
+
 import { useState } from "react";
 
 interface WordCardProps {
   german: string;
   translation: string;
   example?: string;
+  exampleTranslation?: string;
   onLearned: () => void;
   learnedLabel: string;
   exampleLabel: string;
@@ -15,6 +27,7 @@ export function WordCard({
   german,
   translation,
   example,
+  exampleTranslation,
   onLearned,
   learnedLabel,
   exampleLabel,
@@ -49,7 +62,16 @@ export function WordCard({
               <p className="text-xs text-navy-900/50 mb-1 font-mono">
                 {exampleLabel}
               </p>
-              <p className="text-sm text-navy-900/80">{example}</p>
+              {/* مثال آلمانی */}
+              <p className="text-sm text-navy-900 font-medium mb-1" dir="ltr">
+                {example}
+              </p>
+              {/* ترجمه‌ی مثال */}
+              {exampleTranslation && exampleTranslation !== example && (
+                <p className="text-xs text-navy-900/60">
+                  {exampleTranslation}
+                </p>
+              )}
             </div>
           )}
 
