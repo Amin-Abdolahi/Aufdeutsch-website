@@ -1,22 +1,23 @@
 "use client";
 
 /**
- * SettingsPanel — پنل تنظیمات (نسخه ۱.۰)
+ * SettingsPanel — پنل تنظیمات (نسخه ۲.۰ — با گزینه‌ی آزمون)
  *
  * ⚠️ نکته برای توسعه‌دهنده‌های آینده:
  *
  * ۱. این پنل از سمت راست (توی RTL) باز می‌شه.
  * ۲. گزینه‌ها به صورت لیست عمودی نمایش داده می‌شن.
- * ۳. برای اضافه کردن گزینه‌ی جدید، به آرایه‌ی `items` اضافه کن.
+ * ۳. برای اضافه کردن گزینه‌ی جدید، به آرایه‌ی `items` توی `page.tsx` اضافه کن.
+ * ۴. این کامپوننت فقط نمایشه — منطق توی `page.tsx` مدیریت می‌شه.
  */
 
 import { useEffect } from "react";
 
-interface SettingsItem {
+export interface SettingsItem {
   icon: string;
   label: string;
   onClick: () => void;
-  variant?: "default" | "danger";
+  variant?: "default" | "danger" | "highlight";
 }
 
 interface SettingsPanelProps {
@@ -55,7 +56,7 @@ export function SettingsPanel({
 
       {/* ─── پنل ─── */}
       <div className="fixed top-0 right-0 h-full w-72 max-w-[80vw] bg-paper-100 shadow-2xl z-50 animate-slide-in-right border-l border-gold-300/30">
-        {/* هدر */}
+        {/* ─── هدر ─── */}
         <div className="flex items-center justify-between p-4 border-b border-navy-900/10">
           <h2 className="text-lg font-bold text-navy-900 font-mono">
             ⚙️ {title}
@@ -69,7 +70,7 @@ export function SettingsPanel({
           </button>
         </div>
 
-        {/* گزینه‌ها */}
+        {/* ─── گزینه‌ها ─── */}
         <div className="p-3 space-y-2">
           {items.map((item, index) => (
             <button
@@ -81,6 +82,8 @@ export function SettingsPanel({
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-sm transition text-right ${
                 item.variant === "danger"
                   ? "bg-red-50 hover:bg-red-100 text-red-700"
+                  : item.variant === "highlight"
+                  ? "bg-gold-300/40 hover:bg-gold-300/60 text-navy-900 border border-gold-500/40"
                   : "bg-white hover:bg-gold-300/20 text-navy-900 border border-navy-900/10"
               }`}
             >

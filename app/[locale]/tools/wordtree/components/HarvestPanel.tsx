@@ -1,27 +1,33 @@
 "use client";
 
 /**
- * HarvestPanel — پنل چیدن میوه (نسخه ۳.۰)
- *
- * این پنل وقتی باز می‌شه که کاربر روی یه میوه کلیک می‌کنه.
+ * HarvestPanel — پنل چیدن میوه (نسخه ۴.۰ — با تمرین اختیاری)
  *
  * ⚠️ نکته برای توسعه‌دهنده‌های آینده:
  *
- * ۱. اطلاعات گرامری بر اساس نوع کلمه نمایش داده می‌شه:
- *    - اسم (noun): جنسیت (der/die/das) + جمع
- *    - فعل (verb): Präteritum + Perfekt
- *    - صفت (adjective): بدون اطلاعات گرامری
+ * ۱. این پنل وقتی باز می‌شه که کاربر روی یه میوه کلیک می‌کنه.
+ * ۲. کاربر می‌تونه:
+ *    - معنی رو ببینه.
+ *    - تمرین اختیاری کنه (SpellingExercise).
+ *    - «یادم موند» یا «یادم رفت» رو بزنه.
+ * ۳. تمرین اختیاری: کاربر می‌تونه رد کنه.
+ * ۴. اگه تمرین انجام داد، نتیجه به `harvestFruit` پاس داده می‌شه.
  *
- * ۲. برای فاز ۳ (تلفظ صوتی)، `pronunciation.audioUrl` اضافه می‌شه.
+ * ⚠️ برای فاز ۲:
+ * - اضافه کردن آرتیکل، صرف فعل، صفت تفضیلی.
  */
 
 import { useState } from "react";
 import { WordEntry } from "@/lib/wordtree/types";
 import { Locale } from "@/lib/i18n";
+import { generateExerciseForWord } from "@/lib/wordtree/exercises";
+import { SpellingExercise } from "./exercises/SpellingExercise";
+import { Button } from "@/components/ui/Button";
 
 interface HarvestPanelProps {
   wordEntry: WordEntry;
   locale: Locale;
+  reviewStage: number;
   onAnswer: (remembered: boolean) => void;
   labels: {
     title: string;
@@ -34,16 +40,29 @@ interface HarvestPanelProps {
     plural: string;
     praeteritum: string;
     perfekt: string;
+    // ─── جدید ───
+    practiceOptional: string;
+    practiceTitle: string;
+    practiceHint: string;
+    practiceConfirm: string;
+    practiceCorrect: string;
+    practiceWrong: string;
+    practiceTryAgain: string;
+    practiceShowAnswer: string;
+    skipPractice: string;
   };
 }
 
 export function HarvestPanel({
   wordEntry,
   locale,
+  reviewStage,
   onAnswer,
   labels,
 }: HarvestPanelProps) {
   const [revealed, setRevealed] = useState(false);
+  const [showPractice, setShowPractice] = useState(false);
+  const [practiceResult, setPracticeResult] = useState<"correct" | "wrong" | null>(null);
 
   const german = wordEntry.translations.de;
   const translation =
@@ -54,10 +73,70 @@ export function HarvestPanel({
 
   const hasGrammar = wordEntry.noun || wordEntry.verb;
 
+  // ─── تولید تمرین ───
+  // فقط برای کلماتی که کوتاه نیستن (حداقل ۴ حرف)
+  const canPractice = german.length >= 4;
+
+  const exercise = canPractice
+    ? generateExerciseForWord(german, reviewStage)
+    : null;
+
+  // ─── شروع تمرین ───
+  const handleStartPractice = () => {
+    setShowPractice(true);
+  };
+
+  // ─── پایان تمرین ───
+  const handlePracticeComplete = (correct: boolean) => {
+    setPracticeResult(correct ? "correct" : "wrong");
+    // بعد از ۱.۵ ثانیه، برمی‌گردیم به حالت اصلی
+    setTimeout(() => {
+      setShowPractice(false);
+      setPracticeResult(null);
+    }, 1500);
+  };
+
+  // ─── حالت تمرین ───
+  if (showPractice && exercise && practiceResult === null) {
+    return (
+      <div className="fixed inset-0 bg-navy-900/70 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div className="bg-paper-100 p-6 md:p-8 rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto animate-panel-in border border-gold-300/30">
+          <SpellingExercise
+            exercise={exercise}
+            onComplete={handlePracticeComplete}
+            labels={{
+              title: labels.practiceTitle,
+              hint: labels.practiceHint,
+              confirm: labels.practiceConfirm,
+              correct: labels.practiceCorrect,
+              wrong: labels.practiceWrong,
+              tryAgain: labels.practiceTryAgain,
+              showAnswer: labels.practiceShowAnswer,
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // ─── پیام موفقیت تمرین ───
+  if (practiceResult === "correct") {
+    return (
+      <div className="fixed inset-0 bg-navy-900/70 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div className="bg-paper-100 p-6 rounded-xl shadow-2xl max-w-md w-full animate-panel-in">
+          <p className="text-center text-2xl font-bold text-green-600">
+            ✓ {labels.practiceCorrect}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // ─── پنل اصلی ───
   return (
     <div className="fixed inset-0 bg-navy-900/70 backdrop-blur-md z-50 flex items-center justify-center p-4">
-  <div className="bg-paper-100 p-6 md:p-8 rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto animate-panel-in border border-gold-300/30">
-        {/* هدر */}
+      <div className="bg-paper-100 p-6 md:p-8 rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto animate-panel-in border border-gold-300/30">
+        {/* ─── هدر ─── */}
         <div className="mb-6 text-center">
           <h2 className="text-xl font-bold text-navy-900 font-mono mb-1">
             🍎 {labels.title}
@@ -65,13 +144,12 @@ export function HarvestPanel({
           <p className="text-sm text-navy-900/60">{labels.question}</p>
         </div>
 
-        {/* کلمه‌ی آلمانی */}
+        {/* ─── کلمه ─── */}
         <div className="bg-white p-6 rounded-sm border border-navy-900/10 mb-4">
           <p className="text-3xl font-bold text-navy-900 font-mono text-center mb-2">
             {german}
           </p>
 
-          {/* تلفظ فارسی‌نویسی */}
           {wordEntry.pronunciation?.persian && (
             <p className="text-center text-sm text-navy-900/50 font-mono mb-2">
               [{wordEntry.pronunciation.persian}]
@@ -87,19 +165,18 @@ export function HarvestPanel({
             </button>
           ) : (
             <div className="space-y-3 mt-4">
-              {/* ترجمه */}
+              {/* ─── ترجمه ─── */}
               <p className="text-lg text-navy-900 text-center font-bold">
                 {translation}
               </p>
 
-              {/* اطلاعات گرامری */}
+              {/* ─── اطلاعات گرامری ─── */}
               {hasGrammar && (
                 <div className="bg-navy-900/5 p-3 rounded-sm">
                   <p className="text-xs text-navy-900/50 mb-2 font-mono">
                     {labels.grammar}
                   </p>
 
-                  {/* اسم */}
                   {wordEntry.noun && (
                     <div className="space-y-1">
                       <div className="flex justify-between text-sm">
@@ -121,7 +198,6 @@ export function HarvestPanel({
                     </div>
                   )}
 
-                  {/* فعل */}
                   {wordEntry.verb && (
                     <div className="space-y-1">
                       <div className="flex justify-between text-sm">
@@ -145,7 +221,7 @@ export function HarvestPanel({
                 </div>
               )}
 
-              {/* مثال آلمانی */}
+              {/* ─── مثال ─── */}
               {example && (
                 <div className="bg-paper-100 p-3 rounded-sm border-r-4 border-gold-300">
                   <p className="text-xs text-navy-900/50 mb-1 font-mono">
@@ -168,21 +244,34 @@ export function HarvestPanel({
           )}
         </div>
 
-        {/* دکمه‌ها - فقط بعد از دیدن معنی */}
+        {/* ─── دکمه‌ها ─── */}
         {revealed && (
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              onClick={() => onAnswer(false)}
-              className="py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-sm transition"
-            >
-              ✗ {labels.forgot}
-            </button>
-            <button
-              onClick={() => onAnswer(true)}
-              className="py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-sm transition"
-            >
-              ✓ {labels.remembered}
-            </button>
+          <div className="space-y-3">
+            {/* ─── دکمه‌ی یادم موند / یادم رفت ─── */}
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={() => onAnswer(false)}
+                className="py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-sm transition"
+              >
+                ✗ {labels.forgot}
+              </button>
+              <button
+                onClick={() => onAnswer(true)}
+                className="py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-sm transition"
+              >
+                ✓ {labels.remembered}
+              </button>
+            </div>
+
+            {/* ─── دکمه‌ی تمرین اختیاری ─── */}
+            {canPractice && exercise && (
+              <button
+                onClick={handleStartPractice}
+                className="w-full py-2 bg-gold-300 hover:bg-gold-500 text-navy-900 font-bold rounded-sm transition text-sm border border-gold-500/40"
+              >
+                🎯 {labels.practiceOptional}
+              </button>
+            )}
           </div>
         )}
       </div>

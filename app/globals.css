@@ -3,7 +3,7 @@
 @theme inline {
   --font-sans: var(--font-vazirmatn);
   --font-mono: "Space Mono", monospace;
-  
+
   /* Color palette - based on SPEC.md */
   --color-paper-100: #F3ECDD;
   --color-paper-50: #F9F5EC;
@@ -17,6 +17,10 @@
   --color-red-500: #D14336;
   --color-red-400: #E25C52;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   BASE STYLES
+   ═══════════════════════════════════════════════════════════════ */
 
 body {
   font-family: var(--font-sans), Arial, sans-serif;
@@ -39,6 +43,10 @@ p,
 li {
   text-wrap: pretty;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   NOTEBOOK BANDS (تزئینات پس‌زمینه)
+   ═══════════════════════════════════════════════════════════════ */
 
 .notebook-band {
   position: absolute;
@@ -78,11 +86,9 @@ li {
   to { translate: 0 18px; opacity: 0.78; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .notebook-band {
-    animation: none;
-  }
-}
+/* ═══════════════════════════════════════════════════════════════
+   PASSPORT STAMP (مهر پاسپورت)
+   ═══════════════════════════════════════════════════════════════ */
 
 .passport-stamp > .stamp-svg {
   width: 100%;
@@ -122,19 +128,21 @@ li {
   fill: #B23A2E;
   font-size: 10px;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   TEXT EFFECTS (افکت‌های متنی)
+   ═══════════════════════════════════════════════════════════════ */
+
 @keyframes blink {
   0%, 100% { opacity: 1; }
   50% { opacity: 0; }
 }
-/* ============================================
-   افکت ورود "درست" مثل لامپ مهتابی واقعی
-   ============================================ */
+
 @keyframes flickerIn {
   0% {
     opacity: 0;
     filter: brightness(0.3);
   }
-  /* اولین جرقه - سریع */
   3% {
     opacity: 0.9;
     filter: brightness(3);
@@ -143,7 +151,6 @@ li {
     opacity: 0.05;
     filter: brightness(0.3);
   }
-  /* جرقه دوم - کوتاه */
   8% {
     opacity: 1;
     filter: brightness(3.5);
@@ -152,7 +159,6 @@ li {
     opacity: 0.1;
     filter: brightness(0.5);
   }
-  /* جرقه سوم - طولانی‌تر */
   14% {
     opacity: 1;
     filter: brightness(2.8);
@@ -161,7 +167,6 @@ li {
     opacity: 0;
     filter: brightness(0.3);
   }
-  /* جرقه چهارم - دوتایی */
   20% {
     opacity: 0.8;
     filter: brightness(3);
@@ -178,7 +183,6 @@ li {
     opacity: 0.2;
     filter: brightness(0.5);
   }
-  /* جرقه پنجم - آروم‌تر */
   35% {
     opacity: 1;
     filter: brightness(2.5);
@@ -187,7 +191,6 @@ li {
     opacity: 0.4;
     filter: brightness(0.8);
   }
-  /* شروع پایداری */
   45% {
     opacity: 0.9;
     filter: brightness(2);
@@ -200,12 +203,10 @@ li {
     opacity: 1;
     filter: brightness(1.8);
   }
-  /* یه نفس آخر */
   65% {
     opacity: 1;
     filter: brightness(1.5);
   }
-  /* تثبیت کامل */
   80% {
     opacity: 1;
     filter: brightness(1);
@@ -216,9 +217,6 @@ li {
   }
 }
 
-/* ============================================
-   درخشش ستاره‌ای پس از تثبیت
-   ============================================ */
 @keyframes starGlow {
   0%, 100% {
     text-shadow:
@@ -231,40 +229,22 @@ li {
       0 0 30px rgba(212, 175, 55, 0.3);
   }
 }
+
 .emphasis-word {
   color: #D4AF37 !important;
   animation:
     flickerIn 2.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
     starGlow 4s ease-in-out 3s infinite;
 }
+
 .star-glow {
   animation: starGlow 4s ease-in-out infinite;
   animation-delay: 2.5s;
 }
-/* ============================================
-   Prefers Reduced Motion
-   برای کاربرانی که انیمیشن نمی‌خوان
-   ============================================ */
 
-@media (prefers-reduced-motion: reduce) {
-  /* همه‌ی انیمیشن‌ها و ترنزیشن‌ها رو غیرفعال کن */
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
-/* ─────────────────────────────────────────────────────────────
- * Word Tree — انیمیشن‌ها و استایل‌های اختصاصی
- * ─────────────────────────────────────────────────────────────
- *
- * ⚠️ نکته برای توسعه‌دهنده‌های آینده:
- * این انیمیشن‌ها برای بازی «درخت واژه» استفاده می‌شن.
- * اگه انیمیشن جدیدی خواستی، به این بخش اضافه کن.
- */
+/* ═══════════════════════════════════════════════════════════════
+   WORD TREE — GAME ANIMATIONS (انیمیشن‌های بازی)
+   ═══════════════════════════════════════════════════════════════ */
 
 /* ─── انیمیشن ظهور میوه ─── */
 @keyframes pop-in {
@@ -318,22 +298,6 @@ li {
   animation: panel-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
-/* ─── انیمیشن برگ‌های در حال ریزش ─── */
-@keyframes fall {
-  0% {
-    transform: translateY(0) rotate(0deg);
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(100vh) rotate(360deg);
-    opacity: 0;
-  }
-}
-
-.animate-fall {
-  animation: fall 4s linear infinite;
-}
-
 /* ─── انیمیشن ورود پنل از راست ─── */
 @keyframes slide-in-right {
   from {
@@ -346,4 +310,65 @@ li {
 
 .animate-slide-in-right {
   animation: slide-in-right 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* ─── تاب خوردن ملایم برگ‌ها و درخت ─── */
+@keyframes tree-sway {
+  0%, 100% {
+    transform: rotate(-0.4deg);
+  }
+  50% {
+    transform: rotate(0.4deg);
+  }
+}
+
+.animate-tree-sway {
+  animation: tree-sway 5s ease-in-out infinite;
+  transform-origin: center bottom;
+}
+
+/* ─── تاب خوردن میوه‌ها ─── */
+@keyframes fruit-sway {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-1.5px);
+  }
+}
+
+.animate-fruit-sway {
+  animation: fruit-sway 3s ease-in-out infinite;
+}
+
+/* ─── رشد آروم درخت ─── */
+@keyframes tree-grow {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-tree-grow {
+  animation: tree-grow 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  transform-origin: center bottom;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PREFERS REDUCED MOTION
+   ═══════════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

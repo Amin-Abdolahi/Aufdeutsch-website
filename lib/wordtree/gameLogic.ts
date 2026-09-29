@@ -1,20 +1,14 @@
 /**
- * Word Tree — Game Logic (نسخه ۵.۰)
+ * Word Tree — Game Logic (نسخه ۶.۰)
  *
- * ⚠️ نکته برای توسعه‌دهنده‌های آینده:
- *
- * ۱. Spaced Repetition بر اساس «روز بازی»:
- *    - هر کلمه `reviewStage` داره (0-5)
- *    - `nextReviewDay` = شماره‌ی روز بازی که باید مرور بشه
- *    - وقتی کاربر «روز بعد» رو می‌زنه، اگه `nextReviewDay <= currentDay`،
- *      کلمه آماده‌ی مروره و یه میوه‌ی مرور ساخته می‌شه.
- *    - اینطوری کاربر توی یه روز تقویمی می‌تونه چند روز بازی جلو بره
- *      و مرورها هم درست کار کنن.
- *
- * ۲. هر تابع باید «pure» باشه.
+ * ⚠️ تغییرات نسخه ۶.۰:
+ * - اضافه شدن منطق میوه‌ی نقره‌ای (هر ۲۰ کلمه)
+ * - اضافه شدن فیلدهای `totalWordsLearned` و `lastSilverFruitAt` به state
+ * - به‌روزرسانی `waterTree` برای چک کردن میوه‌ی نقره‌ای
+ * - اضافه شدن تابع `createSilverFruit`
  */
 
-import { GameState, Word, Fruit, TreeLevel } from "./types";
+import { GameState, Word, Fruit, TreeLevel, QuizResult } from "./types";
 import {
   COIN_PER_GOLDEN_FRUIT,
   WORDS_TO_YOUNG,
@@ -23,12 +17,20 @@ import {
   STATE_VERSION,
   REVIEW_INTERVALS,
   MAX_REVIEW_STAGE,
+  DEFAULT_TARGET_LANGUAGE,
+  SILVER_FRUIT_INTERVAL,
+  QUIZ_REWARD_COINS,
+  QUIZ_PASS_THRESHOLD,
 } from "./constants";
+import { generateQuiz } from "./exercises";
 
 // ─────────────────────────────────────────────────────────────
 // وضعیت اولیه
 // ─────────────────────────────────────────────────────────────
 
+/**
+ * ساخت وضعیت اولیه‌ی بازی.
+ */
 export function createInitialState(): GameState {
   return {
     tree: {
@@ -46,6 +48,8 @@ export function createInitialState(): GameState {
     dayState: "watering",
     wordsLearnedToday: [],
     wateredToday: false,
+    targetLanguage: DEFAULT_TARGET_LANGUAGE,
+    totalWordsLearned: 0,
   };
 }
 
@@ -61,16 +65,9 @@ export function calculateTreeLevel(totalWords: number): TreeLevel {
 }
 
 // ─────────────────────────────────────────────────────────────
-// Spaced Repetition — محاسبه‌ی روز مرور
+// Spaced Repetition
 // ─────────────────────────────────────────────────────────────
 
-/**
- * محاسبه‌ی روز بازی برای مرور بعدی.
- *
- * @param currentDay - روز بازی فعلی
- * @param stage - مرحله‌ی مرور (0-5)
- * @returns شماره‌ی روز بازیه که باید مرور بشه
- */
 export function calculateNextReviewDay(
   currentDay: number,
   stage: number
@@ -80,41 +77,77 @@ export function calculateNextReviewDay(
   return currentDay + days;
 }
 
-/**
- * تبدیل مرحله‌ی مرور به نوع میوه.
- *
- * - stage 0: green (کال)
- * - stage 1-2: yellow (نیمه‌رس)
- * - stage 3-5: golden (رسیده)
- */
 export function stageToFruitType(stage: number): "green" | "yellow" | "golden" {
   if (stage === 0) return "green";
   if (stage <= 2) return "yellow";
   return "golden";
 }
 
-/**
- * بررسی اینکه آیا کلمه آماده‌ی مروره.
- *
- * @param word - کلمه
- * @param currentDay - روز بازی فعلی
- * @returns true اگه `nextReviewDay <= currentDay` باشه
- */
 export function isWordDueForReview(word: Word, currentDay: number): boolean {
   if (!word.nextReviewDay) return false;
   return word.nextReviewDay <= currentDay;
 }
 
+// ─────────────────────────────────────────────────────────────
+// میوه‌ی نقره‌ای
+// ─────────────────────────────────────────────────────────────
+
 /**
- * آبیاری درخت — اضافه کردن کلمات جدید.
+ * ساخت یه میوه‌ی نقره‌ای (آزمون).
  *
- * ⚠️ نکته‌ی مهم:
- * - کلمات جدید با `reviewStage: 0` و `nextReviewDay: undefined` اضافه می‌شن.
- * - منبع کلمه (`source`) از `WordEntry` گرفته می‌شه.
+ * ⚠️ این تابع:
+ * ۱. کلمات چالش‌برانگیز رو انتخاب می‌کنه.
+ * ۲. یه آزمون کامل تولید می‌کنه.
+ * ۳. میوه‌ی نقره‌ای با `quizWords` می‌سازه.
+ *
+ * @param state - وضعیت بازی
+ * @returns یه Fruit از نوع silver
  */
+export function createSilverFruit(state: GameState): Fruit {
+  // تولید آزمون از کلمات چالش‌برانگیز
+  const exercises = generateQuiz(state.words, 5);
+
+  return {
+    id: `silver-fruit-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+    wordId: "", // میوه‌ی نقره‌ای به کلمه‌ی خاصی وصل نیست
+    type: "silver",
+    createdAt: Date.now(),
+    isReady: true,
+    isReviewFruit: false,
+    quizWords: exercises.map((e) => e.wordId),
+  };
+}
+
+/**
+ * بررسی اینکه آیا کاربر باید میوه‌ی نقره‌ای بگیره یا نه.
+ *
+ * ⚠️ شرط: هر `SILVER_FRUIT_INTERVAL` کلمه‌ی جدید (مثلاً ۲۰).
+ *
+ * @param state - وضعیت بازی
+ * @returns true اگه باید میوه‌ی نقره‌ای داده بشه
+ */
+export function shouldAwardSilverFruit(state: GameState): boolean {
+  const learned = state.totalWordsLearned;
+  const interval = SILVER_FRUIT_INTERVAL;
+
+  // اگه به مضرب رسیده و قبلاً جایزه نگرفته
+  if (learned > 0 && learned % interval === 0) {
+    // چک کن که قبلاً برای این نقطه جایزه نگرفته باشه
+    if (state.lastSilverFruitAt === learned) return false;
+    return true;
+  }
+
+  return false;
+}
+
+// ─────────────────────────────────────────────────────────────
+// آبیاری (یادگیری کلمات جدید)
+// ─────────────────────────────────────────────────────────────
+
 export function waterTree(state: GameState, newWords: Word[]): GameState {
   const totalWords = state.tree.totalWords + newWords.length;
   const newLevel = calculateTreeLevel(totalWords);
+  const totalWordsLearned = state.totalWordsLearned + newWords.length;
 
   const newFruits: Fruit[] = newWords.map((word, index) => ({
     id: `fruit-${word.id}-${Date.now()}-${index}`,
@@ -125,7 +158,7 @@ export function waterTree(state: GameState, newWords: Word[]): GameState {
     isReviewFruit: false,
   }));
 
-  return {
+  let updatedState: GameState = {
     ...state,
     words: [...state.words, ...newWords],
     tree: {
@@ -142,11 +175,27 @@ export function waterTree(state: GameState, newWords: Word[]): GameState {
       ...newWords.map((w) => w.id),
     ],
     dayState: "harvesting",
+    totalWordsLearned,
   };
+
+  // ─── چک کردن میوه‌ی نقره‌ای ───
+  if (shouldAwardSilverFruit(updatedState)) {
+    const silverFruit = createSilverFruit(updatedState);
+    updatedState = {
+      ...updatedState,
+      tree: {
+        ...updatedState.tree,
+        fruits: [...updatedState.tree.fruits, silverFruit],
+      },
+      lastSilverFruitAt: totalWordsLearned,
+    };
+  }
+
+  return updatedState;
 }
 
 // ─────────────────────────────────────────────────────────────
-// چیدن میوه (مرور کلمات)
+// چیدن میوه
 // ─────────────────────────────────────────────────────────────
 
 export function harvestFruit(
@@ -156,6 +205,12 @@ export function harvestFruit(
 ): GameState {
   const fruit = state.tree.fruits.find((f) => f.id === fruitId);
   if (!fruit) return state;
+
+  // ─── میوه‌ی نقره‌ای: از این تابع استفاده نکن ───
+  // (چون آزمون داره، توی `completeQuiz` مدیریت می‌شه)
+  if (fruit.type === "silver") {
+    return state;
+  }
 
   // ─── حالت ۱: یادش مونده ───
   if (remembered) {
@@ -208,6 +263,41 @@ export function harvestFruit(
 }
 
 // ─────────────────────────────────────────────────────────────
+// تکمیل آزمون (میوه‌ی نقره‌ای)
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * تکمیل یه آزمون.
+ *
+ * @param state - وضعیت بازی
+ * @param fruitId - شناسه‌ی میوه‌ی نقره‌ای
+ * @param result - نتیجه‌ی آزمون
+ * @returns وضعیت به‌روز شده
+ */
+export function completeQuiz(
+  state: GameState,
+  fruitId: string,
+  result: QuizResult
+): GameState {
+  const fruit = state.tree.fruits.find((f) => f.id === fruitId);
+  if (!fruit || fruit.type !== "silver") return state;
+
+  // ─── محاسبه‌ی جایزه ───
+  const passed = result.correctAnswers >= QUIZ_PASS_THRESHOLD;
+  const coinsEarned = passed ? QUIZ_REWARD_COINS : 0;
+
+  return {
+    ...state,
+    coins: state.coins + coinsEarned,
+    tree: {
+      ...state.tree,
+      fruits: state.tree.fruits.filter((f) => f.id !== fruitId),
+    },
+    lastPlayed: Date.now(),
+  };
+}
+
+// ─────────────────────────────────────────────────────────────
 // مدیریت «روز بازی»
 // ─────────────────────────────────────────────────────────────
 
@@ -230,26 +320,13 @@ export function checkDayCompletion(state: GameState): GameState {
   };
 }
 
-/**
- * شروع روز بعد بازی.
- *
- * ⚠️ نکته‌ی مهم:
- * ۱. روز بازی یکی جلو می‌ره.
- * ۲. کلماتی که `nextReviewDay <= currentDay` (روز جدید) هستن،
- *    میوه‌ی مرور می‌شن.
- * ۳. رنگ میوه بر اساس `reviewStage`:
- *    - stage 1-2: yellow
- *    - stage 3-5: golden
- */
 export function startNextDay(state: GameState): GameState {
   const newDay = state.currentDay + 1;
 
-  // پیدا کردن کلماتی که آماده‌ی مرورن (بر اساس روز بازی)
   const wordsDueForReview = state.words.filter((w) =>
     isWordDueForReview(w, newDay)
   );
 
-  // ساختن میوه‌های مرور
   const reviewFruits: Fruit[] = wordsDueForReview.map((word, index) => ({
     id: `review-fruit-${word.id}-${Date.now()}-${index}`,
     wordId: word.id,
@@ -290,7 +367,7 @@ export function countFruits(state: GameState): number {
 
 export function countReadyFruits(state: GameState): number {
   return state.tree.fruits.filter(
-    (f) => f.type === "green" || f.type === "orange"
+    (f) => f.type === "green" || f.type === "orange" || f.type === "silver"
   ).length;
 }
 

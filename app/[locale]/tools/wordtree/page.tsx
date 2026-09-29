@@ -1,20 +1,27 @@
 "use client";
 
 /**
- * Word Tree — Main Page (نسخه ۹.۰ — با پنل تنظیمات)
+ * Word Tree — Main Page (نسخه ۱۰.۰ — با میوه‌ی نقره‌ای و آزمون)
  *
- * ⚠️ نکته برای توسعه‌دهنده‌های آینده:
- *
- * ۱. دکمه‌های «افزودن کلمه» و «افزودن گروهی» به پنل تنظیمات منتقل شدن.
- * ۲. آیکون ⚙️ توی هدر، پنل تنظیمات رو باز می‌کنه.
- * ۳. برای اضافه کردن گزینه‌ی جدید به پنل، به آرایه‌ی `settingsItems` اضافه کن.
+ * ⚠️ تغییرات نسخه ۱۰.۰:
+ * - اضافه شدن میوه‌ی نقره‌ای (هر ۲۰ کلمه)
+ * - اضافه شدن QuizMenu (منوی آزمون)
+ * - اضافه شدن ExerciseModal (تمرین اختیاری)
+ * - اضافه شدن گزینه‌ی آزمون به تنظیمات
+ * - پاس دادن `reviewStage` به HarvestPanel
  */
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { getDictionary, isLocale, Locale } from "@/lib/i18n";
-import { GameState, Word, WordEntry, ImportResult } from "@/lib/wordtree/types";
+import {
+  GameState,
+  Word,
+  WordEntry,
+  ImportResult,
+  QuizResult,
+} from "@/lib/wordtree/types";
 import { loadGameState, saveGameState } from "@/lib/wordtree/storage";
 import {
   createInitialState,
@@ -23,12 +30,10 @@ import {
   canWaterToday,
   startNextDay,
   countReadyFruits,
+  completeQuiz,
 } from "@/lib/wordtree/gameLogic";
 import { WORDS_DE } from "@/data/wordtree/words-de";
-import {
-  loadCustomWords,
-  addCustomWord,
-} from "@/lib/wordtree/customWords";
+import { loadCustomWords, addCustomWord } from "@/lib/wordtree/customWords";
 import { importWordsFromJSON } from "@/lib/wordtree/jsonImport";
 import { REWARD_CUSTOM_WORD } from "@/lib/wordtree/constants";
 import { Tree } from "./components/Tree";
@@ -38,7 +43,11 @@ import { WateringPanel } from "./components/WateringPanel";
 import { HarvestPanel } from "./components/HarvestPanel";
 import { AddWordModal } from "./components/AddWordModal";
 import { ImportWordsModal } from "./components/ImportWordsModal";
-import { SettingsPanel } from "./components/SettingsPanel";
+import {
+  SettingsPanel,
+  SettingsItem,
+} from "./components/SettingsPanel";
+import { QuizMenu } from "./components/QuizMenu";
 import { Button } from "@/components/ui/Button";
 
 export default function WordTreePage() {
@@ -53,6 +62,7 @@ export default function WordTreePage() {
   const [showAddWordModal, setShowAddWordModal] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showQuizMenu, setShowQuizMenu] = useState(false);
   const [selectedFruitId, setSelectedFruitId] = useState<string | null>(null);
   const [customWords, setCustomWords] = useState<WordEntry[]>([]);
   const [rewardMessage, setRewardMessage] = useState<string | null>(null);
@@ -81,9 +91,7 @@ export default function WordTreePage() {
   const readyFruits = countReadyFruits(gameState);
 
   const allWords = [...customWords, ...WORDS_DE];
-
   const learnedIds = gameState.words.map((w) => w.id);
-
   const hasNew = allWords.some((w) => !learnedIds.includes(w.id));
 
   const dailyWords = allWords
@@ -117,6 +125,15 @@ export default function WordTreePage() {
 
   // ─── کلیک روی میوه ───
   const handleFruitClick = (fruitId: string) => {
+    const fruit = gameState.tree.fruits.find((f) => f.id === fruitId);
+    if (!fruit) return;
+
+    // ─── اگه میوه‌ی نقره‌ای بود، منوی آزمون رو باز کن ───
+    if (fruit.type === "silver") {
+      setShowQuizMenu(true);
+      return;
+    }
+
     setSelectedFruitId(fruitId);
   };
 
@@ -171,6 +188,17 @@ export default function WordTreePage() {
     return result;
   };
 
+  // ─── تکمیل آزمون ───
+  const handleQuizComplete = (result: QuizResult) => {
+    // اگه میوه‌ی نقره‌ای روی درخت هست، پاکش کن
+    const silverFruit = gameState.tree.fruits.find((f) => f.type === "silver");
+    if (silverFruit) {
+      setGameState(
+        completeQuiz(gameState, silverFruit.id, result)
+      );
+    }
+  };
+
   // ─── کلمات برای پنل آبیاری ───
   const wateringWords = dailyWords.map((w) => ({
     id: w.id,
@@ -190,25 +218,46 @@ export default function WordTreePage() {
     ? allWords.find((w) => w.id === selectedFruit.wordId)
     : null;
 
+  // ─── پیدا کردن کلمه‌ی runtime ───
+  const selectedWord = selectedFruit
+    ? gameState.words.find((w) => w.id === selectedFruit.wordId)
+    : null;
+
   // ─── تعیین پیام راهنما ───
   const getGuidanceMessage = () => {
+    const hasSilver = gameState.tree.fruits.some((f) => f.type === "silver");
+
+    if (hasSilver) {
+      return "🥈 یه میوه‌ی نقره‌ای روی درختت هست! روش کلیک کن و آزمون بده.";
+    }
+
     if (!hasNew && gameState.words.length >= allWords.length) {
       return "🎉 تبریک! تو همه‌ی کلمات رو یاد گرفتی. حالا فقط مرورشون کن.";
     }
+
     if (gameState.dayState === "completed") {
       return `روز ${gameState.currentDay} تموم شد! 🎉`;
     }
+
     if (!gameState.wateredToday) {
       return t.firstWaterMessage;
     }
+
     if (readyFruits > 0) {
       return t.harvestMessage;
     }
+
     return `${t.wordsLearned}: ${gameState.tree.totalWords}`;
   };
 
   // ─── آیتم‌های پنل تنظیمات ───
-  const settingsItems = [
+  const settingsItems: SettingsItem[] = [
+    {
+      icon: "🎯",
+      label: t.quizMenu || "آزمون‌ها",
+      onClick: () => setShowQuizMenu(true),
+      variant: "highlight",
+    },
     {
       icon: "➕",
       label: t.addWord,
@@ -237,7 +286,6 @@ export default function WordTreePage() {
               روز {gameState.currentDay}
             </span>
             <CoinDisplay coins={gameState.coins} />
-            {/* ─── دکمه‌ی تنظیمات ─── */}
             <button
               onClick={() => setShowSettings(true)}
               className="w-10 h-10 flex items-center justify-center rounded-full bg-navy-900/10 hover:bg-navy-900/20 transition text-navy-900 text-lg"
@@ -318,6 +366,48 @@ export default function WordTreePage() {
         title="تنظیمات"
       />
 
+      {/* ─── منوی آزمون ─── */}
+      <QuizMenu
+        isOpen={showQuizMenu}
+        onClose={() => setShowQuizMenu(false)}
+        words={gameState.words}
+        onQuizComplete={handleQuizComplete}
+        labels={{
+          title: t.quizMenuTitle || "آزمون‌ها",
+          statsTitle: t.quizStatsTitle || "آمار شما",
+          totalQuizzes: t.quizTotalQuizzes || "آزمون‌ها",
+          overallAccuracy: t.quizOverallAccuracy || "دقت کلی",
+          bestAccuracy: t.quizBestAccuracy || "بهترین",
+          totalQuestions: t.quizTotalQuestions || "کل سوالات",
+          weakWordsTitle: t.quizWeakWords || "کلمات ضعیف",
+          weakWordsEmpty: t.quizWeakWordsEmpty || "هنوز کلمه‌ی ضعیفی نداری",
+          startQuiz: t.quizStart || "شروع آزمون آزاد",
+          close: t.close || "بستن",
+          noStats: t.quizNoStats || "هنوز آزمونی ندادی",
+          modal: {
+            title: t.quizModalTitle || "آزمون",
+            subtitle: t.quizModalSubtitle || "به سوالات جواب بده",
+            questionOf: t.quizQuestionOf || "سوال",
+            next: t.quizNext || "بعدی",
+            finish: t.quizFinish || "پایان",
+            resultTitle: t.quizResultTitle || "نتیجه‌ی آزمون",
+            correctCount: t.quizCorrectCount || "درست",
+            totalCount: t.quizTotalCount || "کل",
+            passed: t.quizPassed || "قبول شدی!",
+            failed: t.quizFailed || "این بار نشد",
+            coinsEarned: t.quizCoinsEarned || "سکه گرفتی",
+            close: t.close || "بستن",
+            spellingTitle: t.spellingTitle || "حروف گم‌شده رو انتخاب کن",
+            hint: t.spellingHint || "راهنما",
+            confirm: t.spellingConfirm || "تأیید",
+            correct: t.spellingCorrect || "درست!",
+            wrong: t.spellingWrong || "اشتباه بود",
+            tryAgain: t.spellingTryAgain || "دوباره تلاش کن",
+            showAnswer: t.spellingShowAnswer || "نمایش جواب",
+          },
+        }}
+      />
+
       {/* ─── پنل آبیاری ─── */}
       {showWateringPanel && (
         <WateringPanel
@@ -334,10 +424,11 @@ export default function WordTreePage() {
       )}
 
       {/* ─── پنل چیدن ─── */}
-      {selectedFruit && selectedWordEntry && (
+      {selectedFruit && selectedWordEntry && selectedWord && (
         <HarvestPanel
           wordEntry={selectedWordEntry}
           locale={safeLocale}
+          reviewStage={selectedWord.reviewStage}
           onAnswer={handleHarvestAnswer}
           labels={{
             title: t.harvestPanelTitle,
@@ -350,6 +441,15 @@ export default function WordTreePage() {
             plural: t.plural,
             praeteritum: t.praeteritum,
             perfekt: t.perfekt,
+            practiceOptional: t.practiceOptional || "🎯 تمرین کن (اختیاری)",
+            practiceTitle: t.spellingTitle || "حروف گم‌شده رو انتخاب کن",
+            practiceHint: t.spellingHint || "راهنما",
+            practiceConfirm: t.spellingConfirm || "تأیید",
+            practiceCorrect: t.spellingCorrect || "درست!",
+            practiceWrong: t.spellingWrong || "اشتباه بود",
+            practiceTryAgain: t.spellingTryAgain || "دوباره تلاش کن",
+            practiceShowAnswer: t.spellingShowAnswer || "نمایش جواب",
+            skipPractice: t.skipPractice || "رد کن",
           }}
         />
       )}
@@ -393,7 +493,7 @@ export default function WordTreePage() {
         />
       )}
 
-            {/* ─── مودال ایمپورت گروهی ─── */}
+      {/* ─── مودال ایمپورت گروهی ─── */}
       {showImportModal && (
         <ImportWordsModal
           onClose={() => setShowImportModal(false)}

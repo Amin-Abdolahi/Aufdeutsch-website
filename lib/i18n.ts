@@ -425,6 +425,45 @@ const fa = {
     importPastePlaceholder: 'کد JSON رو اینجا paste کن...\n\nمثال:\n{\n  "version": "1.0",\n  "language": "de",\n  "words": [...]\n}',
     importPasteButton: "ایمپورت کن",
     importPasteEmpty: "لطفاً کد JSON رو paste کن.",
+    // ─── آزمون ───
+    quizMenu: "آزمون‌ها",
+    quizMenuTitle: "آزمون‌ها",
+    quizStatsTitle: "آمار شما",
+    quizTotalQuizzes: "آزمون‌ها",
+    quizOverallAccuracy: "دقت کلی",
+    quizBestAccuracy: "بهترین",
+    quizTotalQuestions: "کل سوالات",
+    quizWeakWords: "کلمات ضعیف",
+    quizWeakWordsEmpty: "هنوز کلمه‌ی ضعیفی نداری",
+    quizStart: "شروع آزمون آزاد",
+    quizNoStats: "هنوز آزمونی ندادی",
+    quizModalTitle: "آزمون",
+    quizModalSubtitle: "به سوالات جواب بده",
+    quizQuestionOf: "سوال",
+    quizNext: "بعدی",
+    quizFinish: "پایان",
+    quizResultTitle: "نتیجه‌ی آزمون",
+    quizCorrectCount: "درست",
+    quizTotalCount: "کل",
+    quizPassed: "قبول شدی!",
+    quizFailed: "این بار نشد",
+    quizCoinsEarned: "سکه گرفتی",
+
+    // ─── تمرین املا ───
+    spellingTitle: "حروف گم‌شده رو انتخاب کن",
+    spellingHint: "راهنما",
+    spellingConfirm: "تأیید",
+    spellingCorrect: "درست!",
+    spellingWrong: "اشتباه بود",
+    spellingTryAgain: "دوباره تلاش کن",
+    spellingShowAnswer: "نمایش جواب",
+
+    // ─── تمرین اختیاری ───
+    practiceOptional: "🎯 تمرین کن (اختیاری)",
+    skipPractice: "رد کن",
+
+    // ─── عمومی ───
+    close: "بستن",
   },
   notFound: {
     title: "یافت نشد",
@@ -852,6 +891,45 @@ const de: Dict = {
     importPastePlaceholder: 'JSON-Code hier einfügen...\n\nBeispiel:\n{\n  "version": "1.0",\n  "language": "de",\n  "words": [...]\n}',
     importPasteButton: "Importieren",
     importPasteEmpty: "Bitte JSON-Code einfügen.",
+    // ─── Quiz ───
+    quizMenu: "Tests",
+    quizMenuTitle: "Tests",
+    quizStatsTitle: "Deine Statistik",
+    quizTotalQuizzes: "Tests",
+    quizOverallAccuracy: "Gesamtgenauigkeit",
+    quizBestAccuracy: "Beste",
+    quizTotalQuestions: "Fragen insgesamt",
+    quizWeakWords: "Schwache Wörter",
+    quizWeakWordsEmpty: "Noch keine schwachen Wörter",
+    quizStart: "Freien Test starten",
+    quizNoStats: "Noch keinen Test gemacht",
+    quizModalTitle: "Test",
+    quizModalSubtitle: "Beantworte die Fragen",
+    quizQuestionOf: "Frage",
+    quizNext: "Weiter",
+    quizFinish: "Fertig",
+    quizResultTitle: "Testergebnis",
+    quizCorrectCount: "Richtig",
+    quizTotalCount: "Gesamt",
+    quizPassed: "Bestanden!",
+    quizFailed: "Diesmal nicht",
+    quizCoinsEarned: "Münzen erhalten",
+
+    // ─── Rechtschreibung ───
+    spellingTitle: "Wähle die fehlenden Buchstaben",
+    spellingHint: "Hinweis",
+    spellingConfirm: "Bestätigen",
+    spellingCorrect: "Richtig!",
+    spellingWrong: "Falsch",
+    spellingTryAgain: "Versuche es erneut",
+    spellingShowAnswer: "Antwort zeigen",
+
+    // ─── Optionales Training ───
+    practiceOptional: "🎯 Üben (optional)",
+    skipPractice: "Überspringen",
+
+    // ─── Allgemein ───
+    close: "Schließen",
   },
   notFound: {
     title: "Nicht gefunden",
@@ -1279,6 +1357,45 @@ const en: Dict = {
     importPastePlaceholder: 'Paste JSON code here...\n\nExample:\n{\n  "version": "1.0",\n  "language": "de",\n  "words": [...]\n}',
     importPasteButton: "Import",
     importPasteEmpty: "Please paste JSON code.",
+    // ─── Quiz ───
+    quizMenu: "Quizzes",
+    quizMenuTitle: "Quizzes",
+    quizStatsTitle: "Your stats",
+    quizTotalQuizzes: "Quizzes",
+    quizOverallAccuracy: "Overall accuracy",
+    quizBestAccuracy: "Best",
+    quizTotalQuestions: "Total questions",
+    quizWeakWords: "Weak words",
+    quizWeakWordsEmpty: "No weak words yet",
+    quizStart: "Start a free quiz",
+    quizNoStats: "No quizzes taken yet",
+    quizModalTitle: "Quiz",
+    quizModalSubtitle: "Answer the questions",
+    quizQuestionOf: "Question",
+    quizNext: "Next",
+    quizFinish: "Finish",
+    quizResultTitle: "Quiz result",
+    quizCorrectCount: "Correct",
+    quizTotalCount: "Total",
+    quizPassed: "Passed!",
+    quizFailed: "Not this time",
+    quizCoinsEarned: "Coins earned",
+
+    // ─── Spelling ───
+    spellingTitle: "Choose the missing letters",
+    spellingHint: "Hint",
+    spellingConfirm: "Confirm",
+    spellingCorrect: "Correct!",
+    spellingWrong: "Wrong",
+    spellingTryAgain: "Try again",
+    spellingShowAnswer: "Show answer",
+
+    // ─── Optional practice ───
+    practiceOptional: "🎯 Practice (optional)",
+    skipPractice: "Skip",
+
+    // ─── General ───
+    close: "Close",
   },
   notFound: {
     title: "Not found",
