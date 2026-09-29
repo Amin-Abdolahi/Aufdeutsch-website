@@ -1,14 +1,13 @@
 "use client";
 
 /**
- * Word Tree — Main Page (نسخه ۱۰.۰ — با میوه‌ی نقره‌ای و آزمون)
+ * Word Tree — Main Page (نسخه ۱۱.۰ — با راهنمای اولیه)
  *
- * ⚠️ تغییرات نسخه ۱۰.۰:
- * - اضافه شدن میوه‌ی نقره‌ای (هر ۲۰ کلمه)
- * - اضافه شدن QuizMenu (منوی آزمون)
- * - اضافه شدن ExerciseModal (تمرین اختیاری)
- * - اضافه شدن گزینه‌ی آزمون به تنظیمات
- * - پاس دادن `reviewStage` به HarvestPanel
+ * ⚠️ تغییرات نسخه ۱۱.۰:
+ * - اضافه شدن OnboardingTour (تور اولیه برای کاربران جدید)
+ * - اضافه شدن HelpModal (راهنمای کامل از تنظیمات)
+ * - اضافه شدن گزینه‌ی «راهنما» به SettingsPanel
+ * - اضافه شدن data-tour attributeها برای تور
  */
 
 import { useState, useEffect } from "react";
@@ -48,6 +47,8 @@ import {
   SettingsItem,
 } from "./components/SettingsPanel";
 import { QuizMenu } from "./components/QuizMenu";
+import { OnboardingTour } from "./components/OnboardingTour";
+import { HelpModal } from "./components/HelpModal";
 import { Button } from "@/components/ui/Button";
 
 export default function WordTreePage() {
@@ -63,6 +64,8 @@ export default function WordTreePage() {
   const [showImportModal, setShowImportModal] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showQuizMenu, setShowQuizMenu] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
+  const [showTour, setShowTour] = useState(false);
   const [selectedFruitId, setSelectedFruitId] = useState<string | null>(null);
   const [customWords, setCustomWords] = useState<WordEntry[]>([]);
   const [rewardMessage, setRewardMessage] = useState<string | null>(null);
@@ -70,8 +73,15 @@ export default function WordTreePage() {
   // ─── بارگذاری از localStorage ───
   useEffect(() => {
     const saved = loadGameState();
-    setGameState(saved || createInitialState());
+    const initialState = saved || createInitialState();
+    setGameState(initialState);
     setCustomWords(loadCustomWords());
+
+    // ─── اگه کاربر تور رو ندیده، نشون بده ───
+    if (!initialState.hasSeenTutorial) {
+      // کمی تاخیر تا صفحه رندر بشه
+      setTimeout(() => setShowTour(true), 500);
+    }
   }, []);
 
   // ─── ذخیره در localStorage ───
@@ -128,7 +138,6 @@ export default function WordTreePage() {
     const fruit = gameState.tree.fruits.find((f) => f.id === fruitId);
     if (!fruit) return;
 
-    // ─── اگه میوه‌ی نقره‌ای بود، منوی آزمون رو باز کن ───
     if (fruit.type === "silver") {
       setShowQuizMenu(true);
       return;
@@ -190,13 +199,19 @@ export default function WordTreePage() {
 
   // ─── تکمیل آزمون ───
   const handleQuizComplete = (result: QuizResult) => {
-    // اگه میوه‌ی نقره‌ای روی درخت هست، پاکش کن
     const silverFruit = gameState.tree.fruits.find((f) => f.type === "silver");
     if (silverFruit) {
-      setGameState(
-        completeQuiz(gameState, silverFruit.id, result)
-      );
+      setGameState(completeQuiz(gameState, silverFruit.id, result));
     }
+  };
+
+  // ─── پایان تور ───
+  const handleTourClose = () => {
+    setShowTour(false);
+    setGameState({
+      ...gameState,
+      hasSeenTutorial: true,
+    });
   };
 
   // ─── کلمات برای پنل آبیاری ───
@@ -213,12 +228,10 @@ export default function WordTreePage() {
     ? gameState.tree.fruits.find((f) => f.id === selectedFruitId)
     : null;
 
-  // ─── پیدا کردن اطلاعات کامل کلمه ───
   const selectedWordEntry = selectedFruit
     ? allWords.find((w) => w.id === selectedFruit.wordId)
     : null;
 
-  // ─── پیدا کردن کلمه‌ی runtime ───
   const selectedWord = selectedFruit
     ? gameState.words.find((w) => w.id === selectedFruit.wordId)
     : null;
@@ -268,6 +281,12 @@ export default function WordTreePage() {
       label: t.importWords,
       onClick: () => setShowImportModal(true),
     },
+    {
+      icon: "📚",
+      label: t.help || "راهنما",
+      onClick: () => setShowHelp(true),
+      variant: "help",
+    },
   ];
 
   return (
@@ -285,8 +304,11 @@ export default function WordTreePage() {
             <span className="text-sm text-navy-900/60 font-mono hidden sm:inline">
               روز {gameState.currentDay}
             </span>
-            <CoinDisplay coins={gameState.coins} />
+            <div data-tour="coins">
+              <CoinDisplay coins={gameState.coins} />
+            </div>
             <button
+              data-tour="settings"
               onClick={() => setShowSettings(true)}
               className="w-10 h-10 flex items-center justify-center rounded-full bg-navy-900/10 hover:bg-navy-900/20 transition text-navy-900 text-lg"
               aria-label="تنظیمات"
@@ -322,7 +344,7 @@ export default function WordTreePage() {
         </div>
 
         {/* ─── درخت ─── */}
-        <div className="my-8 flex justify-center">
+        <div className="my-8 flex justify-center" data-tour="tree">
           <Tree
             level={gameState.tree.level}
             fruits={gameState.tree.fruits}
@@ -336,7 +358,7 @@ export default function WordTreePage() {
         </div>
 
         {/* ─── دکمه‌ی اصلی ─── */}
-        <div className="flex justify-center">
+        <div className="flex justify-center" data-tour="water-button">
           {gameState.dayState === "completed" ? (
             <Button variant="secondary" size="lg" onClick={handleStartNextDay}>
               🌅 روز بعد
@@ -357,6 +379,60 @@ export default function WordTreePage() {
           )}
         </div>
       </div>
+
+      {/* ─── تور اولیه ─── */}
+      <OnboardingTour
+        isOpen={showTour}
+        onClose={handleTourClose}
+        labels={{
+          step1Title: t.tourStep1Title,
+          step1Text: t.tourStep1Text,
+          step2Title: t.tourStep2Title,
+          step2Text: t.tourStep2Text,
+          step3Title: t.tourStep3Title,
+          step3Text: t.tourStep3Text,
+          step4Title: t.tourStep4Title,
+          step4Text: t.tourStep4Text,
+          step5Title: t.tourStep5Title,
+          step5Text: t.tourStep5Text,
+          next: t.tourNext,
+          skip: t.tourSkip,
+          finish: t.tourFinish,
+          stepCounter: t.tourStepCounter,
+        }}
+      />
+
+      {/* ─── راهنمای کامل ─── */}
+      {showHelp && (
+        <HelpModal
+          onClose={() => setShowHelp(false)}
+          labels={{
+            title: t.helpTitle,
+            basicsTitle: t.helpBasicsTitle,
+            basicsWater: t.helpBasicsWater,
+            basicsHarvest: t.helpBasicsHarvest,
+            basicsDay: t.helpBasicsDay,
+            fruitsTitle: t.helpFruitsTitle,
+            fruitGreen: t.helpFruitGreen,
+            fruitYellow: t.helpFruitYellow,
+            fruitGolden: t.helpFruitGolden,
+            fruitOrange: t.helpFruitOrange,
+            fruitSilver: t.helpFruitSilver,
+            quizzesTitle: t.helpQuizzesTitle,
+            quizzesSilver: t.helpQuizzesSilver,
+            quizzesPractice: t.helpQuizzesPractice,
+            quizzesMenu: t.helpQuizzesMenu,
+            customWordsTitle: t.helpCustomWordsTitle,
+            customWordsManual: t.helpCustomWordsManual,
+            customWordsImport: t.helpCustomWordsImport,
+            customWordsReward: t.helpCustomWordsReward,
+            reviewTitle: t.helpReviewTitle,
+            reviewText: t.helpReviewText,
+            close: t.close || "بستن",
+            gotIt: t.helpGotIt,
+          }}
+        />
+      )}
 
       {/* ─── پنل تنظیمات ─── */}
       <SettingsPanel

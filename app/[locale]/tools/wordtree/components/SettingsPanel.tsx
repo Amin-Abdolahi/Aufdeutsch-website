@@ -1,14 +1,11 @@
 "use client";
 
 /**
- * SettingsPanel — پنل تنظیمات (نسخه ۲.۰ — با گزینه‌ی آزمون)
+ * SettingsPanel — پنل تنظیمات (نسخه ۲.۱)
  *
- * ⚠️ نکته برای توسعه‌دهنده‌های آینده:
- *
- * ۱. این پنل از سمت راست (توی RTL) باز می‌شه.
- * ۲. گزینه‌ها به صورت لیست عمودی نمایش داده می‌شن.
- * ۳. برای اضافه کردن گزینه‌ی جدید، به آرایه‌ی `items` توی `page.tsx` اضافه کن.
- * ۴. این کامپوننت فقط نمایشه — منطق توی `page.tsx` مدیریت می‌شه.
+ * ⚠️ تغییرات نسخه ۲.۱:
+ * - اضافه شدن variant جدید `help` برای گزینه‌ی راهنما
+ * - رنگ‌بندی گزینه‌ی راهنما با آبی ملایم
  */
 
 import { useEffect } from "react";
@@ -17,7 +14,7 @@ export interface SettingsItem {
   icon: string;
   label: string;
   onClick: () => void;
-  variant?: "default" | "danger" | "highlight";
+  variant?: "default" | "danger" | "highlight" | "help";
 }
 
 interface SettingsPanelProps {
@@ -84,6 +81,8 @@ export function SettingsPanel({
                   ? "bg-red-50 hover:bg-red-100 text-red-700"
                   : item.variant === "highlight"
                   ? "bg-gold-300/40 hover:bg-gold-300/60 text-navy-900 border border-gold-500/40"
+                  : item.variant === "help"
+                  ? "bg-sky-50 hover:bg-sky-100 text-navy-900 border border-sky-200"
                   : "bg-white hover:bg-gold-300/20 text-navy-900 border border-navy-900/10"
               }`}
             >

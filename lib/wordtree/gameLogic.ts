@@ -50,6 +50,7 @@ export function createInitialState(): GameState {
     wateredToday: false,
     targetLanguage: DEFAULT_TARGET_LANGUAGE,
     totalWordsLearned: 0,
+    hasSeenTutorial: false,
   };
 }
 

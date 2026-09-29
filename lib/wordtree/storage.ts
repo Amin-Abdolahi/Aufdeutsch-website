@@ -84,17 +84,23 @@ function migrateGameState(oldState: GameState): GameState {
   if ((oldState.version || 1) < 9) {
     newState = {
       ...newState,
-      // تعداد کل کلماتی که کاربر یاد گرفته
-      // ⚠️ اگه از قبل نبود، از تعداد کلمات فعلی استفاده کن
       totalWordsLearned:
         (oldState as any).totalWordsLearned ||
         (oldState.words?.length || 0),
-      // آخرین باری که میوه‌ی نقره‌ای گرفته
       lastSilverFruitAt: (oldState as any).lastSilverFruitAt,
     };
   }
 
-  // آپدیت نسخه
+  // ─── Migration از v9 به v10: تور اولیه ───
+  if ((oldState.version || 1) < 10) {
+    newState = {
+      ...newState,
+      // اگه کاربر بازی کرده، تور رو دیده در نظر بگیر
+      hasSeenTutorial:
+        (oldState as any).hasSeenTutorial ?? (oldState.words?.length || 0) > 0,
+    };
+  }
+
   newState.version = STATE_VERSION;
 
   return newState;
