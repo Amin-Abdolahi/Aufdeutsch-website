@@ -55,8 +55,8 @@ export function HarvestPanel({
   const hasGrammar = wordEntry.noun || wordEntry.verb;
 
   return (
-    <div className="fixed inset-0 bg-navy-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-paper-100 p-6 md:p-8 rounded-sm shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-navy-900/70 backdrop-blur-md z-50 flex items-center justify-center p-4">
+  <div className="bg-paper-100 p-6 md:p-8 rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto animate-panel-in border border-gold-300/30">
         {/* هدر */}
         <div className="mb-6 text-center">
           <h2 className="text-xl font-bold text-navy-900 font-mono mb-1">

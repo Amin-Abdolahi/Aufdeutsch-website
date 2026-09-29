@@ -167,7 +167,7 @@ export default function WordTreePage() {
   };
 
   return (
-    <div className="min-h-screen bg-paper-100 py-8 px-4">
+    <div className="min-h-screen bg-gradient-to-b from-sky-50 via-paper-100 to-paper-100 py-8 px-4">
       <div className="max-w-3xl mx-auto">
         {/* ─── هدر ─── */}
         <div className="flex items-center justify-between mb-6">
