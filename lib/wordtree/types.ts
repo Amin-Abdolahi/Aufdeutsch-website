@@ -1,22 +1,22 @@
 /**
- * Word Tree — Type Definitions (نسخه ۳.۰)
+ * Word Tree — Type Definitions (نسخه ۴.۰)
  *
  * این فایل، ساختار داده‌ای کل بازی رو تعریف می‌کنه.
  *
  * ⚠️ نکته‌ی مهم برای توسعه‌دهنده‌های آینده:
  *
- * ۱. ساختار برای «آینده‌نگر بودن» طراحی شده. یعنی حتی اگه الان
- *    از یه فیلد استفاده نمی‌کنیم، ولی می‌دونیم که بعداً لازیم می‌شه،
- *    الان تعریفش می‌کنیم تا بعداً نیاز به migration نداشته باشیم.
+ * ۱. ساختار برای «آینده‌نگر بودن» طراحی شده.
  *
- * ۲. اگه می‌خوای فیلد جدیدی اضافه کنی:
+ * ۲. مفهوم Spaced Repetition:
+ *    - هر کلمه یه `reviewStage` داره (0 تا 5)
+ *    - هر مرحله یه فاصله‌ی زمانی مشخص داره (۱ روز، ۳ روز، ۷ روز...)
+ *    - `nextReviewAt` = زمان مرور بعدی
+ *    - وقتی این زمان برسه، میوه دوباره روی درخت ظاهر می‌شه
+ *
+ * ۳. اگه می‌خوای فیلد جدیدی اضافه کنی:
  *    - اول ببین آیا می‌تونی از فیلدهای اختیاری (?) استفاده کنی.
  *    - اگه فیلد اجباریه، باید یه migration بنویسی (توی storage.ts).
  *    - کامنت بنویس که چرا اضافه شد.
- *
- * ۳. هر بار که ساختار GameState رو تغییر دادی:
- *    - STATE_VERSION توی constants.ts رو زیاد کن.
- *    - یه تابع migration توی storage.ts بنویس.
  */
 
 import { Locale } from "@/lib/i18n";
@@ -27,21 +27,15 @@ import { Locale } from "@/lib/i18n";
 
 /**
  * سطح درخت بر اساس تعداد کلمات یادگرفته‌شده.
- *
- * آستانه‌ها توی `lib/wordtree/constants.ts` تعریف شدن:
- * - seedling: 0-49 کلمه
- * - young: 50-149 کلمه
- * - mature: 150-399 کلمه
- * - ancient: 400+ کلمه
  */
 export type TreeLevel = "seedling" | "young" | "mature" | "ancient";
 
 /**
  * نوع میوه روی درخت.
  *
- * - green: کال (کلمه‌ی جدید، هنوز مرور نشده)
- * - yellow: نیمه‌رس (کلمه‌ی متوسط — برای فاز ۲)
- * - golden: رسیده (کلمه‌ی مرورشده، آماده‌ی چیدن)
+ * - green: کال (کلمه‌ی جدید، هنوز مرور نشده) — reviewStage = 0
+ * - yellow: نیمه‌رس (کلمه‌ی در حال یادگیری) — reviewStage = 1-2
+ * - golden: رسیده (کلمه‌ی مرورشده) — reviewStage = 3-4
  * - orange: آسیب‌دیده (کلمه‌ای که کاربر یادش رفته)
  */
 export type FruitType = "green" | "yellow" | "golden" | "orange";
@@ -57,19 +51,14 @@ export type WordStatus = "new" | "learning" | "learned";
 
 /**
  * دسته‌بندی کلمات.
- *
- * این دسته‌بندی برای:
- * ۱. فیلتر کردن کلمات در پنل آبیاری
- * ۲. ساخت درخت‌های تخصصی (فاز ۳)
- * ۳. آمار و پیشرفت کاربر
  */
 export type WordCategory =
-  | "noun"      // اسم
-  | "verb"      // فعل
-  | "adjective" // صفت
-  | "phrase"    // عبارت
-  | "number"    // عدد
-  | "color";    // رنگ
+  | "noun"
+  | "verb"
+  | "adjective"
+  | "phrase"
+  | "number"
+  | "color";
 
 /**
  * سطح زبان آلمانی (CEFR).
@@ -82,11 +71,6 @@ export type GermanLevel = "A1" | "A2" | "B1" | "B2" | "C1";
 
 /**
  * اطلاعات گرامری اسم‌ها (Nomen).
- *
- * در آلمانی، هر اسم سه ویژگی مهم داره:
- * ۱. حرف تعریف (der/die/das) → جنسیت
- * ۲. حالت جمع (Plural)
- * ۳. حالت‌های گرامری (Akkusativ, Dativ, Genitiv) → برای فاز ۳
  */
 export interface NounInfo {
   /** حرف تعریف معین (Nominativ) */
@@ -99,11 +83,6 @@ export interface NounInfo {
 
 /**
  * اطلاعات گرامری فعل‌ها (Verben).
- *
- * افعال آلمانی سه شکل مهم دارن:
- * ۱. مصدر (Infinitiv) → lesen
- * ۲. گذشته‌ی ساده (Präteritum) → las
- * ۳. گذشته‌ی کامل (Perfekt) → hat gelesen
  */
 export interface VerbInfo {
   /** گذشته‌ی ساده */
@@ -122,8 +101,6 @@ export interface VerbInfo {
 
 /**
  * مثال دو زبانه.
- *
- * هر کلمه یه جمله‌ی آلمانی داره که به زبان مادری کاربر ترجمه شده.
  */
 export interface Example {
   /** جمله‌ی آلمانی */
@@ -134,8 +111,6 @@ export interface Example {
 
 /**
  * اطلاعات تلفظ.
- *
- * ⚠️ برای فاز ۲: فایل صوتی اضافه می‌شه.
  */
 export interface Pronunciation {
   /** تلفظ IPA (استاندارد بین‌المللی) */
@@ -152,8 +127,6 @@ export interface Pronunciation {
 
 /**
  * کلمه‌ی اصلی در دیتابیس بازی.
- *
- * این ساختار، منبع اصلی همه‌ی کلمات بازیه.
  */
 export interface WordEntry {
   /** شناسه‌ی یکتا */
@@ -183,7 +156,12 @@ export interface WordEntry {
 /**
  * کلمه‌ی درون بازی (نسخه‌ی runtime).
  *
- * این ساختار، نسخه‌ی «فعال» یه کلمه‌ست که توی حافظه‌ی کاربر ذخیره می‌شه.
+ * ⚠️ نکته برای توسعه‌دهنده‌های آینده:
+ *
+ * - `reviewStage`: مرحله‌ی مرور (0-5)
+ * - `nextReviewDay`: شماره‌ی روز بازیه که این کلمه باید مرور بشه
+ *   (به جای `nextReviewAt` که timestamp بود).
+ *   اینطوری «زمان مرور» بر اساس روز بازی حساب می‌شه، نه زمان واقعی.
  */
 export interface Word {
   /** شناسه (مطابق با WordEntry.id) */
@@ -198,15 +176,14 @@ export interface Word {
   reviewCount: number;
   /** آخرین زمان مرور (timestamp) */
   lastReviewed?: number;
+  /** مرحله‌ی مرور (0 تا 5) */
+  reviewStage: number;
+  /** شماره‌ی روز بازی برای مرور بعدی */
+  nextReviewDay?: number;
 }
 
 /**
  * میوه‌ی روی درخت.
- *
- * هر میوه به یه کلمه متصل‌ه. وقتی کاربر میوه رو می‌چینه،
- * ازش پرسیده می‌شه «یادت موند؟» و بر اساس جواب:
- * - یادش مونده → میوه حذف، سکه اضافه
- * - یادش رفته → میوه به نارنجی تغییر می‌کنه
  */
 export interface Fruit {
   /** شناسه‌ی یکتا */
@@ -219,12 +196,12 @@ export interface Fruit {
   createdAt: number;
   /** آیا آماده‌ی چیدنه؟ */
   isReady: boolean;
+  /** آیا این میوه برای مرور دوره‌ای ایجاد شده؟ */
+  isReviewFruit?: boolean;
 }
 
 /**
  * وضعیت درخت.
- *
- * ⚠️ برای فاز ۲: فیلدهای `health`, `lastHarvested`, `waterLevel` اضافه می‌شن.
  */
 export interface TreeState {
   /** سطح درخت */
@@ -244,8 +221,6 @@ export interface TreeState {
 /**
  * وضعیت کل بازی.
  *
- * این ساختار توی localStorage ذخیره می‌شه.
- *
  * ⚠️ نکته‌ی مهم درباره‌ی «روز بازی»:
  *
  * `currentDay` = شماره‌ی روز بازی فعلی (۱، ۲، ۳، ...)
@@ -254,10 +229,6 @@ export interface TreeState {
  *   - "harvesting": کاربر باید میوه‌ها رو بچینه
  *   - "ready": هر دو کار انجام شده، آماده‌ی روز بعد
  *   - "completed": روز تموم شده
- *
- * وقتی کاربر هر دو کار (آبیاری + چیدن) رو انجام داد:
- *   - `currentDay` یکی زیاد می‌شه
- *   - `dayState` به "watering" برمی‌گرده
  */
 export interface GameState {
   /** وضعیت درخت */

@@ -1,25 +1,17 @@
 /**
- * Word Tree — Game Logic (نسخه ۳.۰)
- *
- * این فایل، منطق اصلی بازی رو تعریف می‌کنه:
- * - ساخت وضعیت اولیه
- * - محاسبه سطح درخت
- * - آبیاری
- * - چیدن میوه
- * - مدیریت «روز بازی»
+ * Word Tree — Game Logic (نسخه ۵.۰)
  *
  * ⚠️ نکته برای توسعه‌دهنده‌های آینده:
  *
- * ۱. هر تابع باید «pure» باشه. یعنی:
- *    - ورودی بگیره
- *    - خروجی بده
- *    - state اصلی رو تغییر نده (immutable)
- *    - از Date.now() فقط برای timestamp استفاده کنه
+ * ۱. Spaced Repetition بر اساس «روز بازی»:
+ *    - هر کلمه `reviewStage` داره (0-5)
+ *    - `nextReviewDay` = شماره‌ی روز بازی که باید مرور بشه
+ *    - وقتی کاربر «روز بعد» رو می‌زنه، اگه `nextReviewDay <= currentDay`،
+ *      کلمه آماده‌ی مروره و یه میوه‌ی مرور ساخته می‌شه.
+ *    - اینطوری کاربر توی یه روز تقویمی می‌تونه چند روز بازی جلو بره
+ *      و مرورها هم درست کار کنن.
  *
- * ۲. مفهوم «روز بازی»:
- *    - هر روز بازی شامل دو مرحله‌ست: آبیاری + چیدن
- *    - وقتی کاربر هر دو رو انجام داد، روز بعد بازی شروع می‌شه
- *    - کاربر می‌تونه چند روز بازی رو در یه روز تقویمی جلو ببره
+ * ۲. هر تابع باید «pure» باشه.
  */
 
 import { GameState, Word, Fruit, TreeLevel } from "./types";
@@ -29,17 +21,14 @@ import {
   WORDS_TO_MATURE,
   WORDS_TO_ANCIENT,
   STATE_VERSION,
+  REVIEW_INTERVALS,
+  MAX_REVIEW_STAGE,
 } from "./constants";
 
 // ─────────────────────────────────────────────────────────────
 // وضعیت اولیه
 // ─────────────────────────────────────────────────────────────
 
-/**
- * ساخت وضعیت اولیه‌ی بازی.
- *
- * این تابع وقتی صدا زده می‌شه که کاربر اولین بار وارد بازی می‌شه.
- */
 export function createInitialState(): GameState {
   return {
     tree: {
@@ -64,9 +53,6 @@ export function createInitialState(): GameState {
 // سطح درخت
 // ─────────────────────────────────────────────────────────────
 
-/**
- * محاسبه‌ی سطح درخت بر اساس تعداد کلمات.
- */
 export function calculateTreeLevel(totalWords: number): TreeLevel {
   if (totalWords >= WORDS_TO_ANCIENT) return "ancient";
   if (totalWords >= WORDS_TO_MATURE) return "mature";
@@ -75,30 +61,65 @@ export function calculateTreeLevel(totalWords: number): TreeLevel {
 }
 
 // ─────────────────────────────────────────────────────────────
-// آبیاری (یادگیری کلمات جدید)
+// Spaced Repetition — محاسبه‌ی روز مرور
 // ─────────────────────────────────────────────────────────────
 
 /**
- * آبیاری درخت — اضافه کردن کلمات جدید.
+ * محاسبه‌ی روز بازی برای مرور بعدی.
  *
- * این تابع:
- * ۱. کلمات جدید رو به state اضافه می‌کنه
- * ۲. میوه‌های کال جدید روی درخت می‌سازه
- * ۳. سطح درخت رو دوباره محاسبه می‌کنه
- * ۴. `wateredToday` رو true می‌کنه
- * ۵. `dayState` رو به "harvesting" تغییر می‌ده
+ * @param currentDay - روز بازی فعلی
+ * @param stage - مرحله‌ی مرور (0-5)
+ * @returns شماره‌ی روز بازیه که باید مرور بشه
  */
+export function calculateNextReviewDay(
+  currentDay: number,
+  stage: number
+): number {
+  const safeStage = Math.min(stage, MAX_REVIEW_STAGE);
+  const days = REVIEW_INTERVALS[safeStage];
+  return currentDay + days;
+}
+
+/**
+ * تبدیل مرحله‌ی مرور به نوع میوه.
+ *
+ * - stage 0: green (کال)
+ * - stage 1-2: yellow (نیمه‌رس)
+ * - stage 3-5: golden (رسیده)
+ */
+export function stageToFruitType(stage: number): "green" | "yellow" | "golden" {
+  if (stage === 0) return "green";
+  if (stage <= 2) return "yellow";
+  return "golden";
+}
+
+/**
+ * بررسی اینکه آیا کلمه آماده‌ی مروره.
+ *
+ * @param word - کلمه
+ * @param currentDay - روز بازی فعلی
+ * @returns true اگه `nextReviewDay <= currentDay` باشه
+ */
+export function isWordDueForReview(word: Word, currentDay: number): boolean {
+  if (!word.nextReviewDay) return false;
+  return word.nextReviewDay <= currentDay;
+}
+
+// ─────────────────────────────────────────────────────────────
+// آبیاری (یادگیری کلمات جدید)
+// ─────────────────────────────────────────────────────────────
+
 export function waterTree(state: GameState, newWords: Word[]): GameState {
   const totalWords = state.tree.totalWords + newWords.length;
   const newLevel = calculateTreeLevel(totalWords);
 
-  // ساختن میوه‌های کال برای هر کلمه‌ی جدید
   const newFruits: Fruit[] = newWords.map((word, index) => ({
     id: `fruit-${word.id}-${Date.now()}-${index}`,
     wordId: word.id,
     type: "green",
     createdAt: Date.now(),
     isReady: false,
+    isReviewFruit: false,
   }));
 
   return {
@@ -113,7 +134,10 @@ export function waterTree(state: GameState, newWords: Word[]): GameState {
     },
     lastPlayed: Date.now(),
     wateredToday: true,
-    wordsLearnedToday: [...state.wordsLearnedToday, ...newWords.map((w) => w.id)],
+    wordsLearnedToday: [
+      ...state.wordsLearnedToday,
+      ...newWords.map((w) => w.id),
+    ],
     dayState: "harvesting",
   };
 }
@@ -122,21 +146,6 @@ export function waterTree(state: GameState, newWords: Word[]): GameState {
 // چیدن میوه (مرور کلمات)
 // ─────────────────────────────────────────────────────────────
 
-/**
- * چیدن میوه — مرور یه کلمه.
- *
- * رفتار:
- * - اگه remembered = true:
- *   - میوه حذف می‌شه
- *   - سکه اضافه می‌شه
- *   - reviewCount کلمه زیاد می‌شه
- * - اگه remembered = false:
- *   - میوه به نارنجی تغییر می‌کنه
- *   - کلمه توی درخت می‌مونه
- *
- * ⚠️ بعد از چیدن همه‌ی میوه‌ها، `checkDayCompletion` صدا زده می‌شه
- * تا ببینه آیا روز بازی تموم شده یا نه.
- */
 export function harvestFruit(
   state: GameState,
   fruitId: string,
@@ -154,16 +163,19 @@ export function harvestFruit(
         ...state.tree,
         fruits: state.tree.fruits.filter((f) => f.id !== fruitId),
       },
-      words: state.words.map((w) =>
-        w.id === fruit.wordId
-          ? {
-              ...w,
-              reviewCount: w.reviewCount + 1,
-              lastReviewed: Date.now(),
-              status: w.reviewCount + 1 >= 3 ? "learned" : "learning",
-            }
-          : w
-      ),
+      words: state.words.map((w) => {
+        if (w.id !== fruit.wordId) return w;
+
+        const newStage = Math.min(w.reviewStage + 1, MAX_REVIEW_STAGE);
+        return {
+          ...w,
+          reviewCount: w.reviewCount + 1,
+          lastReviewed: Date.now(),
+          reviewStage: newStage,
+          nextReviewDay: calculateNextReviewDay(state.currentDay, newStage),
+          status: newStage >= 3 ? "learned" : "learning",
+        };
+      }),
       lastPlayed: Date.now(),
     };
     return checkDayCompletion(newState);
@@ -178,6 +190,15 @@ export function harvestFruit(
         f.id === fruitId ? { ...f, type: "orange" as const } : f
       ),
     },
+    words: state.words.map((w) => {
+      if (w.id !== fruit.wordId) return w;
+      return {
+        ...w,
+        reviewStage: 1,
+        nextReviewDay: calculateNextReviewDay(state.currentDay, 1),
+        status: "learning",
+      };
+    }),
     lastPlayed: Date.now(),
   };
   return checkDayCompletion(newState);
@@ -187,29 +208,15 @@ export function harvestFruit(
 // مدیریت «روز بازی»
 // ─────────────────────────────────────────────────────────────
 
-/**
- * بررسی اینکه آیا روز بازی تموم شده یا نه.
- *
- * روز بازی تموم می‌شه اگه:
- * ۱. کاربر امروز آبیاری کرده باشه
- * ۲. هیچ میوه‌ی سبز یا نارنجی روی درخت نمونه (همه چیده شده باشن)
- *
- * وقتی روز تموم شد:
- * - `dayState` به "completed" تغییر می‌کنه
- * - `streak` یکی زیاد می‌شه
- */
 export function checkDayCompletion(state: GameState): GameState {
-  // اگه کاربر امروز آبیاری نکرده، روز تموم نمی‌شه
   if (!state.wateredToday) return state;
 
-  // اگه میوه‌ای روی درخت مونده، روز تموم نمی‌شه
   const remainingFruits = state.tree.fruits.filter(
     (f) => f.type === "green" || f.type === "orange"
   );
 
   if (remainingFruits.length > 0) return state;
 
-  // روز تموم شد
   return {
     ...state,
     dayState: "completed",
@@ -223,23 +230,42 @@ export function checkDayCompletion(state: GameState): GameState {
 /**
  * شروع روز بعد بازی.
  *
- * این تابع وقتی صدا زده می‌شه که:
- * - `dayState` = "completed"
- * - کاربر روی دکمه‌ی «روز بعد» کلیک می‌کنه
- *
- * تغییرات:
- * - `currentDay` یکی زیاد می‌شه
- * - `dayState` به "watering" برمی‌گرده
- * - `wateredToday` false می‌شه
- * - `wordsLearnedToday` خالی می‌شه
+ * ⚠️ نکته‌ی مهم:
+ * ۱. روز بازی یکی جلو می‌ره.
+ * ۲. کلماتی که `nextReviewDay <= currentDay` (روز جدید) هستن،
+ *    میوه‌ی مرور می‌شن.
+ * ۳. رنگ میوه بر اساس `reviewStage`:
+ *    - stage 1-2: yellow
+ *    - stage 3-5: golden
  */
 export function startNextDay(state: GameState): GameState {
+  const newDay = state.currentDay + 1;
+
+  // پیدا کردن کلماتی که آماده‌ی مرورن (بر اساس روز بازی)
+  const wordsDueForReview = state.words.filter((w) =>
+    isWordDueForReview(w, newDay)
+  );
+
+  // ساختن میوه‌های مرور
+  const reviewFruits: Fruit[] = wordsDueForReview.map((word, index) => ({
+    id: `review-fruit-${word.id}-${Date.now()}-${index}`,
+    wordId: word.id,
+    type: stageToFruitType(word.reviewStage),
+    createdAt: Date.now(),
+    isReady: true,
+    isReviewFruit: true,
+  }));
+
   return {
     ...state,
-    currentDay: state.currentDay + 1,
+    currentDay: newDay,
     dayState: "watering",
     wateredToday: false,
     wordsLearnedToday: [],
+    tree: {
+      ...state.tree,
+      fruits: [...state.tree.fruits, ...reviewFruits],
+    },
   };
 }
 
@@ -247,13 +273,6 @@ export function startNextDay(state: GameState): GameState {
 // زمان و محدودیت‌ها
 // ─────────────────────────────────────────────────────────────
 
-/**
- * بررسی اینکه آیا کاربر می‌تونه آبیاری کنه.
- *
- * در نسخه‌ی جدید (روز بازی):
- * - کاربر فقط اگه امروز آبیاری نکرده باشه، می‌تونه آبیاری کنه.
- * - محدودیت زمانی حذف شده.
- */
 export function canWaterToday(state: GameState): boolean {
   return !state.wateredToday && state.dayState !== "completed";
 }
@@ -262,25 +281,16 @@ export function canWaterToday(state: GameState): boolean {
 // آمار و اطلاعات
 // ─────────────────────────────────────────────────────────────
 
-/**
- * محاسبه‌ی تعداد میوه‌های روی درخت.
- */
 export function countFruits(state: GameState): number {
   return state.tree.fruits.length;
 }
 
-/**
- * محاسبه‌ی تعداد میوه‌های آماده‌ی چیدن.
- */
 export function countReadyFruits(state: GameState): number {
   return state.tree.fruits.filter(
     (f) => f.type === "green" || f.type === "orange"
   ).length;
 }
 
-/**
- * محاسبه‌ی درصد پیشرفت تا سطح بعدی.
- */
 export function calculateProgress(state: GameState): number {
   const current = state.tree.totalWords;
   const thresholds = {

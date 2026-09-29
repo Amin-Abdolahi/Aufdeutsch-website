@@ -1,27 +1,20 @@
 "use client";
 
 /**
- * Word Tree — Main Page (نسخه ۵.۰)
- *
- * این صفحه، رابط اصلی بازیه.
+ * Word Tree — Main Page (نسخه ۶.۰)
  *
  * ⚠️ نکته برای توسعه‌دهنده‌های آینده:
  *
- * ۱. کلمات جدید روزانه از `getDailyWords(5, learnedIds)` میان.
+ * ۱. Spaced Repetition:
+ *    - هر کلمه `reviewStage` و `nextReviewAt` داره.
+ *    - وقتی کاربر «روز بعد» رو می‌زنه، `startNextDay` میوه‌های
+ *      مرور رو برای کلمات آماده اضافه می‌کنه.
+ *    - این میوه‌ها با رنگ بر اساس مرحله ظاهر می‌شن:
+ *      - yellow: مرحله ۱-۲
+ *      - golden: مرحله ۳-۵
+ *
+ * ۲. کلمات جدید روزانه از `getDailyWords(5, learnedIds)` میان.
  *    `learnedIds` لیست کلماتی‌ست که کاربر قبلاً یاد گرفته.
- *    اینطوری هر روز کلمات **جدید** یاد می‌گیره، نه تکراری.
- *
- * ۲. اگه کلمه‌ی جدیدی نمونه (کاربر همه‌ی ۵۰ کلمه رو یاد گرفته)،
- *    پیام مناسب نشون داده می‌شه و دکمه‌ی آبیاری غیرفعال می‌شه.
- *
- * ۳. اطلاعات کلمه از دو منبع میاد:
- *    - `gameState.words`: اطلاعات وضعیت (status, reviewCount)
- *    - `WORDS_DE`: اطلاعات ثابت (گرامر، مثال، تلفظ)
- *
- * ۴. مفهوم «روز بازی»:
- *    - هر روز بازی دو مرحله داره: آبیاری + چیدن
- *    - وقتی هر دو انجام شد، `dayState` = "completed"
- *    - کاربر روی دکمه‌ی «روز بعد» کلیک می‌کنه و روز جدید شروع می‌شه
  */
 
 import { useState, useEffect } from "react";
@@ -89,7 +82,7 @@ export default function WordTreePage() {
   // ─── آیا کلمه‌ی جدیدی برای یادگیری مونده؟ ───
   const hasNew = hasNewWords(learnedIds);
 
-  // ─── کلمات روزانه (کلماتی که کاربر قبلاً یاد نگرفته) ───
+  // ─── کلمات روزانه ───
   const dailyWords = getDailyWords(5, learnedIds);
 
   // ─── شروع آبیاری ───
@@ -107,6 +100,8 @@ export default function WordTreePage() {
         translation: w.translations[safeLocale] || w.translations.fa,
         status: "learning" as const,
         reviewCount: 0,
+        reviewStage: 0,        // ← جدید: تازه اضافه شده
+        nextReviewDay: undefined, // ← جدید: هنوز آماده‌ی مرور نیست
       }));
 
     setGameState(waterTree(gameState, newWords));
@@ -150,36 +145,31 @@ export default function WordTreePage() {
     ? WORDS_DE.find((w) => w.id === selectedFruit.wordId)
     : null;
 
-  // ─── تعیین پیام راهنما بر اساس وضعیت روز بازی ───
+  // ─── تعیین پیام راهنما ───
   const getGuidanceMessage = () => {
-    // حالت ۱: کاربر همه‌ی کلمات رو یاد گرفته
     if (!hasNew && gameState.words.length >= WORDS_DE.length) {
       return "🎉 تبریک! تو همه‌ی کلمات رو یاد گرفتی. حالا فقط مرورشون کن.";
     }
 
-    // حالت ۲: روز تموم شده، منتظر روز بعد
     if (gameState.dayState === "completed") {
       return `روز ${gameState.currentDay} تموم شد! 🎉`;
     }
 
-    // حالت ۳: کاربر باید آبیاری کنه
     if (!gameState.wateredToday) {
       return t.firstWaterMessage;
     }
 
-    // حالت ۴: میوه‌های روی درخت منتظر چیده شدنن
     if (readyFruits > 0) {
       return t.harvestMessage;
     }
 
-    // حالت پیش‌فرض
     return `${t.wordsLearned}: ${gameState.tree.totalWords}`;
   };
 
   return (
     <div className="min-h-screen bg-paper-100 py-8 px-4">
       <div className="max-w-3xl mx-auto">
-        {/* ─── هدر: لینک بازگشت + شماره‌ی روز + سکه ─── */}
+        {/* ─── هدر ─── */}
         <div className="flex items-center justify-between mb-6">
           <Link
             href={`/${safeLocale}/tools`}
@@ -229,7 +219,6 @@ export default function WordTreePage() {
         {/* ─── دکمه‌ها ─── */}
         <div className="flex justify-center gap-4">
           {gameState.dayState === "completed" ? (
-            // روز تموم شده: دکمه‌ی «روز بعد»
             <Button
               variant="secondary"
               size="lg"
@@ -238,7 +227,6 @@ export default function WordTreePage() {
               🌅 روز بعد
             </Button>
           ) : (
-            // روز فعال: دکمه‌ی «آبیاری»
             <Button
               variant="primary"
               size="lg"

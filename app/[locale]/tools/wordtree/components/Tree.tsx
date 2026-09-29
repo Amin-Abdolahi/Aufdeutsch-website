@@ -1,5 +1,21 @@
 "use client";
 
+/**
+ * Tree — کامپوننت درخت (نسخه ۳.۰)
+ *
+ * ⚠️ نکته برای توسعه‌دهنده‌های آینده:
+ *
+ * ۱. میوه‌های مرور (`isReviewFruit: true`) با یه تگ بصری
+ *    (حلقه‌ی دور میوه) نشون داده می‌شن تا کاربر بفهمه
+ *    این میوه برای مروره، نه کلمه‌ی جدید.
+ *
+ * ۲. رنگ میوه بر اساس نوع:
+ *    - green: کال (کلمه‌ی جدید)
+ *    - yellow: نیمه‌رس (مرحله‌ی ۱-۲)
+ *    - golden: رسیده (مرحله‌ی ۳-۵)
+ *    - orange: آسیب‌دیده (یادش رفته)
+ */
+
 import { Fruit, TreeLevel } from "@/lib/wordtree/types";
 
 interface TreeProps {
@@ -99,6 +115,8 @@ export function Tree({ level, fruits, onFruitClick }: TreeProps) {
           { top: "50%", left: "50%" },
           { top: "45%", left: "30%" },
           { top: "45%", left: "70%" },
+          { top: "55%", left: "40%" },
+          { top: "55%", left: "60%" },
         ];
         const pos = positions[index % positions.length];
 
@@ -109,26 +127,45 @@ export function Tree({ level, fruits, onFruitClick }: TreeProps) {
           orange: "#fb923c",
         }[fruit.type];
 
-        const boxShadow =
-          fruit.type === "golden"
-            ? "0 0 12px #eab308, 0 0 4px #fbbf24"
-            : fruit.type === "orange"
-            ? "0 0 8px rgba(251, 146, 60, 0.6)"
-            : "0 2px 4px rgba(0,0,0,0.2)";
+        // درخشش بر اساس نوع
+        let boxShadow = "0 2px 4px rgba(0,0,0,0.2)";
+        if (fruit.type === "golden") {
+          boxShadow = "0 0 12px #eab308, 0 0 4px #fbbf24";
+        } else if (fruit.type === "orange") {
+          boxShadow = "0 0 8px rgba(251, 146, 60, 0.6)";
+        } else if (fruit.type === "yellow") {
+          boxShadow = "0 0 8px rgba(250, 204, 21, 0.5)";
+        }
+
+        // میوه‌ی مرور: حلقه‌ی طلایی دورش
+        const isReview = fruit.isReviewFruit;
 
         return (
           <button
             key={fruit.id}
             onClick={() => onFruitClick?.(fruit.id)}
-            className="absolute w-6 h-6 rounded-full transition-transform hover:scale-150 focus:outline-none focus:ring-2 focus:ring-gold-300 cursor-pointer animate-pulse-slow"
+            className="absolute w-7 h-7 rounded-full transition-transform hover:scale-150 focus:outline-none focus:ring-2 focus:ring-gold-300 cursor-pointer animate-pulse-slow flex items-center justify-center"
             style={{
               top: pos.top,
               left: pos.left,
               backgroundColor: fruitColor,
               boxShadow,
+              border: isReview ? "2px solid #fff" : "none",
             }}
-            aria-label={`Fruit: ${fruit.type}`}
-          />
+            aria-label={
+              isReview
+                ? `Review fruit: ${fruit.type}`
+                : `Fruit: ${fruit.type}`
+            }
+            title={isReview ? "مرور" : "کلمه‌ی جدید"}
+          >
+            {/* تگ «مرور» برای میوه‌های مرور */}
+            {isReview && (
+              <span className="absolute -top-4 text-[10px] font-bold text-navy-900 bg-gold-300 px-1 rounded-sm whitespace-nowrap">
+                مرور
+              </span>
+            )}
+          </button>
         );
       })}
     </div>
