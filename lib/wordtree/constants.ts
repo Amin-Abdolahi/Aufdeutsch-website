@@ -1,8 +1,8 @@
 /**
- * Word Tree — Constants (نسخه ۹.۰)
+ * Word Tree — Constants (نسخه ۱۰.۰)
  *
- * ⚠️ تغییرات نسخه ۹.۰:
- * - STATE_VERSION به 10 آپدیت شد (برای migration تور اولیه)
+ * ⚠️ تغییرات نسخه ۱۰.۰:
+ * - STATE_VERSION به 11 آپدیت شد (برای درخت پیش‌فرض)
  */
 
 // ─────────────────────────────────────────────────────────────
@@ -58,7 +58,7 @@ export const MAX_REVIEW_STAGE = REVIEW_INTERVALS.length - 1;
 export const STORAGE_KEY = "wordtree_game_state_v1";
 export const CUSTOM_WORDS_STORAGE_KEY = "wordtree_custom_words_v1";
 export const USER_STATS_STORAGE_KEY = "wordtree_user_stats_v1";
-export const STATE_VERSION = 10;
+export const STATE_VERSION = 11;
 
 // ─────────────────────────────────────────────────────────────
 // زمان‌ها
@@ -95,3 +95,28 @@ export const SPELLING_EASY_BLANK_COUNT = 1;
 export const SPELLING_MEDIUM_BLANK_COUNT = 2;
 export const SPELLING_HARD_BLANK_COUNT = 3;
 export const SPELLING_OPTIONS_PER_BLANK = 4;
+
+// ─────────────────────────────────────────────────────────────
+// کاشت درخت (نسخه ۱۰.۰)
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * انواع درخت‌هایی که کاربر می‌تونه بکاره.
+ *
+ * ⚠️ برای MVP، فقط «آلمانی پیش‌فرض» رو داریم.
+ * برای فاز بعد، «آیلتس»، «کسب‌وکار»، و... اضافه می‌شن.
+ */
+export const TREE_TYPES = [
+  {
+    id: "default-de",
+    icon: "🇩🇪",
+    nameKey: "treeTypeDefault",       // کلید i18n
+    descKey: "treeTypeDefaultDesc",   // کلید i18n
+    wordCount: 50,                     // تعداد کلمات
+  },
+] as const;
+
+/**
+ * شناسه‌ی نوع درخت پیش‌فرض.
+ */
+export const DEFAULT_TREE_TYPE = "default-de";

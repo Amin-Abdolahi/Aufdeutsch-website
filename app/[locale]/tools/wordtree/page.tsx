@@ -1,11 +1,12 @@
 "use client";
 
 /**
- * Word Tree — Main Page (نسخه ۱۲.۰ — با بک‌آپ)
+ * Word Tree — Main Page (نسخه ۱۴.۰ — با کاشت درخت)
  *
- * ⚠️ تغییرات نسخه ۱۲.۰:
- * - اضافه شدن BackupModal (خروجی/وارد کردن کلمات سفارشی)
- * - اضافه شدن گزینه‌ی «پشتیبان‌گیری» به SettingsPanel
+ * ⚠️ تغییرات نسخه ۱۴.۰:
+ * - اضافه شدن PlantTreeScreen (صفحه‌ی کاشت درخت)
+ * - اگه کاربر درخت نکاشته، صفحه‌ی کاشت نشون داده می‌شه
+ * - تور اولیه بعد از کاشت شروع می‌شه
  */
 
 import { useState, useEffect } from "react";
@@ -20,8 +21,10 @@ import {
   QuizResult,
 } from "@/lib/wordtree/types";
 import { loadGameState, saveGameState } from "@/lib/wordtree/storage";
+import { autoSnapshot } from "@/lib/wordtree/snapshot";
 import {
   createInitialState,
+  plantTree,
   waterTree,
   harvestFruit,
   canWaterToday,
@@ -41,6 +44,9 @@ import { HarvestPanel } from "./components/HarvestPanel";
 import { AddWordModal } from "./components/AddWordModal";
 import { ImportWordsModal } from "./components/ImportWordsModal";
 import { BackupModal } from "./components/BackupModal";
+import { AlertBanner } from "./components/AlertBanner";
+import { SnapshotModal } from "./components/SnapshotModal";
+import { PlantTreeScreen } from "./components/PlantTreeScreen";
 import {
   SettingsPanel,
   SettingsItem,
@@ -62,6 +68,7 @@ export default function WordTreePage() {
   const [showAddWordModal, setShowAddWordModal] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
   const [showBackupModal, setShowBackupModal] = useState(false);
+  const [showSnapshotModal, setShowSnapshotModal] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showQuizMenu, setShowQuizMenu] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
@@ -77,7 +84,11 @@ export default function WordTreePage() {
     setGameState(initialState);
     setCustomWords(loadCustomWords());
 
-    if (!initialState.hasSeenTutorial) {
+    // ─── snapshot خودکار ───
+    autoSnapshot();
+
+    // ─── تور اولیه (فقط اگه درخت کاشته شده) ───
+    if (initialState.hasPlantedTree && !initialState.hasSeenTutorial) {
       setTimeout(() => setShowTour(true), 500);
     }
   }, []);
@@ -92,6 +103,33 @@ export default function WordTreePage() {
       <div className="min-h-screen flex items-center justify-center bg-paper-100">
         <p className="text-navy-900 font-mono">...</p>
       </div>
+    );
+  }
+
+  // ─── کاشت درخت ───
+  const handlePlantTree = (treeTypeId: string) => {
+    const newState = plantTree(gameState);
+    setGameState(newState);
+
+    // ─── بعد از کاشت، تور رو نشون بده ───
+    setTimeout(() => setShowTour(true), 800);
+  };
+
+  // ─── اگه کاربر درخت نکاشته، صفحه‌ی کاشت رو نشون بده ───
+  if (!gameState.hasPlantedTree) {
+    return (
+      <PlantTreeScreen
+        onPlant={handlePlantTree}
+        labels={{
+          welcome: t.plantWelcome || "به باغت خوش اومدی! 🌱",
+          subtitle: t.plantSubtitle || "",
+          selectTree: t.plantSelectTree || "",
+          treeTypeDefault: t.treeTypeDefault || "آلمانی پیش‌فرض",
+          treeTypeDefaultDesc: t.treeTypeDefaultDesc || "",
+          plantButton: t.plantButton || "بکار",
+          wordsCount: t.plantWordsCount || "{count} کلمه",
+        }}
+      />
     );
   }
 
@@ -217,6 +255,15 @@ export default function WordTreePage() {
     setCustomWords(loadCustomWords());
   };
 
+  // ─── بازگردانی از snapshot ───
+  const handleSnapshotRestore = () => {
+    const saved = loadGameState();
+    if (saved) {
+      setGameState(saved);
+      setCustomWords(loadCustomWords());
+    }
+  };
+
   // ─── کلمات برای پنل آبیاری ───
   const wateringWords = dailyWords.map((w) => ({
     id: w.id,
@@ -291,6 +338,12 @@ export default function WordTreePage() {
       variant: "help",
     },
     {
+      icon: "📂",
+      label: t.snapshots || "نسخه‌های قبلی",
+      onClick: () => setShowSnapshotModal(true),
+      variant: "help",
+    },
+    {
       icon: "📚",
       label: t.help || "راهنما",
       onClick: () => setShowHelp(true),
@@ -301,6 +354,16 @@ export default function WordTreePage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-sky-50 via-paper-100 to-paper-100 py-8 px-4">
       <div className="max-w-3xl mx-auto">
+        {/* ─── بنر هشدار ─── */}
+        <AlertBanner
+          onBackupClick={() => setShowBackupModal(true)}
+          labels={{
+            message: t.alertMessage || "⚠️ بازی در حال توسعه‌ست.",
+            backupButton: t.alertBackupButton || "بک‌آپ بگیر",
+            dismiss: t.alertDismiss || "بستن",
+          }}
+        />
+
         {/* ─── هدر ─── */}
         <div className="flex items-center justify-between mb-6">
           <Link
@@ -467,6 +530,30 @@ export default function WordTreePage() {
             wordsCount: t.backupWordsCount || "{count} کلمه",
             dragHere: t.backupDragHere || "",
             orClick: t.backupOrClick || "",
+          }}
+        />
+      )}
+
+      {/* ─── مودال snapshot ─── */}
+      {showSnapshotModal && (
+        <SnapshotModal
+          onClose={() => setShowSnapshotModal(false)}
+          onRestoreSuccess={handleSnapshotRestore}
+          locale={safeLocale}
+          labels={{
+            title: t.snapshotsTitle || "نسخه‌های قبلی بازی",
+            subtitle: t.snapshotsSubtitle || "",
+            empty: t.snapshotsEmpty || "",
+            createNow: t.snapshotsCreateNow || "",
+            restore: t.snapshotsRestore || "",
+            delete: t.snapshotsDelete || "",
+            restoreConfirm: t.snapshotsRestoreConfirm || "",
+            restoreSuccess: t.snapshotsRestoreSuccess || "",
+            deleteConfirm: t.snapshotsDeleteConfirm || "",
+            wordsCount: t.snapshotsWordsCount || "{count} کلمه",
+            version: t.snapshotsVersion || "نسخه",
+            close: t.snapshotsClose || "بستن",
+            maxNote: t.snapshotsMaxNote || "حداکثر {max} نسخه",
           }}
         />
       )}

@@ -148,6 +148,8 @@ export interface GameState {
   /** ─── جدید ─── */
   /** آیا کاربر تور اولیه رو دیده؟ */
   hasSeenTutorial: boolean;
+  hasPlantedTree: boolean;
+
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -215,4 +217,33 @@ export interface UserStats {
   quizzes: QuizStat[];
   wordStats: Record<string, { correct: number; wrong: number }>;
   exerciseStats: Record<ExerciseType, { correct: number; wrong: number }>;
+}
+// ─────────────────────────────────────────────────────────────
+// Snapshot (نسخه ۱۰.۰)
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * یه snapshot از وضعیت کامل بازی.
+ *
+ * ⚠️ این ساختار توی localStorage ذخیره می‌شه.
+ * هر روز که کاربر وارد می‌شه، اگه از آخرین snapshot بیشتر از ۲۴ ساعت
+ * گذشته باشه، یه snapshot جدید ساخته می‌شه.
+ *
+ * کاربر می‌تونه از تنظیمات، به snapshotهای قبلی برگرده.
+ */
+export interface Snapshot {
+  /** شناسه‌ی یکتا */
+  id: string;
+  /** زمان ساخته شدن (timestamp) */
+  createdAt: number;
+  /** نسخه‌ی STATE_VERSION در زمان ساخت */
+  version: number;
+  /** وضعیت بازی */
+  gameState: GameState;
+  /** کلمات سفارشی */
+  customWords: WordEntry[];
+  /** آمار کاربر */
+  userStats: UserStats | null;
+  /** توضیح کوتاه (مثلاً "خودکار" یا "دستی") */
+  label: string;
 }

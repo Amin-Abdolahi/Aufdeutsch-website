@@ -1,11 +1,9 @@
 /**
- * Word Tree — Game Logic (نسخه ۶.۰)
+ * Word Tree — Game Logic (نسخه ۷.۰)
  *
- * ⚠️ تغییرات نسخه ۶.۰:
- * - اضافه شدن منطق میوه‌ی نقره‌ای (هر ۲۰ کلمه)
- * - اضافه شدن فیلدهای `totalWordsLearned` و `lastSilverFruitAt` به state
- * - به‌روزرسانی `waterTree` برای چک کردن میوه‌ی نقره‌ای
- * - اضافه شدن تابع `createSilverFruit`
+ * ⚠️ تغییرات نسخه ۷.۰:
+ * - اضافه شدن `hasPlantedTree` به GameState
+ * - اضافه شدن تابع `plantTree` (کاشت درخت)
  */
 
 import { GameState, Word, Fruit, TreeLevel, QuizResult } from "./types";
@@ -30,6 +28,9 @@ import { generateQuiz } from "./exercises";
 
 /**
  * ساخت وضعیت اولیه‌ی بازی.
+ *
+ * ⚠️ اضافه شده در نسخه ۷.۰:
+ * - `hasPlantedTree: false` → کاربر باید اول درخت بکاره.
  */
 export function createInitialState(): GameState {
   return {
@@ -51,6 +52,28 @@ export function createInitialState(): GameState {
     targetLanguage: DEFAULT_TARGET_LANGUAGE,
     totalWordsLearned: 0,
     hasSeenTutorial: false,
+    hasPlantedTree: false,
+  };
+}
+
+// ─────────────────────────────────────────────────────────────
+// کاشت درخت (نسخه ۷.۰)
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * کاشت درخت.
+ *
+ * ⚠️ این تابع وقتی صدا زده می‌شه که کاربر اولین درختش رو می‌کاره.
+ * بعد از کاشت، `hasPlantedTree` به `true` می‌ره.
+ *
+ * @param state - وضعیت فعلی
+ * @returns وضعیت جدید
+ */
+export function plantTree(state: GameState): GameState {
+  return {
+    ...state,
+    hasPlantedTree: true,
+    lastPlayed: Date.now(),
   };
 }
 
@@ -93,24 +116,12 @@ export function isWordDueForReview(word: Word, currentDay: number): boolean {
 // میوه‌ی نقره‌ای
 // ─────────────────────────────────────────────────────────────
 
-/**
- * ساخت یه میوه‌ی نقره‌ای (آزمون).
- *
- * ⚠️ این تابع:
- * ۱. کلمات چالش‌برانگیز رو انتخاب می‌کنه.
- * ۲. یه آزمون کامل تولید می‌کنه.
- * ۳. میوه‌ی نقره‌ای با `quizWords` می‌سازه.
- *
- * @param state - وضعیت بازی
- * @returns یه Fruit از نوع silver
- */
 export function createSilverFruit(state: GameState): Fruit {
-  // تولید آزمون از کلمات چالش‌برانگیز
   const exercises = generateQuiz(state.words, 5);
 
   return {
     id: `silver-fruit-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-    wordId: "", // میوه‌ی نقره‌ای به کلمه‌ی خاصی وصل نیست
+    wordId: "",
     type: "silver",
     createdAt: Date.now(),
     isReady: true,
@@ -119,21 +130,11 @@ export function createSilverFruit(state: GameState): Fruit {
   };
 }
 
-/**
- * بررسی اینکه آیا کاربر باید میوه‌ی نقره‌ای بگیره یا نه.
- *
- * ⚠️ شرط: هر `SILVER_FRUIT_INTERVAL` کلمه‌ی جدید (مثلاً ۲۰).
- *
- * @param state - وضعیت بازی
- * @returns true اگه باید میوه‌ی نقره‌ای داده بشه
- */
 export function shouldAwardSilverFruit(state: GameState): boolean {
   const learned = state.totalWordsLearned;
   const interval = SILVER_FRUIT_INTERVAL;
 
-  // اگه به مضرب رسیده و قبلاً جایزه نگرفته
   if (learned > 0 && learned % interval === 0) {
-    // چک کن که قبلاً برای این نقطه جایزه نگرفته باشه
     if (state.lastSilverFruitAt === learned) return false;
     return true;
   }
@@ -179,7 +180,6 @@ export function waterTree(state: GameState, newWords: Word[]): GameState {
     totalWordsLearned,
   };
 
-  // ─── چک کردن میوه‌ی نقره‌ای ───
   if (shouldAwardSilverFruit(updatedState)) {
     const silverFruit = createSilverFruit(updatedState);
     updatedState = {
@@ -207,8 +207,6 @@ export function harvestFruit(
   const fruit = state.tree.fruits.find((f) => f.id === fruitId);
   if (!fruit) return state;
 
-  // ─── میوه‌ی نقره‌ای: از این تابع استفاده نکن ───
-  // (چون آزمون داره، توی `completeQuiz` مدیریت می‌شه)
   if (fruit.type === "silver") {
     return state;
   }
@@ -264,17 +262,9 @@ export function harvestFruit(
 }
 
 // ─────────────────────────────────────────────────────────────
-// تکمیل آزمون (میوه‌ی نقره‌ای)
+// تکمیل آزمون
 // ─────────────────────────────────────────────────────────────
 
-/**
- * تکمیل یه آزمون.
- *
- * @param state - وضعیت بازی
- * @param fruitId - شناسه‌ی میوه‌ی نقره‌ای
- * @param result - نتیجه‌ی آزمون
- * @returns وضعیت به‌روز شده
- */
 export function completeQuiz(
   state: GameState,
   fruitId: string,
@@ -283,7 +273,6 @@ export function completeQuiz(
   const fruit = state.tree.fruits.find((f) => f.id === fruitId);
   if (!fruit || fruit.type !== "silver") return state;
 
-  // ─── محاسبه‌ی جایزه ───
   const passed = result.correctAnswers >= QUIZ_PASS_THRESHOLD;
   const coinsEarned = passed ? QUIZ_REWARD_COINS : 0;
 

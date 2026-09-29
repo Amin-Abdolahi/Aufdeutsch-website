@@ -1,5 +1,9 @@
 /**
- * Word Tree — Storage (نسخه ۹.۰)
+ * Word Tree — Storage (نسخه ۱۰.۰)
+ *
+ * ⚠️ تغییرات نسخه ۱۰.۰:
+ * - migrationها به `migrations.ts` منتقل شدن
+ * - `storage.ts` فقط ذخیره/بازیابی رو مدیریت می‌کنه
  *
  * ⚠️ تاریخچه‌ی نسخه‌ها:
  * - v1: ساختار اولیه
@@ -11,19 +15,20 @@
  * - v7: ایمپورت گروهی
  * - v8: چندزبانه (language, targetLanguage)
  * - v9: میوه‌ی نقره‌ای (totalWordsLearned, lastSilverFruitAt)
+ * - v10: تور اولیه (hasSeenTutorial)
  */
 
 import { GameState } from "./types";
-import {
-  STORAGE_KEY,
-  STATE_VERSION,
-  DEFAULT_TARGET_LANGUAGE,
-} from "./constants";
+import { STORAGE_KEY, STATE_VERSION } from "./constants";
+import { runMigrations } from "./migrations";
 
 // ─────────────────────────────────────────────────────────────
 // ذخیره‌سازی
 // ─────────────────────────────────────────────────────────────
 
+/**
+ * ذخیره‌ی وضعیت بازی توی localStorage.
+ */
 export function saveGameState(state: GameState): void {
   if (typeof window === "undefined") return;
   try {
@@ -33,6 +38,12 @@ export function saveGameState(state: GameState): void {
   }
 }
 
+/**
+ * بازیابی وضعیت بازی از localStorage.
+ *
+ * ⚠️ اگه نسخه‌ی ذخیره‌شده قدیمی‌تر از نسخه‌ی فعلی باشه،
+ * `runMigrations` صدا زده می‌شه.
+ */
 export function loadGameState(): GameState | null {
   if (typeof window === "undefined") return null;
   try {
@@ -41,8 +52,9 @@ export function loadGameState(): GameState | null {
 
     const parsed = JSON.parse(data) as GameState;
 
+    // ─── اگه نسخه قدیمی بود، migration کن ───
     if (parsed.version && parsed.version < STATE_VERSION) {
-      return migrateGameState(parsed);
+      return runMigrations(parsed);
     }
 
     return parsed;
@@ -52,6 +64,9 @@ export function loadGameState(): GameState | null {
   }
 }
 
+/**
+ * پاک کردن وضعیت بازی.
+ */
 export function clearGameState(): void {
   if (typeof window === "undefined") return;
   try {
@@ -59,49 +74,4 @@ export function clearGameState(): void {
   } catch (error) {
     console.error("Failed to clear game state:", error);
   }
-}
-
-// ─────────────────────────────────────────────────────────────
-// Migration (مهاجرت داده‌ها)
-// ─────────────────────────────────────────────────────────────
-
-function migrateGameState(oldState: GameState): GameState {
-  let newState = { ...oldState };
-
-  // ─── Migration از v7 به v8: چندزبانه ───
-  if ((oldState.version || 1) < 8) {
-    newState = {
-      ...newState,
-      targetLanguage: oldState.targetLanguage || DEFAULT_TARGET_LANGUAGE,
-      words: (oldState.words || []).map((w) => ({
-        ...w,
-        language: w.language || DEFAULT_TARGET_LANGUAGE,
-      })),
-    };
-  }
-
-  // ─── Migration از v8 به v9: میوه‌ی نقره‌ای ───
-  if ((oldState.version || 1) < 9) {
-    newState = {
-      ...newState,
-      totalWordsLearned:
-        (oldState as any).totalWordsLearned ||
-        (oldState.words?.length || 0),
-      lastSilverFruitAt: (oldState as any).lastSilverFruitAt,
-    };
-  }
-
-  // ─── Migration از v9 به v10: تور اولیه ───
-  if ((oldState.version || 1) < 10) {
-    newState = {
-      ...newState,
-      // اگه کاربر بازی کرده، تور رو دیده در نظر بگیر
-      hasSeenTutorial:
-        (oldState as any).hasSeenTutorial ?? (oldState.words?.length || 0) > 0,
-    };
-  }
-
-  newState.version = STATE_VERSION;
-
-  return newState;
 }

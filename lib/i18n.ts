@@ -524,6 +524,35 @@ const fa = {
     backupClose: "بستن",
     backupDragHere: "فایل JSON رو اینجا بکش",
     backupOrClick: "یا کلیک کن",
+        // ─── بنر هشدار (Alert Banner) ───
+    alertMessage: "⚠️ بازی در حال توسعه‌ست. جهت اطمینان، از کلمه‌هات و پیشرفتت، بک‌آپ بگیر.",
+    alertBackupButton: "بک‌آپ بگیر",
+    alertDismiss: "بستن",
+        // ─── کاشت درخت (Onboarding) ───
+    plantWelcome: "به باغت خوش اومدی! 🌱",
+    plantSubtitle: "اینجا می‌تونی یه درخت بکاری و با یادگیری کلمات آلمانی، رشدش بدی. هر روز ازش مراقبت کن تا بزرگ‌تر بشه.",
+    plantSelectTree: "کدوم درخت رو می‌کاری؟",
+    plantWordsCount: "{count} کلمه",
+    plantButton: "بکار",
+    // ─── انواع درخت ───
+    treeTypeDefault: "آلمانی پیش‌فرض",
+    treeTypeDefaultDesc: "۵۰ کلمه‌ی پرکاربرد آلمانی برای شروع",
+
+    // ─── Snapshot (نسخه‌های قبلی) ───
+    snapshots: "نسخه‌های قبلی",
+    snapshotsTitle: "نسخه‌های قبلی بازی",
+    snapshotsSubtitle: "از اینجا می‌تونی به یه نسخه‌ی قبلی برگردی",
+    snapshotsEmpty: "هنوز هیچ نسخه‌ی قبلی نداری.",
+    snapshotsCreateNow: "➕ ساخت نسخه‌ی جدید",
+    snapshotsRestore: "بازگردانی",
+    snapshotsDelete: "حذف",
+    snapshotsRestoreConfirm: "بله، بازگردان",
+    snapshotsRestoreSuccess: "✓ با موفقیت بازگردانی شد!",
+    snapshotsDeleteConfirm: "بله، حذف کن",
+    snapshotsWordsCount: "{count} کلمه‌ی سفارشی",
+    snapshotsVersion: "نسخه",
+    snapshotsClose: "بستن",
+    snapshotsMaxNote: "حداکثر {max} نسخه نگه داشته می‌شه",
   },
   notFound: {
     title: "یافت نشد",
@@ -1050,6 +1079,35 @@ const de: Dict = {
     backupClose: "Schließen",
     backupDragHere: "JSON-Datei hierher ziehen",
     backupOrClick: "oder klicken",
+        // ─── Alert Banner ───
+    alertMessage: "⚠️ Das Spiel wird entwickelt. Erstelle ein Backup, um deine Wörter und Fortschritte zu sichern.",
+    alertBackupButton: "Backup erstellen",
+    alertDismiss: "Schließen",
+        // ─── Baumpflanzung (Onboarding) ───
+    plantWelcome: "Willkommen in deinem Garten! 🌱",
+    plantSubtitle: "Hier kannst du einen Baum pflanzen und ihn durch das Lernen deutscher Wörter wachsen lassen. Pflege ihn jeden Tag, damit er größer wird.",
+    plantSelectTree: "Welchen Baum pflanzt du?",
+    plantWordsCount: "{count} Wörter",
+    plantButton: "Pflanzen",
+    // ─── Baumtypen ───
+    treeTypeDefault: "Deutsch Standard",
+    treeTypeDefaultDesc: "50 häufig verwendete deutsche Wörter zum Starten",
+
+    // ─── Snapshots ───
+    snapshots: "Vorherige Versionen",
+    snapshotsTitle: "Vorherige Spielversionen",
+    snapshotsSubtitle: "Hier kannst du zu einer früheren Version zurückkehren",
+    snapshotsEmpty: "Noch keine vorherigen Versionen.",
+    snapshotsCreateNow: "➕ Neue Version erstellen",
+    snapshotsRestore: "Wiederherstellen",
+    snapshotsDelete: "Löschen",
+    snapshotsRestoreConfirm: "Ja, wiederherstellen",
+    snapshotsRestoreSuccess: "✓ Erfolgreich wiederhergestellt!",
+    snapshotsDeleteConfirm: "Ja, löschen",
+    snapshotsWordsCount: "{count} eigene Wörter",
+    snapshotsVersion: "Version",
+    snapshotsClose: "Schließen",
+    snapshotsMaxNote: "Maximal {max} Versionen werden gespeichert",
   },
   notFound: {
     title: "Nicht gefunden",
@@ -1576,6 +1634,35 @@ const en: Dict = {
     backupClose: "Close",
     backupDragHere: "Drag JSON file here",
     backupOrClick: "or click",
+        // ─── Alert Banner ───
+    alertMessage: "⚠️ The game is under development. Take a backup to protect your words and progress.",
+    alertBackupButton: "Take backup",
+    alertDismiss: "Dismiss",
+        // ─── Plant Tree (Onboarding) ───
+    plantWelcome: "Welcome to your garden! 🌱",
+    plantSubtitle: "Here you can plant a tree and grow it by learning German words. Take care of it every day so it grows bigger.",
+    plantSelectTree: "Which tree will you plant?",
+    plantWordsCount: "{count} words",
+    plantButton: "Plant",
+    // ─── Tree Types ───
+    treeTypeDefault: "German Default",
+    treeTypeDefaultDesc: "50 common German words to get started",
+
+    // ─── Snapshots ───
+    snapshots: "Previous versions",
+    snapshotsTitle: "Previous game versions",
+    snapshotsSubtitle: "Here you can restore to an earlier version",
+    snapshotsEmpty: "No previous versions yet.",
+    snapshotsCreateNow: "➕ Create new version",
+    snapshotsRestore: "Restore",
+    snapshotsDelete: "Delete",
+    snapshotsRestoreConfirm: "Yes, restore",
+    snapshotsRestoreSuccess: "✓ Successfully restored!",
+    snapshotsDeleteConfirm: "Yes, delete",
+    snapshotsWordsCount: "{count} custom words",
+    snapshotsVersion: "Version",
+    snapshotsClose: "Close",
+    snapshotsMaxNote: "Maximum {max} versions are kept",
   },
   notFound: {
     title: "Not found",
