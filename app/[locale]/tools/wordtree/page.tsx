@@ -1,13 +1,11 @@
 "use client";
 
 /**
- * Word Tree — Main Page (نسخه ۱۱.۰ — با راهنمای اولیه)
+ * Word Tree — Main Page (نسخه ۱۲.۰ — با بک‌آپ)
  *
- * ⚠️ تغییرات نسخه ۱۱.۰:
- * - اضافه شدن OnboardingTour (تور اولیه برای کاربران جدید)
- * - اضافه شدن HelpModal (راهنمای کامل از تنظیمات)
- * - اضافه شدن گزینه‌ی «راهنما» به SettingsPanel
- * - اضافه شدن data-tour attributeها برای تور
+ * ⚠️ تغییرات نسخه ۱۲.۰:
+ * - اضافه شدن BackupModal (خروجی/وارد کردن کلمات سفارشی)
+ * - اضافه شدن گزینه‌ی «پشتیبان‌گیری» به SettingsPanel
  */
 
 import { useState, useEffect } from "react";
@@ -42,6 +40,7 @@ import { WateringPanel } from "./components/WateringPanel";
 import { HarvestPanel } from "./components/HarvestPanel";
 import { AddWordModal } from "./components/AddWordModal";
 import { ImportWordsModal } from "./components/ImportWordsModal";
+import { BackupModal } from "./components/BackupModal";
 import {
   SettingsPanel,
   SettingsItem,
@@ -62,6 +61,7 @@ export default function WordTreePage() {
   const [showWateringPanel, setShowWateringPanel] = useState(false);
   const [showAddWordModal, setShowAddWordModal] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
+  const [showBackupModal, setShowBackupModal] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showQuizMenu, setShowQuizMenu] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
@@ -77,9 +77,7 @@ export default function WordTreePage() {
     setGameState(initialState);
     setCustomWords(loadCustomWords());
 
-    // ─── اگه کاربر تور رو ندیده، نشون بده ───
     if (!initialState.hasSeenTutorial) {
-      // کمی تاخیر تا صفحه رندر بشه
       setTimeout(() => setShowTour(true), 500);
     }
   }, []);
@@ -214,6 +212,11 @@ export default function WordTreePage() {
     });
   };
 
+  // ─── موفقیت‌آمیز بودن بک‌آپ ───
+  const handleBackupImportSuccess = () => {
+    setCustomWords(loadCustomWords());
+  };
+
   // ─── کلمات برای پنل آبیاری ───
   const wateringWords = dailyWords.map((w) => ({
     id: w.id,
@@ -280,6 +283,12 @@ export default function WordTreePage() {
       icon: "📥",
       label: t.importWords,
       onClick: () => setShowImportModal(true),
+    },
+    {
+      icon: "💾",
+      label: t.backup || "پشتیبان‌گیری",
+      onClick: () => setShowBackupModal(true),
+      variant: "help",
     },
     {
       icon: "📚",
@@ -430,6 +439,34 @@ export default function WordTreePage() {
             reviewText: t.helpReviewText,
             close: t.close || "بستن",
             gotIt: t.helpGotIt,
+          }}
+        />
+      )}
+
+      {/* ─── مودال بک‌آپ ─── */}
+      {showBackupModal && (
+        <BackupModal
+          onClose={() => setShowBackupModal(false)}
+          onImportSuccess={handleBackupImportSuccess}
+          labels={{
+            title: t.backupTitle || "پشتیبان‌گیری از کلمات",
+            subtitle: t.backupSubtitle || "",
+            exportTitle: t.backupExportTitle || "",
+            exportDesc: t.backupExportDesc || "",
+            exportButton: t.backupExportButton || "",
+            exportSuccess: t.backupExportSuccess || "",
+            exportEmpty: t.backupExportEmpty || "",
+            importTitle: t.backupImportTitle || "",
+            importDesc: t.backupImportDesc || "",
+            importButton: t.backupImportButton || "",
+            importSuccess: t.backupImportSuccess || "",
+            importError: t.backupImportError || "",
+            importResult: t.backupImportResult || "",
+            importInvalidFile: t.backupImportInvalidFile || "",
+            close: t.backupClose || "بستن",
+            wordsCount: t.backupWordsCount || "{count} کلمه",
+            dragHere: t.backupDragHere || "",
+            orClick: t.backupOrClick || "",
           }}
         />
       )}
