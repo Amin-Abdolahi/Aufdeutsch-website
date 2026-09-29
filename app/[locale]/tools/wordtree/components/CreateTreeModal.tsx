@@ -10,15 +10,20 @@
  */
 
 import { useState, useMemo } from "react";
-import { TreeVariant, Word } from "@/lib/wordtree/types";
+import { TreeVariant, TreeColor, Word } from "@/lib/wordtree/types";
 import { Button } from "@/components/ui/Button";
+import {
+  TREE_COLORS,
+  TREE_COLOR_IDS,
+} from "@/lib/wordtree/constants";
 
 interface CreateTreeModalProps {
   onClose: () => void;
   onCreate: (
     name: string,
     variant: TreeVariant,
-    wordIds: string[]
+    wordIds: string[],
+    color?: TreeColor
   ) => { success: boolean; error?: string };
   availableWords: Word[];
   labels: {
@@ -46,6 +51,14 @@ interface CreateTreeModalProps {
     variantBlossom: string;
     variantApple: string;
     variantLemon: string;
+    // ─── رنگ درخت ───
+    colorLabel: string;
+    treeColorGreen: string;
+    treeColorAutumn: string;
+    treeColorPink: string;
+    treeColorBlue: string;
+    treeColorPurple: string;
+    treeColorGold: string;
   };
 }
 
@@ -69,6 +82,7 @@ export function CreateTreeModal({
   const [step, setStep] = useState<Step>("info");
   const [name, setName] = useState("");
   const [variant, setVariant] = useState<TreeVariant>("oak");
+  const [color, setColor] = useState<TreeColor>("green");
   const [selectedWordIds, setSelectedWordIds] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [error, setError] = useState("");
@@ -102,7 +116,7 @@ export function CreateTreeModal({
       return;
     }
 
-    const result = onCreate(name.trim(), variant, selectedWordIds);
+    const result = onCreate(name.trim(), variant, selectedWordIds, color);
     if (result.success) {
       onClose();
     } else {
@@ -155,6 +169,46 @@ export function CreateTreeModal({
                       <div className="text-3xl mb-1">{v.icon}</div>
                       <div className="text-[10px] text-navy-900/70 font-mono truncate">
                         {(labels as any)[v.labelKey]}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* ─── انتخاب رنگ درخت ─── */}
+            <div className="mb-4 flex-shrink-0">
+              <label className="block text-sm font-bold text-navy-900/70 mb-2">
+                {labels.colorLabel}
+              </label>
+              <div className="flex gap-2 justify-between">
+                {TREE_COLOR_IDS.map((colorId) => {
+                  const c = TREE_COLORS[colorId];
+                  const isSelected = color === colorId;
+                  const nameKey = c.nameKey as keyof typeof labels;
+                  return (
+                    <button
+                      key={colorId}
+                      type="button"
+                      onClick={() => setColor(colorId as TreeColor)}
+                      className={`flex-1 py-2 rounded-lg border-2 transition-all flex flex-col items-center gap-1 ${
+                        isSelected
+                          ? "border-gold-500 scale-105"
+                          : "border-navy-900/10 bg-white hover:border-gold-400"
+                      }`}
+                      title={labels[nameKey]}
+                    >
+                      <div
+                        className="w-7 h-7 rounded-full"
+                        style={{
+                          background: `linear-gradient(135deg, ${c.light}, ${c.main})`,
+                          boxShadow: isSelected
+                            ? `0 2px 6px ${c.dark}50`
+                            : "none",
+                        }}
+                      />
+                      <div className="text-[9px] text-navy-900/70 font-mono truncate w-full text-center">
+                        {labels[nameKey]}
                       </div>
                     </button>
                   );

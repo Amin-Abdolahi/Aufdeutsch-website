@@ -8,7 +8,13 @@
 
 import { GameState, Tree, WordEntry, Word } from "@/lib/wordtree/types";
 import { Locale } from "@/lib/i18n";
-import { getDueReviewWords } from "@/lib/wordtree/gameLogic";
+import {
+  getDueReviewWords,
+  getWateringsLeft,
+  getWateringsToday,
+} from "@/lib/wordtree/gameLogic";
+import { MAX_WATERINGS_PER_DAY } from "@/lib/wordtree/constants";
+import { TREE_COLORS } from "@/lib/wordtree/constants";
 import { Tree as TreeComponent } from "../components/Tree";
 import { CoinDisplay } from "../components/CoinDisplay";
 import { ProgressBar } from "../components/ProgressBar";
@@ -41,6 +47,8 @@ interface TreeScreenProps {
   wordsToNext: number;
   onFruitClick: (fruitId: string) => void;
   onBackToPlot: () => void;
+  onDeleteTree: () => void;
+  onStartReview: () => void;
 }
 
 export function TreeScreen({
@@ -63,6 +71,8 @@ export function TreeScreen({
   wordsToNext,
   onFruitClick,
   onBackToPlot,
+  onDeleteTree,
+  onStartReview,
 }: TreeScreenProps) {
   const wateringWords = dailyWords.map((w) => ({
     id: w.id,
@@ -99,6 +109,23 @@ export function TreeScreen({
   };
 
   const hasDueReviews = getDueReviewWords(gameState, selectedTree.id).length > 0;
+
+  // ─── پالت رنگ درخت ───
+  const treeColorPalette = selectedTree.color
+    ? TREE_COLORS[selectedTree.color]
+    : undefined;
+  const treeColors = treeColorPalette
+    ? {
+        canopy: treeColorPalette.main,
+        canopyShadow: treeColorPalette.dark,
+        canopyLight: treeColorPalette.light,
+        trunk: "#8B4513",
+        trunkShadow: "#6B3410",
+      }
+    : undefined;
+
+  const wateringsLeft = getWateringsLeft(selectedTree);
+  const wateringsToday = getWateringsToday(selectedTree);
 
   return (
     <>
@@ -170,6 +197,7 @@ export function TreeScreen({
               level={selectedTree.level}
               fruits={selectedTree.fruits}
               onFruitClick={onFruitClick}
+              colors={treeColors}
             />
           </div>
 
@@ -208,6 +236,44 @@ export function TreeScreen({
               </Button>
             )}
           </div>
+
+          {/* ─── دکمه‌های ثانویه: مرور + حذف درخت ─── */}
+          <div className="flex justify-center gap-3 mt-4">
+            <button
+              onClick={onStartReview}
+              disabled={treeWords.filter((w) => w.reviewStage > 0).length === 0}
+              className={`px-4 py-2.5 rounded-sm text-sm font-bold transition border-2 ${
+                treeWords.filter((w) => w.reviewStage > 0).length === 0
+                  ? "border-navy-900/10 text-navy-900/30 cursor-not-allowed"
+                  : "border-gold-400/60 text-navy-900 hover:bg-gold-300/20"
+              }`}
+              title={t.reviewButtonTitle || "مرور کلمات"}
+            >
+              🔁 {t.reviewButton || "مرور"} (
+              {treeWords.filter((w) => w.reviewStage > 0).length})
+            </button>
+
+            <button
+              onClick={onDeleteTree}
+              className="px-4 py-2.5 rounded-sm text-sm font-bold border-2 border-red-300/60 text-red-600 hover:bg-red-50 transition"
+              title={t.deleteTreeTitle || "حذف درخت"}
+            >
+              🗑 {t.deleteTree || "حذف درخت"}
+            </button>
+          </div>
+
+          {/* ─── تعداد آبیاری‌های امروز ─── */}
+          {wateringsToday > 0 && (
+            <p className="text-center text-xs text-navy-900/50 mt-3 font-mono">
+              {t.wateringsToday?.replace(
+                "{count}",
+                wateringsToday.toString()
+              ).replace(
+                "{max}",
+                MAX_WATERINGS_PER_DAY.toString()
+              ) || `${wateringsToday}/${MAX_WATERINGS_PER_DAY} آبیاری امروز`}
+            </p>
+          )}
         </div>
       </div>
 

@@ -12,7 +12,9 @@
  * ۵. دکمه‌ی بازگشت به باغ (Garden).
  */
 
+import { useState } from "react";
 import { Plot, Tree } from "@/lib/wordtree/types";
+import { TREE_COLORS } from "@/lib/wordtree/constants";
 
 interface PlotViewProps {
   plot: Plot;
@@ -27,6 +29,8 @@ interface PlotViewProps {
     empty: string;
     backToGarden: string;
     progress: string;
+    deleteTree?: string;
+    deleteTreeConfirm?: string;
   };
 }
 
@@ -114,6 +118,8 @@ export function PlotView({
                 labels={{
                   wordsCount: labels.wordsCount,
                   progress: labels.progress,
+                  deleteTree: labels.deleteTree,
+                  deleteTreeConfirm: labels.deleteTreeConfirm,
                 }}
               />
             ))}
@@ -147,46 +153,120 @@ function TreeCard({
   labels: {
     wordsCount: string;
     progress: string;
+    deleteTree?: string;
+    deleteTreeConfirm?: string;
   };
 }) {
   const icon = VARIANT_ICONS[tree.variant] || "🌳";
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+
+  // ─── پالت رنگ درخت ───
+  const palette = tree.color ? TREE_COLORS[tree.color] : null;
 
   // ─── درصد پیشرفت ───
   const progressPercent = Math.min(
-    (tree.totalWords / 50) * 100,
+    (tree.totalWords / Math.max(tree.poolWordIds.length, 1)) * 100,
     100
   );
 
   return (
-    <button
-      onClick={onClick}
-      className="group bg-white p-4 rounded-xl border-2 border-navy-900/10 hover:border-gold-400 hover:shadow-xl transition-all text-center"
-    >
-      {/* ─── آیکون درخت ─── */}
-      <div className="text-5xl mb-2 group-hover:scale-110 transition-transform">
-        {icon}
-      </div>
-
-      {/* ─── اسم درخت ─── */}
-      <h3 className="font-bold text-navy-900 text-sm mb-2 truncate">
-        {tree.name}
-      </h3>
-
-      {/* ─── تعداد کلمه ─── */}
-      <p className="text-[10px] text-navy-900/60 font-mono mb-2">
-        {labels.wordsCount.replace(
-          "{count}",
-          tree.totalWords.toString()
+    <div className="group relative bg-white p-4 rounded-xl border-2 border-navy-900/10 hover:border-gold-400 hover:shadow-xl transition-all text-center">
+      {/* ─── دکمه‌ی حذف ─── */}
+      <div className="absolute top-2 left-2 z-10">
+        {confirmingDelete ? (
+          <div className="flex items-center gap-1">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                // حذف واقعی از طریق parent انجام می‌شه
+                document.dispatchEvent(
+                  new CustomEvent("delete-tree", { detail: tree.id })
+                );
+                setConfirmingDelete(false);
+              }}
+              className="px-2 py-1 bg-red-500 hover:bg-red-600 text-white text-[10px] font-bold rounded-sm transition"
+            >
+              ✓ {labels.deleteTreeConfirm || "حذف"}
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setConfirmingDelete(false);
+              }}
+              className="px-2 py-1 bg-navy-900/10 hover:bg-navy-900/20 text-navy-900 text-[10px] font-bold rounded-sm transition"
+            >
+              ✗
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setConfirmingDelete(true);
+            }}
+            className="w-7 h-7 flex items-center justify-center rounded-full text-red-400 hover:bg-red-50 transition text-xs opacity-0 group-hover:opacity-100"
+            title={labels.deleteTree || "حذف درخت"}
+          >
+            🗑
+          </button>
         )}
-      </p>
-
-      {/* ─── نوار پیشرفت ─── */}
-      <div className="w-full bg-navy-900/10 rounded-full h-1.5 overflow-hidden">
-        <div
-          className="bg-gradient-to-r from-emerald-400 to-emerald-600 h-full rounded-full transition-all"
-          style={{ width: `${progressPercent}%` }}
-        />
       </div>
-    </button>
+
+      <button onClick={onClick} className="w-full">
+        {/* ─── آیکون درخت (با رنگ سفارشی) ─── */}
+        <div
+          className="text-5xl mb-2 group-hover:scale-110 transition-transform inline-block"
+          style={
+            palette
+              ? {
+                  filter: `drop-shadow(0 2px 4px ${palette.dark}40)`,
+                }
+              : undefined
+          }
+        >
+          {palette ? (
+            <span
+              className="inline-block"
+              style={{
+                background: `linear-gradient(135deg, ${palette.light}, ${palette.main})`,
+                WebkitBackgroundClip: "text",
+                backgroundClip: "text",
+                color: "transparent",
+              }}
+            >
+              {icon}
+            </span>
+          ) : (
+            icon
+          )}
+        </div>
+
+        {/* ─── اسم درخت ─── */}
+        <h3 className="font-bold text-navy-900 text-sm mb-2 truncate">
+          {tree.name}
+        </h3>
+
+        {/* ─── تعداد کلمه ─── */}
+        <p className="text-[10px] text-navy-900/60 font-mono mb-2">
+          {labels.wordsCount.replace(
+            "{count}",
+            tree.totalWords.toString()
+          )}
+        </p>
+
+        {/* ─── نوار پیشرفت ─── */}
+        <div className="w-full bg-navy-900/10 rounded-full h-1.5 overflow-hidden">
+          <div
+            className="h-full rounded-full transition-all"
+            style={{
+              width: `${progressPercent}%`,
+              background: palette
+                ? `linear-gradient(to right, ${palette.light}, ${palette.main})`
+                : "linear-gradient(to right, #34d399, #059669)",
+            }}
+          />
+        </div>
+      </button>
+    </div>
   );
 }

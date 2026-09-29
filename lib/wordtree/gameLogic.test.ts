@@ -2,15 +2,21 @@ import { describe, it, expect } from "vitest";
 import {
   createInitialState,
   plantTree,
+  createTree,
   waterTree,
   harvestFruit,
   startNextDay,
   addWordsToTree,
   getTreeWords,
   getDueReviewWords,
+  getWateringsToday,
+  getWateringsLeft,
+  deleteTree,
+  startReview,
 } from "./gameLogic";
 import { Word, WordEntry } from "./types";
 import { WORDS_DE } from "@/data/wordtree/words-de";
+import { DAILY_WORDS, MAX_WATERINGS_PER_DAY } from "./constants";
 
 const POOL = WORDS_DE.map((w) => w.id);
 const TREE_NAME = "درخت اصلی";
@@ -180,5 +186,128 @@ describe("game loop", () => {
     const { state, treeId } = plant();
     const s = addWordsToTree(state, treeId, ["does-not-exist"], WORDS_DE);
     expect(getTreeWords(s, treeId)).toHaveLength(0);
+  });
+
+  // ───────────────────────────────────────────────────────────
+  // آبیاری چندباره در روز (حداکثر ۲۰ کلمه)
+  // ───────────────────────────────────────────────────────────
+
+  it("counts waterings from words learned today", () => {
+    const { state, treeId } = plant();
+    expect(getWateringsToday(state.plots[0].trees[0])).toBe(0);
+    expect(getWateringsLeft(state.plots[0].trees[0])).toBe(
+      MAX_WATERINGS_PER_DAY
+    );
+
+    let s = waterTree(state, treeId, newRuntimeWords(WORDS_DE.slice(0, 5)));
+    expect(getWateringsToday(s.plots[0].trees[0])).toBe(1);
+    expect(getWateringsLeft(s.plots[0].trees[0])).toBe(
+      MAX_WATERINGS_PER_DAY - 1
+    );
+  });
+
+  it("allows up to 4 waterings (20 words) per day, then caps", () => {
+    const { state, treeId } = plant();
+    let s = state;
+    let totalWordsLearned = 0;
+
+    for (let w = 0; w < MAX_WATERINGS_PER_DAY; w++) {
+      const daily = newRuntimeWords(
+        WORDS_DE.slice(totalWordsLearned, totalWordsLearned + DAILY_WORDS)
+      );
+      s = waterTree(s, treeId, daily);
+      totalWordsLearned += DAILY_WORDS;
+      // میوه‌ها رو جمع می‌کنیم تا روز قفل نشه
+      for (const fruit of [...s.plots[0].trees[0].fruits]) {
+        s = harvestFruit(s, treeId, fruit.id, true);
+      }
+    }
+
+    const tree = s.plots[0].trees[0];
+    expect(tree.totalWords).toBe(MAX_WATERINGS_PER_DAY * DAILY_WORDS);
+    expect(getWateringsToday(tree)).toBe(MAX_WATERINGS_PER_DAY);
+    expect(getWateringsLeft(tree)).toBe(0);
+
+    // آبیاری ۵ُم نباید کلمه‌ی جدید اضافه کنه
+    const extra = newRuntimeWords(
+      WORDS_DE.slice(totalWordsLearned, totalWordsLearned + DAILY_WORDS)
+    );
+    const before = tree.totalWords;
+    s = waterTree(s, treeId, extra);
+    expect(s.plots[0].trees[0].totalWords).toBe(before);
+  });
+
+  it("reviews are unlimited and do not consume waterings", () => {
+    const { state, treeId } = plant();
+    // یه کلمه یاد گرفته و مرحله ۱
+    let s = waterTree(state, treeId, newRuntimeWords(WORDS_DE.slice(0, 5)));
+    for (const fruit of [...s.plots[0].trees[0].fruits]) {
+      s = harvestFruit(s, treeId, fruit.id, true);
+    }
+
+    const wateringsBefore = getWateringsToday(s.plots[0].trees[0]);
+
+    // مرور آزاد — نباید آبیاری رو مصرف کنه
+    s = startReview(s, treeId);
+    expect(getWateringsToday(s.plots[0].trees[0])).toBe(wateringsBefore);
+    // یه میوه‌ی نقره‌ای (آزمون) ساخته می‌شه
+    expect(s.plots[0].trees[0].fruits.some((f) => f.type === "silver")).toBe(
+      true
+    );
+
+    // دوباره صدا زدن نباید میوه‌ی تکراری بسازه
+    const fruitCount = s.plots[0].trees[0].fruits.length;
+    s = startReview(s, treeId);
+    expect(s.plots[0].trees[0].fruits.length).toBe(fruitCount);
+  });
+
+  // ───────────────────────────────────────────────────────────
+  // حذف درخت
+  // ───────────────────────────────────────────────────────────
+
+  it("deleteTree removes the tree and its exclusive words", () => {
+    const { state, treeId } = plant();
+    let s = waterTree(state, treeId, newRuntimeWords(WORDS_DE.slice(0, 5)));
+    expect(s.plots[0].trees).toHaveLength(1);
+    expect(s.words).toHaveLength(5);
+
+    s = deleteTree(s, treeId);
+
+    expect(s.plots[0].trees).toHaveLength(0);
+    // کلماتی که فقط متعلق به این درخت بودن حذف می‌شن
+    expect(s.words).toHaveLength(0);
+    expect(s.activeTreeId).toBe(null);
+  });
+
+  it("deleteTree keeps words shared with other trees", () => {
+    const state0 = plantTree(createInitialState(), "درخت ۱", "oak", POOL);
+    const tree1Id = state0.plots[0].trees[0].id;
+    const entry = WORDS_DE[0];
+
+    // یه کلمه به درخت ۱ اضافه کن
+    let s = addWordsToTree(state0, tree1Id, [entry.id], WORDS_DE);
+
+    // درخت ۲ توی همون باغچه با همون استخر
+    const tree2 = createTree("درخت ۲", "oak", [entry.id]);
+    s = {
+      ...s,
+      plots: s.plots.map((p) => ({
+        ...p,
+        trees: [...p.trees, tree2],
+      })),
+    };
+    s = addWordsToTree(s, tree2.id, [entry.id], WORDS_DE);
+
+    const sharedWord = s.words.find((w) => w.id === entry.id)!;
+    expect(sharedWord.treeIds).toHaveLength(2);
+
+    // حذف درخت ۱: کلمه باید بمونه (چون درخت ۲ هم داره)
+    s = deleteTree(s, tree1Id);
+    const remaining = s.words.find((w) => w.id === entry.id);
+    expect(remaining).toBeDefined();
+    expect(remaining!.treeIds).toHaveLength(1);
+    // و درخت ۲ هنوز سر جاشه
+    expect(s.plots[0].trees).toHaveLength(1);
+    expect(s.plots[0].trees[0].id).toBe(tree2.id);
   });
 });

@@ -43,6 +43,18 @@ export type TreeVariant =
   | "apple"
   | "lemon";
 
+/**
+ * رنگ‌های قابل انتخاب برای درخت.
+ * هر رنگ یه پالت کامل برای تاج درخت توی SVG داره.
+ */
+export type TreeColor =
+  | "green"
+  | "autumn"
+  | "pink"
+  | "blue"
+  | "purple"
+  | "gold";
+
 // ─────────────────────────────────────────────────────────────
 // اطلاعات گرامری
 // ─────────────────────────────────────────────────────────────
@@ -79,6 +91,23 @@ export interface Pronunciation {
 // کلمه‌ی اصلی (Word Entry)
 // ─────────────────────────────────────────────────────────────
 
+/**
+ * یه فایل ایمپورت‌شده توسط کاربر.
+ *
+ * وقتی کاربر یه فایل JSON ایمپورت می‌کنه، همه‌ی کلماتش یه `fileId` مشترک می‌گیرن.
+ * اینطوری می‌شه فایل‌ها رو دید، مدیریت کرد و حذف کرد.
+ */
+export interface WordFile {
+  id: string;
+  /** اسم فایل (از نام فایل آپلودشده یا متن پرامپت) */
+  name: string;
+  /** تعداد کلمات فعلی این فایل */
+  wordCount: number;
+  createdAt: number;
+  /** آیا کلماتش توی حداقل یه درخت استفاده شده؟ */
+  hasAttached?: boolean;
+}
+
 export interface WordEntry {
   id: string;
   language: TargetLanguage;
@@ -93,6 +122,10 @@ export interface WordEntry {
   source?: WordSource;
   createdAt?: number;
   createdBy?: string;
+  /** شناسه‌ی فایل ایمپورت‌شده‌ای که این کلمه ازش اومده */
+  fileId?: string;
+  /** اسم فایل ایمپورت‌شده (برای نمایش توی مدیریت فایل‌ها) */
+  fileName?: string;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -162,6 +195,8 @@ export interface Tree {
   id: string;
   name: string;
   variant: TreeVariant;
+  /** رنگ شاخه‌ها/قلمروی درخت (از TREE_COLORS) */
+  color?: TreeColor;
   level: TreeLevel;
   /** تعداد کلمات (کش شده — از Word.treeIds محاسبه می‌شه) */
   totalWords: number;

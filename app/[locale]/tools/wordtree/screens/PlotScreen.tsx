@@ -11,8 +11,11 @@ import { Locale } from "@/lib/i18n";
 import { PlotView } from "../components/PlotView";
 import { CreateTreeModal } from "../components/CreateTreeModal";
 import { MyWordsModal } from "../components/MyWordsModal";
+import { MyFilesModal } from "../components/MyFilesModal";
 import { SharedModals } from "../components/SharedModals";
 import { SettingsPanel } from "../components/SettingsPanel";
+import { getWordFiles } from "@/lib/wordtree/customWords";
+import { useState, useEffect } from "react";
 
 interface PlotScreenProps {
   gameState: GameState;
@@ -20,6 +23,7 @@ interface PlotScreenProps {
   selectedTree: Tree | null;
   selectedFruitId: string | null;
   allWordsData: WordEntry[];
+  customWords: WordEntry[];
   safeLocale: Locale;
   t: any;
   modals: any;
@@ -27,6 +31,7 @@ interface PlotScreenProps {
   handlers: any;
   availableForNewTree: Word[];
   onOpenTree: (treeId: string) => void;
+  onDeleteTree: (treeId: string) => void;
   onBackToGarden: () => void;
 }
 
@@ -36,6 +41,7 @@ export function PlotScreen({
   selectedTree,
   selectedFruitId,
   allWordsData,
+  customWords,
   safeLocale,
   t,
   modals,
@@ -43,8 +49,29 @@ export function PlotScreen({
   handlers,
   availableForNewTree,
   onOpenTree,
+  onDeleteTree,
   onBackToGarden,
 }: PlotScreenProps) {
+  // ⚠️ ثبت listener برای حذف درخت از PlotView
+  useEffect(() => {
+    const handleDelete = (e: Event) => {
+      const treeId = (e as CustomEvent).detail as string;
+      onDeleteTree(treeId);
+    };
+    document.addEventListener("delete-tree", handleDelete);
+    return () => document.removeEventListener("delete-tree", handleDelete);
+  }, [onDeleteTree]);
+
+  // ─── فایل‌های کاربر ───
+  const [files, setFiles] = useState<any[]>([]);
+  useEffect(() => {
+    if (modals.showMyFilesModal) {
+      setFiles(getWordFiles());
+    }
+  }, [modals.showMyFilesModal, customWords]);
+
+  // ─── کلماتی که به درخت‌ها وصل شدن ───
+  const attachedWordIds = gameState.words.map((w) => w.id);
   return (
     <>
       <PlotView
@@ -60,6 +87,8 @@ export function PlotScreen({
           empty: t.plotEmpty || "",
           backToGarden: t.plotBackToGarden || "بازگشت به باغ",
           progress: t.plotProgress || "پیشرفت",
+          deleteTree: t.deleteTree || "حذف درخت",
+          deleteTreeConfirm: t.deleteTreeConfirm || "حذف",
         }}
       />
 
@@ -93,6 +122,13 @@ export function PlotScreen({
             variantBlossom: t.variantBlossom || "شکوفه",
             variantApple: t.variantApple || "سیب",
             variantLemon: t.variantLemon || "لیمو",
+            colorLabel: t.colorLabel || "رنگ درخت",
+            treeColorGreen: t.treeColorGreen || "سبز",
+            treeColorAutumn: t.treeColorAutumn || "پاییزی",
+            treeColorPink: t.treeColorPink || "صورتی",
+            treeColorBlue: t.treeColorBlue || "آبی",
+            treeColorPurple: t.treeColorPurple || "بنفش",
+            treeColorGold: t.treeColorGold || "طلایی",
           }}
         />
       )}
@@ -112,6 +148,30 @@ export function PlotScreen({
             empty: t.myWordsEmpty || "",
             noResults: t.myWordsNoResults || "",
             close: t.myWordsClose || "بستن",
+          }}
+        />
+      )}
+
+      {modals.showMyFilesModal && (
+        <MyFilesModal
+          files={files}
+          customWords={customWords}
+          attachedWordIds={attachedWordIds}
+          onClose={() => setters.setShowMyFilesModal(false)}
+          onDeleteFile={handlers.handleDeleteFile}
+          labels={{
+            title: t.myFilesTitle || "فایل‌های من",
+            subtitle:
+              t.myFilesSubtitle?.replace("{count}", "{count}") ||
+              "{count} فایل",
+            empty: t.myFilesEmpty || "هنوز فایلی وارد نکردی.",
+            wordsCount: t.myFilesWordsCount || "{count} کلمه",
+            attached: t.myFilesAttached || "متصل به {count} کلمه",
+            notAttached: t.myFilesNotAttached || "متصل نیست",
+            delete: t.myFilesDelete || "حذف",
+            deleteConfirm: t.myFilesDeleteConfirm || "حذف",
+            close: t.myFilesClose || "بستن",
+            importing: t.importImporting || "در حال پردازش...",
           }}
         />
       )}

@@ -7,12 +7,19 @@
  * - اضافه شدن `downloadJSON` (دانلود فایل)
  */
 
-import { WordEntry, WordSource, TargetLanguage } from "./types";
+import { WordEntry, WordSource, TargetLanguage, WordFile } from "./types";
 import {
   CUSTOM_WORDS_STORAGE_KEY,
   MAX_CUSTOM_WORDS,
   DEFAULT_TARGET_LANGUAGE,
 } from "./constants";
+
+/**
+ * شناسه‌ی فایل جدید می‌سازه.
+ */
+export function generateFileId(): string {
+  return `file-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+}
 
 // ─────────────────────────────────────────────────────────────
 // توابع اصلی
@@ -110,6 +117,87 @@ export function countCustomWords(): number {
 
 export function generateCustomWordId(): string {
   return `custom-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+}
+
+// ─────────────────────────────────────────────────────────────
+// مدیریت فایل‌ها (نسخه ۳.۰)
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * همه‌ی فایل‌های ایمپورت‌شده رو برمی‌گردونه.
+ *
+ * کلماتی که `fileId` ندارن (قدیمی‌ها یا کلمات دستی) توی یه فایل
+ * «شامل همه» دسته‌بندی می‌شن.
+ */
+export function getWordFiles(): WordFile[] {
+  const words = loadCustomWords();
+
+  const fileMap = new Map<string, WordEntry[]>();
+  for (const word of words) {
+    const fileId = word.fileId || "unfiled";
+    const existing = fileMap.get(fileId);
+    if (existing) {
+      existing.push(word);
+    } else {
+      fileMap.set(fileId, [word]);
+    }
+  }
+
+  const files: WordFile[] = [];
+  for (const [fileId, fileWords] of fileMap) {
+    files.push({
+      id: fileId,
+      name: fileWords[0].fileId
+        ? fileWords[0].fileName || deriveFileName(fileWords)
+        : deriveFileName(fileWords),
+      wordCount: fileWords.length,
+      createdAt: Math.min(...fileWords.map((w) => w.createdAt ?? Date.now())),
+    });
+  }
+
+  return files.sort((a, b) => b.createdAt - a.createdAt);
+}
+
+/**
+ * اسم پیش‌فرض فایل از روی کلماتش استنتاج می‌کنه.
+ */
+function deriveFileName(words: WordEntry[]): string {
+  const levels = [...new Set(words.map((w) => w.level))];
+  const levelPart = levels.length === 1 ? ` ${levels[0]}` : "";
+  return `${words.length} کلمه${levelPart}`;
+}
+
+/**
+ * همه‌ی کلمات یه فایل رو حذف می‌کنه.
+ *
+ * @param fileId آیدی فایل (یا "unfiled" برای کلمات بدون فایل)
+ * @param attachedWordIds آیدی کلماتی که به درخت‌ها وصل شدن (برای حذف از pool)
+ * @returns تعداد کلمات حذف‌شده
+ */
+export function deleteWordFile(
+  fileId: string,
+  attachedWordIds: string[] = []
+): number {
+  const current = loadCustomWords();
+  const removeIds = new Set(attachedWordIds);
+  const remaining = current.filter((w) => {
+    const wFileId = w.fileId || "unfiled";
+    if (wFileId !== fileId) return true;
+    return false;
+  });
+  saveCustomWords(remaining);
+  return current.length - remaining.length;
+}
+
+/**
+ * اسم فایل رو برای همه‌ی کلمات یه fileId آپدیت می‌کنه.
+ */
+export function renameWordFile(fileId: string, name: string): void {
+  const current = loadCustomWords();
+  const updated = current.map((w) =>
+    w.fileId === fileId ? { ...w, fileName: name } : w
+  );
+  saveCustomWords(updated);
 }
 
 // ─────────────────────────────────────────────────────────────

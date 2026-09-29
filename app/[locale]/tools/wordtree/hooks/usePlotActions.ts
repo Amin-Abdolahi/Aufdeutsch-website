@@ -4,10 +4,11 @@
  * usePlotActions — ساخت باغچه و درخت
  */
 
-import { GameState, TreeVariant } from "@/lib/wordtree/types";
+import { GameState, TreeVariant, TreeColor } from "@/lib/wordtree/types";
 import {
   createPlot,
   createTree,
+  deleteTree,
 } from "@/lib/wordtree/gameLogic";
 import {
   MAX_PLOTS,
@@ -42,7 +43,8 @@ export function usePlotActions({
   const handleCreateTree = (
     name: string,
     variant: TreeVariant,
-    wordIds: string[]
+    wordIds: string[],
+    color?: TreeColor
   ) => {
     const selectedPlot = selectedPlotId
       ? gameState.plots.find((p) => p.id === selectedPlotId)
@@ -58,7 +60,7 @@ export function usePlotActions({
     const poolWordIds =
       wordIds.length > 0 ? wordIds : WORDS_DE.map((w) => w.id);
 
-    const newTree = createTree(name, variant, poolWordIds);
+    const newTree = createTree(name, variant, poolWordIds, color);
 
     const updated: GameState = {
       ...gameState,
@@ -73,5 +75,9 @@ export function usePlotActions({
     return { success: true };
   };
 
-  return { handleCreatePlot, handleCreateTree };
+  const handleDeleteTree = (treeId: string) => {
+    setGameState(deleteTree(gameState, treeId));
+  };
+
+  return { handleCreatePlot, handleCreateTree, handleDeleteTree };
 }

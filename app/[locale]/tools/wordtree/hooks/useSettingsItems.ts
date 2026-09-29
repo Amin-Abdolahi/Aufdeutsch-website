@@ -12,6 +12,7 @@ interface UseSettingsItemsProps {
   t: any;
   onQuiz: () => void;
   onMyWords: () => void;
+  onMyFiles: () => void;
   onAddWord: () => void;
   onImport: () => void;
   onBackup: () => void;
@@ -23,6 +24,7 @@ export function useSettingsItems({
   t,
   onQuiz,
   onMyWords,
+  onMyFiles,
   onAddWord,
   onImport,
   onBackup,
@@ -43,14 +45,19 @@ export function useSettingsItems({
       variant: "highlight",
     },
     {
-      icon: "➕",
-      label: t.addWord,
-      onClick: onAddWord,
-    },
-    {
       icon: "📥",
       label: t.importWords,
       onClick: onImport,
+    },
+    {
+      icon: "📁",
+      label: t.myFiles || "فایل‌های من",
+      onClick: onMyFiles,
+    },
+    {
+      icon: "➕",
+      label: t.addWord,
+      onClick: onAddWord,
     },
     {
       icon: "💾",

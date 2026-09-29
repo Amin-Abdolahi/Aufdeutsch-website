@@ -20,6 +20,7 @@ export function useModals() {
   const [showCreateTreeModal, setShowCreateTreeModal] = useState(false);
   const [showTreeWordManager, setShowTreeWordManager] = useState(false);
   const [showMyWordsModal, setShowMyWordsModal] = useState(false);
+  const [showMyFilesModal, setShowMyFilesModal] = useState(false);
 
   return {
     showWateringPanel,
@@ -48,5 +49,7 @@ export function useModals() {
     setShowTreeWordManager,
     showMyWordsModal,
     setShowMyWordsModal,
+    showMyFilesModal,
+    setShowMyFilesModal,
   };
 }

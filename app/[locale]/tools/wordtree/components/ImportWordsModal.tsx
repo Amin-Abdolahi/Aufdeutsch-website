@@ -17,10 +17,11 @@
 import { useState, useRef } from "react";
 import { ImportResult } from "@/lib/wordtree/types";
 import { Button } from "@/components/ui/Button";
+import { PromptBuilder } from "./PromptBuilder";
 
 interface ImportWordsModalProps {
   onClose: () => void;
-  onImport: (fileContent: string) => ImportResult;
+  onImport: (fileContent: string, fileName?: string) => ImportResult;
   labels: {
     title: string;
     subtitle: string;
@@ -46,18 +47,38 @@ interface ImportWordsModalProps {
     guideFullTitle: string;
     guideFullContent: string;
     guideBack: string;
-    // ─── جدید ───
+    // ─── تب‌ها ───
     tabPaste: string;
     tabUpload: string;
+    tabPrompt: string;
     pastePlaceholder: string;
     pasteButton: string;
     pasteEmpty: string;
+    // ─── PromptBuilder ───
+    promptBuilder: {
+      title: string;
+      subtitle: string;
+      countLabel: string;
+      topicLabel: string;
+      topicPlaceholder: string;
+      levelLabel: string;
+      translationLabel: string;
+      extraLabel: string;
+      extraPlaceholder: string;
+      previewLabel: string;
+      copyButton: string;
+      copied: string;
+      useButton: string;
+      topicSuggestions: { label: string; value: string }[];
+      levels: { label: string; value: string }[];
+      translationLanguages: { label: string; value: string }[];
+    };
   };
   promptUrl: string;
   templateUrl: string;
 }
 
-type TabType = "paste" | "upload";
+type TabType = "paste" | "upload" | "prompt";
 
 export function ImportWordsModal({
   onClose,
@@ -73,6 +94,10 @@ export function ImportWordsModal({
   const [error, setError] = useState<string | null>(null);
   const [showGuide, setShowGuide] = useState(false);
   const [pastedText, setPastedText] = useState("");
+  // ⚠️ اسم فایل پیشنهادی از روی پرامپت ساخته‌شده
+  const [pendingFileName, setPendingFileName] = useState<string | undefined>(
+    undefined
+  );
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // ─── پردازش فایل ───
@@ -88,7 +113,7 @@ export function ImportWordsModal({
 
     try {
       const content = await file.text();
-      const importResult = onImport(content);
+      const importResult = onImport(content, file.name.replace(/\.json$/i, ""));
       setResult(importResult);
     } catch (err) {
       setError("خطا در خواندن فایل");
@@ -109,7 +134,7 @@ export function ImportWordsModal({
     setResult(null);
 
     try {
-      const importResult = onImport(pastedText);
+      const importResult = onImport(pastedText, pendingFileName);
       setResult(importResult);
     } catch (err) {
       setError("خطا در پردازش متن");
@@ -271,6 +296,16 @@ export function ImportWordsModal({
             {/* ─── تب‌ها ─── */}
             <div className="flex gap-2 mb-4 bg-navy-900/5 p-1 rounded-sm">
               <button
+                onClick={() => setActiveTab("prompt")}
+                className={`flex-1 py-2 text-sm font-bold rounded-sm transition ${
+                  activeTab === "prompt"
+                    ? "bg-white text-navy-900 shadow-sm"
+                    : "text-navy-900/60 hover:text-navy-900"
+                }`}
+              >
+                ✨ {labels.tabPrompt}
+              </button>
+              <button
                 onClick={() => setActiveTab("paste")}
                 className={`flex-1 py-2 text-sm font-bold rounded-sm transition ${
                   activeTab === "paste"
@@ -292,9 +327,36 @@ export function ImportWordsModal({
               </button>
             </div>
 
+            {/* ─── تب: ساخت پرامپت ─── */}
+            {activeTab === "prompt" && (
+              <PromptBuilder
+                labels={labels.promptBuilder}
+                onUse={(promptText) => {
+                  // پرامپت ساخته‌شده رو به اسم فایل تبدیل می‌کنیم
+                  const topicMatch = promptText.match(/در حوزه‌ی «(.+?)»/);
+                  const countMatch = promptText.match(/^من می‌خواهم (\d+) کلمه/);
+                  const name = [
+                    countMatch ? countMatch[1] : "",
+                    "کلمه",
+                    topicMatch ? topicMatch[1] : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" ")
+                    .trim();
+                  setPendingFileName(name || undefined);
+                  setActiveTab("paste");
+                }}
+              />
+            )}
+
             {/* ─── تب: چسباندن متن ─── */}
             {activeTab === "paste" && (
               <>
+                {pendingFileName && (
+                  <div className="mb-3 bg-gold-300/20 border border-gold-400/40 px-3 py-2 rounded-sm text-xs text-navy-900/80 font-mono">
+                    📁 فایل: {pendingFileName}
+                  </div>
+                )}
                 <textarea
                   value={pastedText}
                   onChange={(e) => setPastedText(e.target.value)}

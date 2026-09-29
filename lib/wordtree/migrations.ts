@@ -4,12 +4,14 @@
  * ⚠️ تغییرات نسخه ۵.۰:
  * - اضافه شدن migration از v13 به v14 (poolWordIds)
  * - تعمیر کلماتی که با متن خالی ذخیره شده بودن
+ * - اضافه شدن migration از v14 به v15 (آبیاری چندباره در روز)
  *
  * ⚠️ تاریخچه‌ی نسخه‌ها:
  * - v1 تا v11: ...
  * - v12: ساختار باغچه‌ها
  * - v13: کلمات چند-درختی (treeIds)
  * - v14: استخر کلمات اختصاصی هر درخت (poolWordIds)
+ * - v15: آبیاری چندباره در روز (محدودیت از طریق wordsLearnedToday)
  */
 
 import {
@@ -234,6 +236,31 @@ function migrateV13toV14(state: any): GameState {
   };
 }
 
+/**
+ * Migration از v14 به v15: روزانه چندباره.
+ *
+ * ⚠️ این migration:
+ * ۱. `wateredToday` همه‌ی درخت‌ها رو false می‌کنه (محدودیت جدید
+ *    از طریق wordsLearnedToday/آبیاری‌ها هست).
+ */
+function migrateV14toV15(state: any): GameState {
+  const plots: Plot[] = (state.plots || []).map((plot: any) => {
+    const trees = (plot.trees || []).map((tree: any) => ({
+      ...tree,
+      wateredToday: false,
+      // اگه میوه‌ی نصفه‌تمونده داره و چیزی برای آبیاری نیست
+      dayState: tree.dayState || "watering",
+    }));
+    return { ...plot, trees };
+  });
+
+  return {
+    ...state,
+    plots,
+    version: STATE_VERSION,
+  };
+}
+
 // ─────────────────────────────────────────────────────────────
 // اجرای migrationها
 // ─────────────────────────────────────────────────────────────
@@ -254,6 +281,9 @@ export function runMigrations(state: any): GameState {
   }
   if (oldVersion < 14) {
     newState = migrateV13toV14(newState);
+  }
+  if (oldVersion < 15) {
+    newState = migrateV14toV15(newState);
   }
 
   newState.version = STATE_VERSION;

@@ -59,11 +59,12 @@ function v13State() {
   };
 }
 
-describe("migration v13 → v14", () => {
+describe("migration v13 → v14 → v15", () => {
   it("repairs empty word text and builds per-tree pools", () => {
     const s = runMigrations(v13State()) as any;
 
-    expect(s.version).toBe(14);
+    // ⚠️ زنجیره‌ی migration تا آخرین نسخه (v15) اجرا می‌شه
+    expect(s.version).toBe(15);
 
     const tree = s.plots[0].trees[0];
     // pool از کلمات attach شده ساخته می‌شه
@@ -76,6 +77,9 @@ describe("migration v13 → v14", () => {
     // فیلدهای خود کلمه‌ها حفظ شدن
     expect(s.words[1].reviewStage).toBe(1);
     expect(s.currentDay).toBe(3);
+
+    // v15: wateredToday ریست می‌شه (محدودیت جدید از طریق wordsLearnedToday)
+    expect(tree.wateredToday).toBe(false);
   });
 
   it("falls back to the builtin pool for empty trees", () => {

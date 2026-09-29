@@ -421,6 +421,22 @@ const fa = {
     importPastePlaceholder: 'کد JSON رو اینجا paste کن...\n\nمثال:\n{\n  "version": "1.0",\n  "language": "de",\n  "words": [...]\n}',
     importPasteButton: "ایمپورت کن",
     importPasteEmpty: "لطفاً کد JSON رو paste کن.",
+    // ─── تب ساخت پرامپت ───
+    importTabPrompt: "ساخت پرامپت",
+    // ─── PromptBuilder ───
+    promptBuilderTitle: "ساخت پرامپت شخصی",
+    promptBuilderSubtitle: "فرم رو پر کن تا یه پرامپت دقیق برای هوش مصنوعی بسازی",
+    promptCountLabel: "تعداد کلمات",
+    promptTopicLabel: "حوزه کلمات",
+    promptTopicPlaceholder: "مثال: فرودگاه",
+    promptLevelLabel: "سطح زبان",
+    promptTranslationLabel: "زبان ترجمه",
+    promptExtraLabel: "نکات اضافی (اختیاری)",
+    promptExtraPlaceholder: "مثلاً: فقط افعال، یا کلمات موقعیت‌محور",
+    promptPreviewLabel: "پیش‌نمایش پرامپت",
+    promptCopyButton: "کپی پرامپت",
+    promptCopied: "کپی شد!",
+    promptUseButton: "استفاده از این پرامپت",
     // ─── آزمون ───
     quizMenu: "آزمون‌ها",
     quizMenuTitle: "آزمون‌ها",
@@ -596,6 +612,14 @@ const fa = {
     variantBlossom: "شکوفه",
     variantApple: "سیب",
     variantLemon: "لیمو",
+    // ─── رنگ درخت ───
+    colorLabel: "رنگ درخت",
+    treeColorGreen: "سبز",
+    treeColorAutumn: "پاییزی",
+    treeColorPink: "صورتی",
+    treeColorBlue: "آبی",
+    treeColorPurple: "بنفش",
+    treeColorGold: "طلایی",
         // ─── نوار پیشرفت ───
     toNextLevel: "{count} کلمه تا سطح بعدی",
     levelMaxed: "به بالاترین سطح رسیدی!",
@@ -625,6 +649,28 @@ const fa = {
     myWordsEmpty: "هنوز کلمه‌ای نداری.",
     myWordsNoResults: "کلمه‌ای با این جستجو پیدا نشد.",
     myWordsClose: "بستن",
+
+    // ─── مدیریت فایل‌ها (MyFilesModal) ───
+    myFiles: "فایل‌های من",
+    myFilesTitle: "فایل‌های کلمات",
+    myFilesSubtitle: "{count} فایل ایمپورت‌شده",
+    myFilesEmpty: "هنوز فایلی ایمپورت نکردی. از بخش «افزودن گروهی» شروع کن.",
+    myFilesWordsCount: "{count} کلمه",
+    myFilesAttached: "متصل",
+    myFilesNotAttached: "متصل نیست",
+    myFilesDelete: "حذف",
+    myFilesDeleteConfirm: "حذف",
+    myFilesClose: "بستن",
+
+    // ─── حذف درخت ───
+    deleteTree: "حذف درخت",
+    deleteTreeTitle: "حذف این درخت",
+    deleteTreeConfirm: "حذف",
+
+    // ─── دکمه‌ی مرور ───
+    reviewButton: "مرور",
+    reviewButtonTitle: "مرور کلماتی که قبلاً یاد گرفتی",
+    wateringsToday: "{count} از {max} آبیاری امروز",
 
     // ─── مودال ساخت درخت (نسخه ۲) ───
     createTreeWordsLabel: "کلمات این درخت",
@@ -1059,6 +1105,21 @@ const de: Dict = {
     importPastePlaceholder: 'JSON-Code hier einfügen...\n\nBeispiel:\n{\n  "version": "1.0",\n  "language": "de",\n  "words": [...]\n}',
     importPasteButton: "Importieren",
     importPasteEmpty: "Bitte JSON-Code einfügen.",
+    // ─── Prompt-Generator ───
+    importTabPrompt: "Prompt erstellen",
+    promptBuilderTitle: "Prompt erstellen",
+    promptBuilderSubtitle: "Fülle das Formular aus, um einen präzisen Prompt für die KI zu erstellen",
+    promptCountLabel: "Anzahl Wörter",
+    promptTopicLabel: "Wortbereich",
+    promptTopicPlaceholder: "z.B. Flughafen",
+    promptLevelLabel: "Sprachniveau",
+    promptTranslationLabel: "Übersetzungssprache",
+    promptExtraLabel: "Zusätzliche Hinweise (optional)",
+    promptExtraPlaceholder: "z.B. nur Verben, oder kontextspezifische Wörter",
+    promptPreviewLabel: "Prompt-Vorschau",
+    promptCopyButton: "Prompt kopieren",
+    promptCopied: "Kopiert!",
+    promptUseButton: "Diesen Prompt verwenden",
     // ─── Quiz ───
     quizMenu: "Tests",
     quizMenuTitle: "Tests",
@@ -1235,6 +1296,14 @@ const de: Dict = {
     variantBlossom: "Blüte",
     variantApple: "Apfel",
     variantLemon: "Zitrone",
+    // ─── Baumfarbe ───
+    colorLabel: "Baumfarbe",
+    treeColorGreen: "Grün",
+    treeColorAutumn: "Herbst",
+    treeColorPink: "Rosa",
+    treeColorBlue: "Blau",
+    treeColorPurple: "Lila",
+    treeColorGold: "Gold",
         // ─── Fortschrittsbalken ───
     toNextLevel: "{count} Wörter bis zum nächsten Level",
     levelMaxed: "Höchstes Level erreicht!",
@@ -1264,6 +1333,28 @@ const de: Dict = {
     myWordsEmpty: "Du hast noch keine Wörter.",
     myWordsNoResults: "Keine Wörter für diese Suche gefunden.",
     myWordsClose: "Schließen",
+
+    // ─── Meine Dateien (MyFilesModal) ───
+    myFiles: "Meine Dateien",
+    myFilesTitle: "Wortdateien",
+    myFilesSubtitle: "{count} importierte Dateien",
+    myFilesEmpty: "Noch keine Dateien importiert. Starte unter «Wörter hinzufügen».",
+    myFilesWordsCount: "{count} Wörter",
+    myFilesAttached: "verbunden",
+    myFilesNotAttached: "nicht verbunden",
+    myFilesDelete: "Löschen",
+    myFilesDeleteConfirm: "Löschen",
+    myFilesClose: "Schließen",
+
+    // ─── Baum löschen ───
+    deleteTree: "Baum löschen",
+    deleteTreeTitle: "Diesen Baum löschen",
+    deleteTreeConfirm: "Löschen",
+
+    // ─── Wiederholen ───
+    reviewButton: "Wiederholen",
+    reviewButtonTitle: "Wörter wiederholen, die du bereits gelernt hast",
+    wateringsToday: "{count} von {max} Gießvorgängen heute",
 
     // ─── Baum erstellen v2 ───
     createTreeWordsLabel: "Wörter dieses Baums",
@@ -1698,6 +1789,21 @@ const en: Dict = {
     importPastePlaceholder: 'Paste JSON code here...\n\nExample:\n{\n  "version": "1.0",\n  "language": "de",\n  "words": [...]\n}',
     importPasteButton: "Import",
     importPasteEmpty: "Please paste JSON code.",
+    // ─── Prompt builder ───
+    importTabPrompt: "Build prompt",
+    promptBuilderTitle: "Build a custom prompt",
+    promptBuilderSubtitle: "Fill the form to generate a precise prompt for the AI",
+    promptCountLabel: "Word count",
+    promptTopicLabel: "Word domain",
+    promptTopicPlaceholder: "e.g. Airport",
+    promptLevelLabel: "Language level",
+    promptTranslationLabel: "Translation language",
+    promptExtraLabel: "Extra notes (optional)",
+    promptExtraPlaceholder: "e.g. only verbs, or context-specific words",
+    promptPreviewLabel: "Prompt preview",
+    promptCopyButton: "Copy prompt",
+    promptCopied: "Copied!",
+    promptUseButton: "Use this prompt",
     // ─── Quiz ───
     quizMenu: "Quizzes",
     quizMenuTitle: "Quizzes",
@@ -1874,6 +1980,14 @@ const en: Dict = {
     variantBlossom: "Blossom",
     variantApple: "Apple",
     variantLemon: "Lemon",
+    // ─── Tree color ───
+    colorLabel: "Tree color",
+    treeColorGreen: "Green",
+    treeColorAutumn: "Autumn",
+    treeColorPink: "Pink",
+    treeColorBlue: "Blue",
+    treeColorPurple: "Purple",
+    treeColorGold: "Gold",
         // ─── Progress Bar ───
     toNextLevel: "{count} words to next level",
     levelMaxed: "You reached the highest level!",
@@ -1903,6 +2017,28 @@ const en: Dict = {
     myWordsEmpty: "You don't have any words yet.",
     myWordsNoResults: "No words found for this search.",
     myWordsClose: "Close",
+
+    // ─── My Files (MyFilesModal) ───
+    myFiles: "My Files",
+    myFilesTitle: "Word Files",
+    myFilesSubtitle: "{count} imported files",
+    myFilesEmpty: "No files imported yet. Start from «Bulk add words».",
+    myFilesWordsCount: "{count} words",
+    myFilesAttached: "attached",
+    myFilesNotAttached: "not attached",
+    myFilesDelete: "Delete",
+    myFilesDeleteConfirm: "Delete",
+    myFilesClose: "Close",
+
+    // ─── Delete tree ───
+    deleteTree: "Delete tree",
+    deleteTreeTitle: "Delete this tree",
+    deleteTreeConfirm: "Delete",
+
+    // ─── Review ───
+    reviewButton: "Review",
+    reviewButtonTitle: "Review words you've already learned",
+    wateringsToday: "{count} of {max} waterings today",
 
     // ─── Create Tree v2 ───
     createTreeWordsLabel: "Words of this tree",

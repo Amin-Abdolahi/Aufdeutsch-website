@@ -16,6 +16,7 @@ import {
   removeWordFromTree,
   getTreeWords,
   getDueReviewWords,
+  startReview,
 } from "@/lib/wordtree/gameLogic";
 import { Locale } from "@/lib/i18n";
 
@@ -97,6 +98,12 @@ export function useTreeActions({
     setGameState(updated);
   };
 
+  const handleStartReview = () => {
+    if (!selectedTree) return;
+    // ⚠️ مرور کلمات نباید محدود باشه — هر زمان کاربر خواست
+    setGameState(startReview(gameState, selectedTree.id));
+  };
+
   return {
     handleWateringComplete,
     handleHarvestAnswer,
@@ -104,5 +111,6 @@ export function useTreeActions({
     handleQuizComplete,
     handleAddWordsToTree,
     handleRemoveWordsFromTree,
+    handleStartReview,
   };
 }

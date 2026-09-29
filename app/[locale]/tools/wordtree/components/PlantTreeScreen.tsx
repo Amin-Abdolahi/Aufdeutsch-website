@@ -27,6 +27,7 @@ interface PlantTreeScreenProps {
     plantButton: string;
     customWordsImported: string;
     wordsCount: string;
+    customPlantWithoutImport?: string;
   };
 }
 
@@ -142,6 +143,17 @@ export function PlantTreeScreen({
         >
           🌳 {labels.plantButton}
         </button>
+
+        {/* ─── دکمه‌ی استفاده از کلمات فعلی (درخت شخصی) ─── */}
+        {selectedTreeType === CUSTOM_TREE_TYPE && customWordsCount > 0 && (
+          <button
+            onClick={() => onPlant(CUSTOM_TREE_TYPE)}
+            className="w-full mt-3 py-3 bg-white hover:bg-gold-300/20 text-navy-900 font-bold rounded-xl transition border-2 border-gold-400/60 text-sm"
+          >
+            ♻️ {labels.customPlantWithoutImport || "با کلمات فعلی"} (
+            {customWordsCount})
+          </button>
+        )}
 
         {/* ─── راهنمای کوچیک ─── */}
         <p className="text-center text-xs text-navy-900/50 mt-4">

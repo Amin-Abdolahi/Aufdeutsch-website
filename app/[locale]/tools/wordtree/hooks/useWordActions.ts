@@ -5,7 +5,12 @@
  */
 
 import { GameState, WordEntry, ImportResult } from "@/lib/wordtree/types";
-import { addCustomWord, loadCustomWords } from "@/lib/wordtree/customWords";
+import {
+  addCustomWord,
+  loadCustomWords,
+  deleteWordFile,
+  generateFileId,
+} from "@/lib/wordtree/customWords";
 import { importWordsFromJSON } from "@/lib/wordtree/jsonImport";
 import { REWARD_CUSTOM_WORD } from "@/lib/wordtree/constants";
 
@@ -36,8 +41,13 @@ export function useWordActions({
     return result;
   };
 
-  const handleImportWords = (fileContent: string): ImportResult => {
-    const result = importWordsFromJSON(fileContent);
+  const handleImportWords = (
+    fileContent: string,
+    fileName?: string
+  ): ImportResult => {
+    // ⚠️ هر ایمپورت یه fileId می‌گیره تا بعداً قابل مدیریت/حذف باشه
+    const fileId = generateFileId();
+    const result = importWordsFromJSON(fileContent, 0, fileId, fileName);
     if (result.imported > 0) {
       setCustomWords(loadCustomWords());
       setGameState({ ...gameState, coins: gameState.coins + result.coinsEarned });
@@ -48,5 +58,11 @@ export function useWordActions({
     return result;
   };
 
-  return { handleAddWord, handleImportWords };
+  const handleDeleteFile = (fileId: string, attachedWordIds: string[]) => {
+    // کلمات فایل رو از localStorage حذف کن
+    deleteWordFile(fileId, attachedWordIds);
+    setCustomWords(loadCustomWords());
+  };
+
+  return { handleAddWord, handleImportWords, handleDeleteFile };
 }

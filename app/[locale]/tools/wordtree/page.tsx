@@ -55,10 +55,10 @@ export default function WordTreePage() {
     ? getPlotById(gameState, gameState.activePlotId)
     : null;
   const selectedTree = gameState?.activeTreeId
-    ? getTreeById(gameState, gameState.activeTreeId)
+    ? getTreeById(gameState, gameState.activeTreeId) ?? null
     : null;
 
-  const { handleCreatePlot, handleCreateTree } = usePlotActions({
+  const { handleCreatePlot, handleCreateTree, handleDeleteTree } = usePlotActions({
     gameState: gameState!,
     setGameState,
     selectedPlotId: gameState?.activePlotId || null,
@@ -87,10 +87,14 @@ export default function WordTreePage() {
     },
   });
 
+  // ⚠️ معرفی دوباره برای استفاده در handlers (تعریف شده در بالا)
+  const plotActions = { handleCreatePlot, handleCreateTree, handleDeleteTree };
+
   const settingsItems = useSettingsItems({
     t,
     onQuiz: () => modals.setShowQuizMenu(true),
     onMyWords: () => modals.setShowMyWordsModal(true),
+    onMyFiles: () => modals.setShowMyFilesModal(true),
     onAddWord: () => modals.setShowAddWordModal(true),
     onImport: () => modals.setShowImportModal(true),
     onBackup: () => modals.setShowBackupModal(true),
@@ -111,6 +115,7 @@ export default function WordTreePage() {
     setShowCreateTreeModal: modals.setShowCreateTreeModal,
     setShowTreeWordManager: modals.setShowTreeWordManager,
     setShowMyWordsModal: modals.setShowMyWordsModal,
+    setShowMyFilesModal: modals.setShowMyFilesModal,
     setShowWateringPanel: modals.setShowWateringPanel,
     setSelectedFruitId,
   };
@@ -118,14 +123,17 @@ export default function WordTreePage() {
   const handlers = {
     handleCreatePlot,
     handleCreateTree,
+    handleDeleteTree: plotActions.handleDeleteTree,
     handleAddWordsToTree: treeActions.handleAddWordsToTree,
     handleRemoveWordsFromTree: treeActions.handleRemoveWordsFromTree,
     handleWateringComplete: treeActions.handleWateringComplete,
     handleHarvestAnswer: treeActions.handleHarvestAnswer,
     handleStartNextDay: treeActions.handleStartNextDay,
     handleQuizComplete: treeActions.handleQuizComplete,
+    handleStartReview: treeActions.handleStartReview,
     handleAddWord: wordActions.handleAddWord,
     handleImportWords: wordActions.handleImportWords,
+    handleDeleteFile: wordActions.handleDeleteFile,
     handleTourClose: () => {
       modals.setShowTour(false);
       setGameState({ ...gameState!, hasSeenTutorial: true });
@@ -167,6 +175,11 @@ export default function WordTreePage() {
   const handleOpenTree = (treeId: string) => {
     setGameState({ ...gameState, activeTreeId: treeId });
     setView("tree");
+  };
+
+  const handleDeleteTreeAndGoBack = (treeId: string) => {
+    handleDeleteTree(treeId);
+    setView("plot");
   };
 
   if (view === "garden") {
@@ -214,6 +227,7 @@ export default function WordTreePage() {
         selectedTree={selectedTree}
         selectedFruitId={selectedFruitId}
         allWordsData={allWordsData}
+        customWords={customWords}
         safeLocale={safeLocale}
         t={t}
         modals={modals}
@@ -221,6 +235,7 @@ export default function WordTreePage() {
         handlers={handlers}
         availableForNewTree={availableForNewTree}
         onOpenTree={handleOpenTree}
+        onDeleteTree={handleDeleteTreeAndGoBack}
         onBackToGarden={() => setView("garden")}
       />
     );
@@ -282,6 +297,8 @@ export default function WordTreePage() {
           setSelectedFruitId(fruitId);
         }}
         onBackToPlot={() => setView("plot")}
+        onDeleteTree={() => handleDeleteTreeAndGoBack(selectedTree.id)}
+        onStartReview={() => treeActions.handleStartReview()}
       />
     );
   }

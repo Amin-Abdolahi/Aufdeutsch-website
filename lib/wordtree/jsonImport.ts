@@ -29,7 +29,9 @@ import {
 
 export function importWordsFromJSON(
   fileContent: string,
-  currentDayCoinsEarned: number = 0
+  currentDayCoinsEarned: number = 0,
+  fileId?: string,
+  fileName?: string
 ): ImportResult {
   const errors: string[] = [];
   let imported = 0;
@@ -124,7 +126,7 @@ export function importWordsFromJSON(
       continue;
     }
 
-    const wordEntry = convertToWordEntry(word, language);
+    const wordEntry = convertToWordEntry(word, language, fileId, fileName);
     newWords.push(wordEntry);
     seenInFile.add(normalizedKey);
     imported++;
@@ -231,7 +233,9 @@ function validateImportWord(
 
 function convertToWordEntry(
   word: ImportWord,
-  language: TargetLanguage
+  language: TargetLanguage,
+  fileId?: string,
+  fileName?: string
 ): WordEntry {
   return {
     id: generateCustomWordId(),
@@ -249,6 +253,8 @@ function convertToWordEntry(
     example: word.example,
     source: "custom",
     createdAt: Date.now(),
+    fileId: fileId,
+    fileName: fileName,
   };
 }
 
