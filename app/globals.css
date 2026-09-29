@@ -70,8 +70,6 @@ li {
 
 .notebook-band-about-red { top: -4rem; right: 12%; transform: rotate(-16deg); }
 .notebook-band-about-gold { bottom: -5rem; left: 10%; transform: rotate(18deg); height: 20rem; }
-.notebook-band-courses-red { bottom: -5rem; left: 16%; transform: rotate(22deg); height: 20rem; }
-.notebook-band-courses-gold { top: -5rem; right: 10%; transform: rotate(-20deg); }
 .notebook-band-pricing-red { top: -6rem; left: 42%; transform: rotate(8deg); height: 18rem; }
 .notebook-band-pricing-gold { bottom: -6rem; right: 8%; transform: rotate(-26deg); height: 22rem; }
 .notebook-band-contact-red { bottom: -5rem; right: 14%; transform: rotate(-18deg); height: 20rem; }

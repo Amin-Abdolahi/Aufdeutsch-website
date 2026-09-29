@@ -234,14 +234,6 @@ export function HeroSection({ locale }: HeroSectionProps) {
                 >
                   {t.home.heroCta}
                 </Button>
-                <Button
-                  href={`/${locale}`}
-                  variant="outline"
-                  size="lg"
-                  className="tracking-[0.08em]"
-                >
-                  {t.home.heroViewCourses}
-                </Button>
               </div>
             </AnimatedEntrance>
           </div>

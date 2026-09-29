@@ -1,8 +1,10 @@
 /**
- * Word Tree — Type Definitions (نسخه ۱۰.۰)
+ * Word Tree — Type Definitions (نسخه ۱۳.۰)
  *
- * ⚠️ تغییرات نسخه ۱۰.۰:
- * - اضافه شدن `hasSeenTutorial` به `GameState`
+ * ⚠️ تغییرات بزرگ نسخه ۱۳.۰:
+ * - `Word.treeIds` اضافه شد (کلمه می‌تونه توی چند درخت باشه)
+ * - `Tree.wordIds` حذف شد (کلمات از `Word.treeIds` پیدا می‌شن)
+ * - `Tree.totalWords` کش شده (از `Word.treeIds` محاسبه می‌شه)
  */
 
 import { Locale } from "@/lib/i18n";
@@ -30,6 +32,16 @@ export type GermanLevel = "A1" | "A2" | "B1" | "B2" | "C1";
 export type WordSource = "builtin" | "custom" | "community";
 
 export type TargetLanguage = string;
+
+export type PlotTheme = "spring" | "summer" | "autumn" | "winter" | "default";
+
+export type TreeVariant =
+  | "oak"
+  | "pine"
+  | "palm"
+  | "blossom"
+  | "apple"
+  | "lemon";
 
 // ─────────────────────────────────────────────────────────────
 // اطلاعات گرامری
@@ -84,9 +96,16 @@ export interface WordEntry {
 }
 
 // ─────────────────────────────────────────────────────────────
-// وضعیت بازی (Runtime State)
+// وضعیت کلمه (Runtime)
 // ─────────────────────────────────────────────────────────────
 
+/**
+ * یه کلمه توی وضعیت runtime.
+ *
+ * ⚠️ تغییر نسخه ۱۳.۰:
+ * - `treeIds`: کلمه می‌تونه توی چند درخت باشه.
+ *   مثلاً `machen` توی «افعال» + «روزمره».
+ */
 export interface Word {
   id: string;
   language: TargetLanguage;
@@ -98,7 +117,13 @@ export interface Word {
   reviewStage: number;
   nextReviewDay?: number;
   source?: WordSource;
+  /** شناسه‌ی درخت‌هایی که این کلمه توشون هست */
+  treeIds: string[];
 }
+
+// ─────────────────────────────────────────────────────────────
+// میوه
+// ─────────────────────────────────────────────────────────────
 
 export interface Fruit {
   id: string;
@@ -119,37 +144,71 @@ export interface QuizResult {
   timeSpentMs: number;
 }
 
-export interface TreeState {
+// ─────────────────────────────────────────────────────────────
+// درخت (Tree) — سطح سوم
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * یه درخت توی یه باغچه.
+ *
+ * ⚠️ تغییر نسخه ۱۳.۰:
+ * - `wordIds` حذف شد. کلمات از طریق `Word.treeIds` پیدا می‌شن.
+ * - `totalWords` از روی `Word.treeIds` محاسبه می‌شه (کش شده).
+ */
+export interface Tree {
+  id: string;
+  name: string;
+  variant: TreeVariant;
   level: TreeLevel;
+  /** تعداد کلمات (کش شده — از Word.treeIds محاسبه می‌شه) */
   totalWords: number;
   fruits: Fruit[];
   lastWatered?: number;
+  wateredToday: boolean;
+  wordsLearnedToday: string[];
+  dayState: "watering" | "harvesting" | "ready" | "completed";
   streak: number;
   health?: number;
+  createdAt: number;
 }
 
+// ─────────────────────────────────────────────────────────────
+// باغچه (Plot) — سطح دوم
+// ─────────────────────────────────────────────────────────────
+
+export interface Plot {
+  id: string;
+  name: string;
+  theme: PlotTheme;
+  trees: Tree[];
+  createdAt: number;
+}
+
+// ─────────────────────────────────────────────────────────────
+// وضعیت کل بازی (GameState)
+// ─────────────────────────────────────────────────────────────
+
 export interface GameState {
-  tree: TreeState;
+  /** ─── باغچه‌ها ─── */
+  plots: Plot[];
+  activePlotId: string | null;
+  activeTreeId: string | null;
+
+  /** ─── داده‌های مشترک ─── */
   words: Word[];
   coins: number;
   lastPlayed: number;
   version: number;
   currentDay: number;
-  dayState: "watering" | "harvesting" | "ready" | "completed";
-  wordsLearnedToday: string[];
-  wateredToday: boolean;
+  targetLanguage: TargetLanguage;
+  totalWordsLearned: number;
+  hasSeenTutorial: boolean;
+  hasPlantedTree: boolean;
   dailyRewardHistory?: {
     lastRewardDate: string;
     coinsEarnedToday: number;
   };
-  targetLanguage: TargetLanguage;
-  totalWordsLearned: number;
   lastSilverFruitAt?: number;
-  /** ─── جدید ─── */
-  /** آیا کاربر تور اولیه رو دیده؟ */
-  hasSeenTutorial: boolean;
-  hasPlantedTree: boolean;
-
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -218,32 +277,17 @@ export interface UserStats {
   wordStats: Record<string, { correct: number; wrong: number }>;
   exerciseStats: Record<ExerciseType, { correct: number; wrong: number }>;
 }
+
 // ─────────────────────────────────────────────────────────────
-// Snapshot (نسخه ۱۰.۰)
+// Snapshot
 // ─────────────────────────────────────────────────────────────
 
-/**
- * یه snapshot از وضعیت کامل بازی.
- *
- * ⚠️ این ساختار توی localStorage ذخیره می‌شه.
- * هر روز که کاربر وارد می‌شه، اگه از آخرین snapshot بیشتر از ۲۴ ساعت
- * گذشته باشه، یه snapshot جدید ساخته می‌شه.
- *
- * کاربر می‌تونه از تنظیمات، به snapshotهای قبلی برگرده.
- */
 export interface Snapshot {
-  /** شناسه‌ی یکتا */
   id: string;
-  /** زمان ساخته شدن (timestamp) */
   createdAt: number;
-  /** نسخه‌ی STATE_VERSION در زمان ساخت */
   version: number;
-  /** وضعیت بازی */
   gameState: GameState;
-  /** کلمات سفارشی */
   customWords: WordEntry[];
-  /** آمار کاربر */
   userStats: UserStats | null;
-  /** توضیح کوتاه (مثلاً "خودکار" یا "دستی") */
   label: string;
 }

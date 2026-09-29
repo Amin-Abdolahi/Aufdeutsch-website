@@ -3,7 +3,6 @@
 import { Section } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
 import { Card, CardTitle, CardDescription } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
 import { useLocale } from "@/components/LocaleProvider";
 import { type Locale } from "@/lib/i18n";
 import { Testimonials } from "@/components/Testimonials";
@@ -15,15 +14,6 @@ interface HomeContentProps {
 
 export function HomeContent({ locale }: HomeContentProps) {
   const { t } = useLocale();
-
-  const coursePreview = [
-    { level: "A1", title: t.home.courseA1Title, desc: t.home.courseA1Desc },
-    { level: "A2", title: t.home.courseA2Title, desc: t.home.courseA2Desc },
-    { level: "B1", title: t.home.courseB1Title, desc: t.home.courseB1Desc },
-    { level: "B2", title: t.home.courseB2Title, desc: t.home.courseB2Desc },
-    { level: "C1", title: t.home.courseC1Title, desc: t.home.courseC1Desc },
-    { level: "TEST", title: t.home.courseTestTitle, desc: t.home.courseTestDesc },
-  ];
 
   return (
     <div className="min-h-screen">
@@ -55,49 +45,6 @@ export function HomeContent({ locale }: HomeContentProps) {
               <CardTitle>{t.home.reason3Title}</CardTitle>
               <CardDescription>{t.home.reason3Desc}</CardDescription>
             </Card>
-          </div>
-        </div>
-      </Section>
-
-      {/* ============ دوره‌ها ============ */}
-      <Section variant="navy" className="relative">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <Badge variant="gold" className="mb-4">
-                {t.home.coursesBadge}
-              </Badge>
-              <h2 className="text-3xl md:text-4xl font-bold text-paper-100 mb-6 tracking-[-0.04em]">
-                {t.home.coursesTitle}
-              </h2>
-              <p className="text-paper-100/80 text-lg leading-relaxed mb-8 max-w-[34rem]">
-                {t.home.coursesDesc}
-              </p>
-            </div>
-            <div className="grid grid-cols-2 gap-6">
-              {coursePreview.map((course, index) => (
-                <div
-                  key={course.level}
-                  className={`p-6 rounded-sm border transition-all duration-200 hover:-translate-y-0.5 group ${
-                    index % 3 === 0
-                      ? "bg-red-600/20 border-red-400/30 hover:bg-red-600/30"
-                      : index % 3 === 1
-                      ? "bg-gold-500/20 border-gold-300/30 hover:bg-gold-500/30"
-                      : "bg-navy-800 border-navy-700 hover:bg-navy-700"
-                  }`}
-                >
-                  <div className="text-3xl font-bold text-gold-500 mb-2 group-hover:text-gold-400 transition-colors tracking-[-0.04em]">
-                    {course.level}
-                  </div>
-                  <div className="text-paper-100 font-bold mb-1 text-base md:text-lg leading-snug">
-                    {course.title}
-                  </div>
-                  <div className="text-paper-100/60 text-sm leading-relaxed">
-                    {course.desc}
-                  </div>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
       </Section>

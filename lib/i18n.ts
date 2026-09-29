@@ -51,10 +51,6 @@ const fa = {
     and: "و",
   },
   home: {
-    heroBadge: "یادگیری زبان آلمانی",
-    heroTitleBefore: "آلمانی را",
-    heroHighlight: "درست",
-    heroTitleAfter: "یاد بگیرید",
     heroSubtitle:
       "آموزش خصوصی آنلاین با مدرسین مجرب — از صفر تا آزمون های بین المللی. مثل یک سفر، قدم به قدم همراهتان هستیم.",
     heroCta: "رزرو جلسه رایگان ←",
@@ -556,6 +552,90 @@ const fa = {
     snapshotsVersion: "نسخه",
     snapshotsClose: "بستن",
     snapshotsMaxNote: "حداکثر {max} نسخه نگه داشته می‌شه",
+    // ─── صفحه‌ی باغ (Garden View) ───
+    gardenTitle: "باغ من",
+    gardenSubtitle: "باغچه‌هات رو اینجا ببین و مدیریت کن",
+    gardenCreatePlot: "باغچه‌ی جدید",
+    gardenTreesCount: "{count} درخت",
+    gardenWordsCount: "{count} کلمه",
+    gardenEmpty: "هنوز باغچه‌ای نداری. یه باغچه‌ی جدید بساز!",
+    gardenSettings: "تنظیمات",
+
+    // ─── ساخت باغچه (Create Plot) ───
+    createPlotTitle: "باغچه‌ی جدید",
+    createPlotSubtitle: "یه اسم برای باغچه‌ت انتخاب کن",
+    createPlotNameLabel: "اسم باغچه",
+    createPlotNamePlaceholder: "مثال: آلمانی روزمره",
+    createPlotCreate: "بساز",
+    createPlotCancel: "انصراف",
+    createPlotErrorRequired: "لطفاً اسم باغچه رو وارد کن.",
+    createPlotMaxReached: "به حداکثر تعداد باغچه رسیدی.",
+        // ─── صفحه‌ی درخت‌های باغچه (Plot View) ───
+    plotTreesCount: "{count} درخت",
+    plotWordsCount: "{count} کلمه",
+    plotCreateTree: "درخت جدید",
+    plotEmpty: "هنوز درختی توی این باغچه نداری. یه درخت جدید بساز!",
+    plotBackToGarden: "بازگشت به باغ",
+    plotProgress: "پیشرفت",
+
+    // ─── ساخت درخت (Create Tree) ───
+    createTreeTitle: "درخت جدید",
+    createTreeSubtitle: "یه اسم و شکل برای درختت انتخاب کن",
+    createTreeNameLabel: "اسم درخت",
+    createTreeNamePlaceholder: "مثال: افعال",
+    createTreeVariantLabel: "شکل درخت",
+    createTreeCreate: "بساز",
+    createTreeCancel: "انصراف",
+    createTreeErrorRequired: "لطفاً اسم درخت رو وارد کن.",
+    createTreeMaxReached: "به حداکثر تعداد درخت توی این باغچه رسیدی.",
+
+    // ─── شکل‌های درخت (Variants) ───
+    variantOak: "بلوط",
+    variantPine: "کاج",
+    variantPalm: "نخل",
+    variantBlossom: "شکوفه",
+    variantApple: "سیب",
+    variantLemon: "لیمو",
+        // ─── نوار پیشرفت ───
+    toNextLevel: "{count} کلمه تا سطح بعدی",
+    levelMaxed: "به بالاترین سطح رسیدی!",
+
+    // ─── مدیریت کلمات درخت (TreeWordManager) ───
+    treeWordsTitle: "کلمات این درخت",
+    treeWordsSubtitle: "کلمات این درخت رو مدیریت کن",
+    treeWordsInTree: "در این درخت",
+    treeWordsAvailable: "کلمات موجود",
+    treeWordsAddSelected: "افزودن به درخت",
+    treeWordsRemoveSelected: "حذف از درخت",
+    treeWordsSelectAll: "انتخاب همه",
+    treeWordsDeselectAll: "لغو انتخاب",
+    treeWordsNoWords: "هنوز کلمه‌ای توی این درخت نیست.",
+    treeWordsNoAvailable: "همه‌ی کلماتت توی این درختن.",
+    treeWordsClose: "بستن",
+    treeWordsManage: "مدیریت کلمات",
+    treeWordsCount: "{count} کلمه",
+
+    // ─── مشاهده‌ی همه‌ی کلمات (MyWordsModal) ───
+    myWords: "کلمات من",
+    myWordsTitle: "کلمات من",
+    myWordsSubtitle: "مجموعاً {count} کلمه داری",
+    myWordsSearchPlaceholder: "جستجو در کلمات...",
+    myWordsInTrees: "درخت‌ها:",
+    myWordsNoTrees: "توی هیچ درختی نیست",
+    myWordsEmpty: "هنوز کلمه‌ای نداری.",
+    myWordsNoResults: "کلمه‌ای با این جستجو پیدا نشد.",
+    myWordsClose: "بستن",
+
+    // ─── مودال ساخت درخت (نسخه ۲) ───
+    createTreeWordsLabel: "کلمات این درخت",
+    createTreeWordsSubtitle: "کدوم کلمات توی این درخت باشن؟ (اختیاری)",
+    createTreeWordsSelected: "{count} کلمه انتخاب شده",
+    createTreeWordsSearch: "جستجو در کلمات...",
+    createTreeWordsEmpty: "هنوز کلمه‌ای وارد نکردی. بعداً می‌تونی اضافه کنی.",
+    createTreeWordsNoResults: "کلمه‌ای پیدا نشد.",
+    createTreeNext: "بعدی",
+    createTreeBack: "بازگشت",
+    createTreeSkipWords: "بدون کلمه بساز",
   },
   notFound: {
     title: "یافت نشد",
@@ -609,10 +689,6 @@ const de: Dict = {
     and: "und",
   },
   home: {
-    heroBadge: "Deutsch lernen",
-    heroTitleBefore: "Deutsch",
-    heroHighlight: "richtig",
-    heroTitleAfter: "lernen",
     heroSubtitle:
       "Online-Privatunterricht mit erfahrenen Lehrern — von Null bis zu internationalen Prüfungen. Wie eine Reise, Schritt für Schritt an Ihrer Seite.",
     heroCta: "Kostenlose Sitzung buchen →",
@@ -1115,6 +1191,90 @@ const de: Dict = {
     snapshotsVersion: "Version",
     snapshotsClose: "Schließen",
     snapshotsMaxNote: "Maximal {max} Versionen werden gespeichert",
+      // ─── Gartenansicht ───
+    gardenTitle: "Mein Garten",
+    gardenSubtitle: "Sieh und verwalte deine Beete",
+    gardenCreatePlot: "Neues Beet",
+    gardenTreesCount: "{count} Bäume",
+    gardenWordsCount: "{count} Wörter",
+    gardenEmpty: "Du hast noch kein Beet. Erstelle ein neues Beet!",
+    gardenSettings: "Einstellungen",
+
+    // ─── Beet erstellen ───
+    createPlotTitle: "Neues Beet",
+    createPlotSubtitle: "Wähle einen Namen für dein Beet",
+    createPlotNameLabel: "Beetname",
+    createPlotNamePlaceholder: "z.B. Alltagsdeutsch",
+    createPlotCreate: "Erstellen",
+    createPlotCancel: "Abbrechen",
+    createPlotErrorRequired: "Bitte gib einen Beetnamen ein.",
+    createPlotMaxReached: "Maximale Anzahl an Beeten erreicht.",
+        // ─── Beet-Ansicht ───
+    plotTreesCount: "{count} Bäume",
+    plotWordsCount: "{count} Wörter",
+    plotCreateTree: "Neuer Baum",
+    plotEmpty: "Du hast noch keinen Baum in diesem Beet. Erstelle einen neuen Baum!",
+    plotBackToGarden: "Zurück zum Garten",
+    plotProgress: "Fortschritt",
+
+    // ─── Baum erstellen ───
+    createTreeTitle: "Neuer Baum",
+    createTreeSubtitle: "Wähle einen Namen und eine Form für deinen Baum",
+    createTreeNameLabel: "Baumname",
+    createTreeNamePlaceholder: "z.B. Verben",
+    createTreeVariantLabel: "Baumform",
+    createTreeCreate: "Erstellen",
+    createTreeCancel: "Abbrechen",
+    createTreeErrorRequired: "Bitte gib einen Baumnamen ein.",
+    createTreeMaxReached: "Maximale Anzahl an Bäumen in diesem Beet erreicht.",
+
+    // ─── Baumvarianten ───
+    variantOak: "Eiche",
+    variantPine: "Kiefer",
+    variantPalm: "Palme",
+    variantBlossom: "Blüte",
+    variantApple: "Apfel",
+    variantLemon: "Zitrone",
+        // ─── Fortschrittsbalken ───
+    toNextLevel: "{count} Wörter bis zum nächsten Level",
+    levelMaxed: "Höchstes Level erreicht!",
+
+    // ─── Baum-Wörter verwalten ───
+    treeWordsTitle: "Wörter dieses Baums",
+    treeWordsSubtitle: "Verwalte die Wörter dieses Baums",
+    treeWordsInTree: "In diesem Baum",
+    treeWordsAvailable: "Verfügbare Wörter",
+    treeWordsAddSelected: "Zum Baum hinzufügen",
+    treeWordsRemoveSelected: "Vom Baum entfernen",
+    treeWordsSelectAll: "Alle auswählen",
+    treeWordsDeselectAll: "Auswahl aufheben",
+    treeWordsNoWords: "Noch keine Wörter in diesem Baum.",
+    treeWordsNoAvailable: "Alle deine Wörter sind in diesem Baum.",
+    treeWordsClose: "Schließen",
+    treeWordsManage: "Wörter verwalten",
+    treeWordsCount: "{count} Wörter",
+
+    // ─── Meine Wörter ───
+    myWords: "Meine Wörter",
+    myWordsTitle: "Meine Wörter",
+    myWordsSubtitle: "Du hast insgesamt {count} Wörter",
+    myWordsSearchPlaceholder: "Wörter durchsuchen...",
+    myWordsInTrees: "In Bäumen:",
+    myWordsNoTrees: "In keinem Baum",
+    myWordsEmpty: "Du hast noch keine Wörter.",
+    myWordsNoResults: "Keine Wörter für diese Suche gefunden.",
+    myWordsClose: "Schließen",
+
+    // ─── Baum erstellen v2 ───
+    createTreeWordsLabel: "Wörter dieses Baums",
+    createTreeWordsSubtitle: "Welche Wörter sollen in diesem Baum sein? (optional)",
+    createTreeWordsSelected: "{count} Wörter ausgewählt",
+    createTreeWordsSearch: "Wörter durchsuchen...",
+    createTreeWordsEmpty: "Du hast noch keine Wörter hinzugefügt. Du kannst sie später hinzufügen.",
+    createTreeWordsNoResults: "Keine Wörter gefunden.",
+    createTreeNext: "Weiter",
+    createTreeBack: "Zurück",
+    createTreeSkipWords: "Ohne Wörter erstellen",
   },
   notFound: {
     title: "Nicht gefunden",
@@ -1168,10 +1328,6 @@ const en: Dict = {
     and: "and",
   },
   home: {
-    heroBadge: "Learn German",
-    heroTitleBefore: "Learn German",
-    heroHighlight: "the right way",
-    heroTitleAfter: "",
     heroSubtitle:
       "Online private lessons with experienced teachers — from zero to international exams. Like a journey, we walk with you step by step.",
     heroCta: "Book a Free Session →",
@@ -1674,6 +1830,91 @@ const en: Dict = {
     snapshotsVersion: "Version",
     snapshotsClose: "Close",
     snapshotsMaxNote: "Maximum {max} versions are kept",
+      // ─── Garden View ───
+    gardenTitle: "My Garden",
+    gardenSubtitle: "View and manage your plots",
+    gardenCreatePlot: "New Plot",
+    gardenTreesCount: "{count} trees",
+    gardenWordsCount: "{count} words",
+    gardenEmpty: "You don't have any plots yet. Create a new plot!",
+    gardenSettings: "Settings",
+
+    // ─── Create Plot ───
+    createPlotTitle: "New Plot",
+    createPlotSubtitle: "Choose a name for your plot",
+    createPlotNameLabel: "Plot name",
+    createPlotNamePlaceholder: "e.g. Everyday German",
+    createPlotCreate: "Create",
+    createPlotCancel: "Cancel",
+    createPlotErrorRequired: "Please enter a plot name.",
+    createPlotMaxReached: "Maximum number of plots reached.",
+        // ─── Plot View ───
+    plotTreesCount: "{count} trees",
+    plotWordsCount: "{count} words",
+    plotCreateTree: "New Tree",
+    plotEmpty: "You don't have any trees in this plot yet. Create a new tree!",
+    plotBackToGarden: "Back to garden",
+    plotProgress: "Progress",
+
+    // ─── Create Tree ───
+    createTreeTitle: "New Tree",
+    createTreeSubtitle: "Choose a name and shape for your tree",
+    createTreeNameLabel: "Tree name",
+    createTreeNamePlaceholder: "e.g. Verbs",
+    createTreeVariantLabel: "Tree shape",
+    createTreeCreate: "Create",
+    createTreeCancel: "Cancel",
+    createTreeErrorRequired: "Please enter a tree name.",
+    createTreeMaxReached: "Maximum number of trees in this plot reached.",
+
+    // ─── Tree Variants ───
+    variantOak: "Oak",
+    variantPine: "Pine",
+    variantPalm: "Palm",
+    variantBlossom: "Blossom",
+    variantApple: "Apple",
+    variantLemon: "Lemon",
+        // ─── Progress Bar ───
+    toNextLevel: "{count} words to next level",
+    levelMaxed: "You reached the highest level!",
+
+    // ─── Tree Word Manager ───
+    treeWordsTitle: "Words of this tree",
+    treeWordsSubtitle: "Manage the words of this tree",
+    treeWordsInTree: "In this tree",
+    treeWordsAvailable: "Available words",
+    treeWordsAddSelected: "Add to tree",
+    treeWordsRemoveSelected: "Remove from tree",
+    treeWordsSelectAll: "Select all",
+    treeWordsDeselectAll: "Deselect all",
+    treeWordsNoWords: "No words in this tree yet.",
+    treeWordsNoAvailable: "All your words are in this tree.",
+    treeWordsClose: "Close",
+    treeWordsManage: "Manage words",
+    treeWordsCount: "{count} words",
+
+    // ─── My Words ───
+    myWords: "My Words",
+    myWordsTitle: "My Words",
+    myWordsSubtitle: "You have {count} words in total",
+    myWordsSearchPlaceholder: "Search words...",
+    myWordsInTrees: "In trees:",
+    myWordsNoTrees: "Not in any tree",
+    myWordsEmpty: "You don't have any words yet.",
+    myWordsNoResults: "No words found for this search.",
+    myWordsClose: "Close",
+
+    // ─── Create Tree v2 ───
+    createTreeWordsLabel: "Words of this tree",
+    createTreeWordsSubtitle: "Which words should be in this tree? (optional)",
+    createTreeWordsSelected: "{count} words selected",
+    createTreeWordsSearch: "Search words...",
+    createTreeWordsEmpty: "You haven't added any words yet. You can add them later.",
+    createTreeWordsNoResults: "No words found.",
+    createTreeNext: "Next",
+    createTreeBack: "Back",
+    createTreeSkipWords: "Create without words",
+
   },
   notFound: {
     title: "Not found",

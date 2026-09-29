@@ -1,156 +1,61 @@
-/**
- * Word Tree — Game Logic (نسخه ۷.۰)
- *
- * ⚠️ تغییرات نسخه ۷.۰:
- * - اضافه شدن `hasPlantedTree` به GameState
- * - اضافه شدن تابع `plantTree` (کاشت درخت)
- */
-
-import { GameState, Word, Fruit, TreeLevel, QuizResult } from "./types";
+import { Fruit, GameState, Plot, Tree, TreeLevel, TreeVariant, Word, QuizResult } from "./types";
 import {
   COIN_PER_GOLDEN_FRUIT,
-  WORDS_TO_YOUNG,
-  WORDS_TO_MATURE,
-  WORDS_TO_ANCIENT,
-  STATE_VERSION,
-  REVIEW_INTERVALS,
-  MAX_REVIEW_STAGE,
+  DEFAULT_PLOT_THEME,
   DEFAULT_TARGET_LANGUAGE,
-  SILVER_FRUIT_INTERVAL,
+  DEFAULT_TREE_VARIANT,
+  FRUIT_RIPEN_TIME,
   QUIZ_REWARD_COINS,
-  QUIZ_PASS_THRESHOLD,
+  SILVER_FRUIT_INTERVAL,
+  STATE_VERSION,
+  WATERING_COOLDOWN,
+  WORDS_TO_ANCIENT,
+  WORDS_TO_MATURE,
+  WORDS_TO_YOUNG,
 } from "./constants";
-import { generateQuiz } from "./exercises";
-
-// ─────────────────────────────────────────────────────────────
-// وضعیت اولیه
-// ─────────────────────────────────────────────────────────────
 
 /**
- * ساخت وضعیت اولیه‌ی بازی.
- *
- * ⚠️ اضافه شده در نسخه ۷.۰:
- * - `hasPlantedTree: false` → کاربر باید اول درخت بکاره.
+ * آبیاری یه درخت.
  */
-export function createInitialState(): GameState {
-  return {
-    tree: {
-      level: "seedling",
-      totalWords: 0,
-      fruits: [],
-      streak: 0,
-      health: 100,
-    },
-    words: [],
-    coins: 0,
-    lastPlayed: Date.now(),
-    version: STATE_VERSION,
-    currentDay: 1,
-    dayState: "watering",
-    wordsLearnedToday: [],
-    wateredToday: false,
-    targetLanguage: DEFAULT_TARGET_LANGUAGE,
-    totalWordsLearned: 0,
-    hasSeenTutorial: false,
-    hasPlantedTree: false,
-  };
-}
+export function waterTree(
+  state: GameState,
+  treeId: string,
+  newWords: Word[]
+): GameState {
+  const tree = getTreeById(state, treeId);
+  if (!tree) return state;
 
-// ─────────────────────────────────────────────────────────────
-// کاشت درخت (نسخه ۷.۰)
-// ─────────────────────────────────────────────────────────────
-
-/**
- * کاشت درخت.
- *
- * ⚠️ این تابع وقتی صدا زده می‌شه که کاربر اولین درختش رو می‌کاره.
- * بعد از کاشت، `hasPlantedTree` به `true` می‌ره.
- *
- * @param state - وضعیت فعلی
- * @returns وضعیت جدید
- */
-export function plantTree(state: GameState): GameState {
-  return {
-    ...state,
-    hasPlantedTree: true,
-    lastPlayed: Date.now(),
-  };
-}
-
-// ─────────────────────────────────────────────────────────────
-// سطح درخت
-// ─────────────────────────────────────────────────────────────
-
-export function calculateTreeLevel(totalWords: number): TreeLevel {
-  if (totalWords >= WORDS_TO_ANCIENT) return "ancient";
-  if (totalWords >= WORDS_TO_MATURE) return "mature";
-  if (totalWords >= WORDS_TO_YOUNG) return "young";
-  return "seedling";
-}
-
-// ─────────────────────────────────────────────────────────────
-// Spaced Repetition
-// ─────────────────────────────────────────────────────────────
-
-export function calculateNextReviewDay(
-  currentDay: number,
-  stage: number
-): number {
-  const safeStage = Math.min(stage, MAX_REVIEW_STAGE);
-  const days = REVIEW_INTERVALS[safeStage];
-  return currentDay + days;
-}
-
-export function stageToFruitType(stage: number): "green" | "yellow" | "golden" {
-  if (stage === 0) return "green";
-  if (stage <= 2) return "yellow";
-  return "golden";
-}
-
-export function isWordDueForReview(word: Word, currentDay: number): boolean {
-  if (!word.nextReviewDay) return false;
-  return word.nextReviewDay <= currentDay;
-}
-
-// ─────────────────────────────────────────────────────────────
-// میوه‌ی نقره‌ای
-// ─────────────────────────────────────────────────────────────
-
-export function createSilverFruit(state: GameState): Fruit {
-  const exercises = generateQuiz(state.words, 5);
-
-  return {
-    id: `silver-fruit-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-    wordId: "",
-    type: "silver",
-    createdAt: Date.now(),
-    isReady: true,
-    isReviewFruit: false,
-    quizWords: exercises.map((e) => e.wordId),
-  };
-}
-
-export function shouldAwardSilverFruit(state: GameState): boolean {
-  const learned = state.totalWordsLearned;
-  const interval = SILVER_FRUIT_INTERVAL;
-
-  if (learned > 0 && learned % interval === 0) {
-    if (state.lastSilverFruitAt === learned) return false;
-    return true;
-  }
-
-  return false;
-}
-
-// ─────────────────────────────────────────────────────────────
-// آبیاری (یادگیری کلمات جدید)
-// ─────────────────────────────────────────────────────────────
-
-export function waterTree(state: GameState, newWords: Word[]): GameState {
-  const totalWords = state.tree.totalWords + newWords.length;
-  const newLevel = calculateTreeLevel(totalWords);
   const totalWordsLearned = state.totalWordsLearned + newWords.length;
 
+  // ─── پردازش کلمات جدید ───
+  const updatedWords: Word[] = [...state.words];
+
+  for (const newWord of newWords) {
+    const existingIndex = updatedWords.findIndex((w) => w.id === newWord.id);
+
+    if (existingIndex >= 0) {
+      const existing = updatedWords[existingIndex];
+      if (!existing.treeIds.includes(treeId)) {
+        updatedWords[existingIndex] = {
+          ...existing,
+          treeIds: [...existing.treeIds, treeId],
+        };
+      }
+    } else {
+      updatedWords.push({
+        ...newWord,
+        treeIds: [treeId],
+      });
+    }
+  }
+
+  // ─── محاسبه‌ی totalWords از روی treeIds ───
+  const treeWordsCount = updatedWords.filter((w) =>
+    w.treeIds.includes(treeId)
+  ).length;
+  const newLevel = calculateTreeLevel(treeWordsCount);
+
+  // ─── میوه‌های جدید ───
   const newFruits: Fruit[] = newWords.map((word, index) => ({
     id: `fruit-${word.id}-${Date.now()}-${index}`,
     wordId: word.id,
@@ -162,32 +67,34 @@ export function waterTree(state: GameState, newWords: Word[]): GameState {
 
   let updatedState: GameState = {
     ...state,
-    words: [...state.words, ...newWords],
-    tree: {
-      ...state.tree,
-      totalWords,
-      level: newLevel,
-      lastWatered: Date.now(),
-      fruits: [...state.tree.fruits, ...newFruits],
-    },
+    words: updatedWords,
+    totalWordsLearned,
     lastPlayed: Date.now(),
+  };
+
+  updatedState = updateTree(updatedState, treeId, {
+    totalWords: treeWordsCount,
+    level: newLevel,
+    lastWatered: Date.now(),
     wateredToday: true,
     wordsLearnedToday: [
-      ...state.wordsLearnedToday,
+      ...tree.wordsLearnedToday,
       ...newWords.map((w) => w.id),
     ],
     dayState: "harvesting",
-    totalWordsLearned,
-  };
+    fruits: [...tree.fruits, ...newFruits],
+  });
 
   if (shouldAwardSilverFruit(updatedState)) {
-    const silverFruit = createSilverFruit(updatedState);
+    const silverFruit = createSilverFruit(updatedState, treeId);
+    const updatedTree = getTreeById(updatedState, treeId);
+    if (updatedTree) {
+      updatedState = updateTree(updatedState, treeId, {
+        fruits: [...updatedTree.fruits, silverFruit],
+      });
+    }
     updatedState = {
       ...updatedState,
-      tree: {
-        ...updatedState.tree,
-        fruits: [...updatedState.tree.fruits, silverFruit],
-      },
       lastSilverFruitAt: totalWordsLearned,
     };
   }
@@ -195,183 +102,395 @@ export function waterTree(state: GameState, newWords: Word[]): GameState {
   return updatedState;
 }
 
-// ─────────────────────────────────────────────────────────────
-// چیدن میوه
-// ─────────────────────────────────────────────────────────────
-
-export function harvestFruit(
+/**
+ * اضافه کردن چند کلمه به یه درخت.
+ */
+export function addWordsToTree(
   state: GameState,
-  fruitId: string,
-  remembered: boolean
+  treeId: string,
+  wordIds: string[]
 ): GameState {
-  const fruit = state.tree.fruits.find((f) => f.id === fruitId);
-  if (!fruit) return state;
+  const tree = getTreeById(state, treeId);
+  if (!tree) return state;
 
-  if (fruit.type === "silver") {
-    return state;
-  }
+  let updatedWords = [...state.words];
+  let addedCount = 0;
 
-  // ─── حالت ۱: یادش مونده ───
-  if (remembered) {
-    const newState: GameState = {
-      ...state,
-      coins: state.coins + COIN_PER_GOLDEN_FRUIT,
-      tree: {
-        ...state.tree,
-        fruits: state.tree.fruits.filter((f) => f.id !== fruitId),
-      },
-      words: state.words.map((w) => {
-        if (w.id !== fruit.wordId) return w;
+  for (const wordId of wordIds) {
+    const wordIndex = updatedWords.findIndex((w) => w.id === wordId);
+    if (wordIndex < 0) continue;
+    if (updatedWords[wordIndex].treeIds.includes(treeId)) continue;
 
-        const newStage = Math.min(w.reviewStage + 1, MAX_REVIEW_STAGE);
-        return {
-          ...w,
-          reviewCount: w.reviewCount + 1,
-          lastReviewed: Date.now(),
-          reviewStage: newStage,
-          nextReviewDay: calculateNextReviewDay(state.currentDay, newStage),
-          status: newStage >= 3 ? "learned" : "learning",
-        };
-      }),
-      lastPlayed: Date.now(),
+    updatedWords[wordIndex] = {
+      ...updatedWords[wordIndex],
+      treeIds: [...updatedWords[wordIndex].treeIds, treeId],
     };
-    return checkDayCompletion(newState);
+    addedCount++;
   }
 
-  // ─── حالت ۲: یادش رفته ───
-  const newState: GameState = {
-    ...state,
-    tree: {
-      ...state.tree,
-      fruits: state.tree.fruits.map((f) =>
-        f.id === fruitId ? { ...f, type: "orange" as const } : f
-      ),
-    },
-    words: state.words.map((w) => {
-      if (w.id !== fruit.wordId) return w;
-      return {
-        ...w,
-        reviewStage: 1,
-        nextReviewDay: calculateNextReviewDay(state.currentDay, 1),
-        status: "learning",
-      };
-    }),
-    lastPlayed: Date.now(),
-  };
-  return checkDayCompletion(newState);
+  // ─── محاسبه‌ی totalWords از روی treeIds ───
+  const treeWordsCount = updatedWords.filter((w) =>
+    w.treeIds.includes(treeId)
+  ).length;
+  const newLevel = calculateTreeLevel(treeWordsCount);
+
+  return updateTree(
+    { ...state, words: updatedWords },
+    treeId,
+    {
+      totalWords: treeWordsCount,
+      level: newLevel,
+    }
+  );
 }
 
-// ─────────────────────────────────────────────────────────────
-// تکمیل آزمون
-// ─────────────────────────────────────────────────────────────
-
-export function completeQuiz(
+/**
+ * حذف یه کلمه از یه درخت.
+ */
+export function removeWordFromTree(
   state: GameState,
-  fruitId: string,
-  result: QuizResult
+  treeId: string,
+  wordId: string
 ): GameState {
-  const fruit = state.tree.fruits.find((f) => f.id === fruitId);
-  if (!fruit || fruit.type !== "silver") return state;
+  const word = state.words.find((w) => w.id === wordId);
+  if (!word || !word.treeIds.includes(treeId)) return state;
 
-  const passed = result.correctAnswers >= QUIZ_PASS_THRESHOLD;
-  const coinsEarned = passed ? QUIZ_REWARD_COINS : 0;
+  const updatedWords = state.words.map((w) =>
+    w.id === wordId
+      ? { ...w, treeIds: w.treeIds.filter((id) => id !== treeId) }
+      : w
+  );
 
-  return {
-    ...state,
-    coins: state.coins + coinsEarned,
-    tree: {
-      ...state.tree,
-      fruits: state.tree.fruits.filter((f) => f.id !== fruitId),
-    },
-    lastPlayed: Date.now(),
-  };
+  const treeWordsCount = updatedWords.filter((w) =>
+    w.treeIds.includes(treeId)
+  ).length;
+  const newLevel = calculateTreeLevel(treeWordsCount);
+
+  return updateTree(
+    { ...state, words: updatedWords },
+    treeId,
+    {
+      totalWords: treeWordsCount,
+      level: newLevel,
+    }
+  );
 }
 
 // ─────────────────────────────────────────────────────────────
-// مدیریت «روز بازی»
+// توابع کمکی
 // ─────────────────────────────────────────────────────────────
 
-export function checkDayCompletion(state: GameState): GameState {
-  if (!state.wateredToday) return state;
+/**
+ * سطح درخت رو از روی تعداد کلمات محاسبه می‌کنه.
+ */
+function calculateTreeLevel(treeWordsCount: number): TreeLevel {
+  if (treeWordsCount >= WORDS_TO_ANCIENT) return "ancient";
+  if (treeWordsCount >= WORDS_TO_MATURE) return "mature";
+  if (treeWordsCount >= WORDS_TO_YOUNG) return "young";
+  return "seedling";
+}
 
-  const remainingFruits = state.tree.fruits.filter(
-    (f) => f.type === "green" || f.type === "orange"
-  );
+/**
+ * یه درخت رو با آیدی پیدا می‌کنه. از بین همه‌ی باغچه‌ها می‌گرده.
+ */
+export function getTreeById(state: GameState, treeId: string): Tree | undefined {
+  for (const plot of state.plots) {
+    const tree = plot.trees.find((t) => t.id === treeId);
+    if (tree) return tree;
+  }
+  return undefined;
+}
 
-  if (remainingFruits.length > 0) return state;
+/** فیلدهای قابل آپدیت توسط updateTree */
+type TreeUpdateFields = Partial<
+  Pick<
+    Tree,
+    | "totalWords"
+    | "level"
+    | "lastWatered"
+    | "wateredToday"
+    | "wordsLearnedToday"
+    | "dayState"
+    | "fruits"
+    | "health"
+    | "streak"
+  >
+>;
 
+/**
+ * یه درخت رو آپدیت می‌کنه و یه GameState جدید برمی‌گردونه.
+ */
+function updateTree(
+  state: GameState,
+  treeId: string,
+  fields: TreeUpdateFields
+): GameState {
   return {
     ...state,
-    dayState: "completed",
-    tree: {
-      ...state.tree,
-      streak: state.tree.streak + 1,
-    },
+    plots: state.plots.map((plot) => ({
+      ...plot,
+      trees: plot.trees.map((tree) =>
+        tree.id === treeId ? { ...tree, ...fields } : tree
+      ),
+    })),
   };
 }
 
-export function startNextDay(state: GameState): GameState {
-  const newDay = state.currentDay + 1;
+/**
+ * آیا باید میوه‌ی نقره‌ای داده بشه؟
+ * هر SILVER_FRUIT_INTERVAL کلمه‌ی جدید یه میوه‌ی نقره‌ای.
+ */
+function shouldAwardSilverFruit(state: GameState): boolean {
+  const last = state.lastSilverFruitAt ?? 0;
+  return state.totalWordsLearned - last >= SILVER_FRUIT_INTERVAL;
+}
 
-  const wordsDueForReview = state.words.filter((w) =>
-    isWordDueForReview(w, newDay)
-  );
-
-  const reviewFruits: Fruit[] = wordsDueForReview.map((word, index) => ({
-    id: `review-fruit-${word.id}-${Date.now()}-${index}`,
-    wordId: word.id,
-    type: stageToFruitType(word.reviewStage),
+/**
+ * یه میوه‌ی نقره‌ای (آزمون) می‌سازه.
+ */
+function createSilverFruit(state: GameState, treeId: string): Fruit {
+  return {
+    id: `fruit-silver-${treeId}-${Date.now()}`,
+    wordId: "",
+    type: "silver",
     createdAt: Date.now(),
     isReady: true,
     isReviewFruit: true,
-  }));
-
-  return {
-    ...state,
-    currentDay: newDay,
-    dayState: "watering",
-    wateredToday: false,
-    wordsLearnedToday: [],
-    tree: {
-      ...state.tree,
-      fruits: [...state.tree.fruits, ...reviewFruits],
-    },
   };
 }
 
 // ─────────────────────────────────────────────────────────────
-// زمان و محدودیت‌ها
+// توابع query / getter — خواندن state
 // ─────────────────────────────────────────────────────────────
 
-export function canWaterToday(state: GameState): boolean {
-  return !state.wateredToday && state.dayState !== "completed";
+/**
+ * یه باغچه رو با آیدی پیدا می‌کنه.
+ */
+export function getPlotById(state: GameState, plotId: string): Plot | undefined {
+  return state.plots.find((p) => p.id === plotId);
 }
 
-// ─────────────────────────────────────────────────────────────
-// آمار و اطلاعات
-// ─────────────────────────────────────────────────────────────
-
-export function countFruits(state: GameState): number {
-  return state.tree.fruits.length;
+/**
+ * کلمات یه درخت رو برمی‌گردونه (از روی Word.treeIds).
+ */
+export function getTreeWords(state: GameState, treeId: string): Word[] {
+  return state.words.filter((w) => w.treeIds.includes(treeId));
 }
 
-export function countReadyFruits(state: GameState): number {
-  return state.tree.fruits.filter(
-    (f) => f.type === "green" || f.type === "orange" || f.type === "silver"
+/**
+ * کلماتی که هنوز به این درخت اضافه نشدن ولی توی state هستن.
+ */
+export function getAvailableWordsForTree(
+  state: GameState,
+  treeId: string
+): Word[] {
+  return state.words.filter((w) => !w.treeIds.includes(treeId));
+}
+
+/**
+ * تعداد کلمات لازم تا سطح بعدی درخت.
+ */
+export function getWordsToNextLevel(
+  totalWords: number,
+  level: TreeLevel
+): number {
+  switch (level) {
+    case "seedling":
+      return Math.max(0, WORDS_TO_YOUNG - totalWords);
+    case "young":
+      return Math.max(0, WORDS_TO_MATURE - totalWords);
+    case "mature":
+      return Math.max(0, WORDS_TO_ANCIENT - totalWords);
+    default:
+      return 0;
+  }
+}
+
+/**
+ * آیا امروز می‌شه این درخت رو آبیاری کرد؟
+ */
+export function canWaterToday(state: GameState, treeId: string): boolean {
+  const tree = getTreeById(state, treeId);
+  if (!tree) return false;
+  if (tree.wateredToday) return false;
+  if (tree.lastWatered) {
+    return Date.now() - tree.lastWatered >= WATERING_COOLDOWN;
+  }
+  return true;
+}
+
+/**
+ * تعداد میوه‌های آماده‌ی چیدن.
+ */
+export function countReadyFruits(state: GameState, treeId: string): number {
+  const tree = getTreeById(state, treeId);
+  if (!tree) return 0;
+  return tree.fruits.filter(
+    (f) => f.isReady || Date.now() - f.createdAt >= FRUIT_RIPEN_TIME
   ).length;
 }
 
-export function calculateProgress(state: GameState): number {
-  const current = state.tree.totalWords;
-  const thresholds = {
-    seedling: { min: 0, max: WORDS_TO_YOUNG },
-    young: { min: WORDS_TO_YOUNG, max: WORDS_TO_MATURE },
-    mature: { min: WORDS_TO_MATURE, max: WORDS_TO_ANCIENT },
-    ancient: { min: WORDS_TO_ANCIENT, max: WORDS_TO_ANCIENT },
+// ─────────────────────────────────────────────────────────────
+// توابع اکشن — تغییر state
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * یه باغچه‌ی جدید می‌سازه (بدون اضافه کردن به state).
+ */
+export function createPlot(name: string): Plot {
+  return {
+    id: `plot-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    name,
+    theme: DEFAULT_PLOT_THEME,
+    trees: [],
+    createdAt: Date.now(),
+  };
+}
+
+/**
+ * یه درخت جدید می‌سازه (بدون اضافه کردن به state).
+ */
+export function createTree(name: string, variant: TreeVariant): Tree {
+  return {
+    id: `tree-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    name,
+    variant,
+    level: "seedling",
+    totalWords: 0,
+    fruits: [],
+    wateredToday: false,
+    wordsLearnedToday: [],
+    dayState: "watering",
+    streak: 0,
+    createdAt: Date.now(),
+  };
+}
+
+/**
+ * کاشتن درخت اول — اولین باغچه + درخت + کلمات رو می‌سازه
+ * و hasPlantedTree رو true می‌کنه.
+ */
+export function plantTree(
+  state: GameState,
+  treeName: string,
+  variant: TreeVariant,
+  wordIds: string[]
+): GameState {
+  const plot = createPlot("باغ من");
+  const tree = createTree(treeName, variant);
+
+  let updatedState: GameState = {
+    ...state,
+    hasPlantedTree: true,
+    plots: [plot],
+    activePlotId: plot.id,
+    activeTreeId: tree.id,
   };
 
-  const { min, max } = thresholds[state.tree.level];
-  if (max === min) return 100;
+  // درخت رو به باغچه اضافه کن
+  updatedState = updateTree(updatedState, tree.id, {});
+  // در واقع باید خود درخت رو به plot.trees اضافه کنیم
+  updatedState = {
+    ...updatedState,
+    plots: updatedState.plots.map((p) =>
+      p.id === plot.id ? { ...p, trees: [tree] } : p
+    ),
+  };
 
-  return Math.min(((current - min) / (max - min)) * 100, 100);
+  // کلمات اولیه رو به درخت اضافه کن
+  if (wordIds.length > 0) {
+    const newWords: Word[] = wordIds.map((id) => ({
+      id,
+      language: state.targetLanguage,
+      german: "",
+      translation: "",
+      status: "new",
+      reviewCount: 0,
+      reviewStage: 0,
+      treeIds: [tree.id],
+    }));
+    updatedState = waterTree(updatedState, tree.id, newWords);
+  }
+
+  return updatedState;
 }
+
+/**
+ * چیدن یه میوه — اگه یادآوری موفق بود سکه می‌ده.
+ */
+export function harvestFruit(
+  state: GameState,
+  treeId: string,
+  fruitId: string,
+  remembered: boolean
+): GameState {
+  const tree = getTreeById(state, treeId);
+  if (!tree) return state;
+
+  const fruit = tree.fruits.find((f) => f.id === fruitId);
+  if (!fruit) return state;
+
+  let coinsEarned = 0;
+  if (remembered && (fruit.type === "golden" || fruit.type === "orange")) {
+    coinsEarned = COIN_PER_GOLDEN_FRUIT;
+  }
+
+  return {
+    ...updateTree(state, treeId, {
+      fruits: tree.fruits.filter((f) => f.id !== fruitId),
+    }),
+    coins: state.coins + coinsEarned,
+  };
+}
+
+/**
+ * شروع روز بعد — ریست wateredToday و wordsLearnedToday.
+ */
+export function startNextDay(state: GameState, treeId: string): GameState {
+  return updateTree(state, treeId, {
+    wateredToday: false,
+    wordsLearnedToday: [],
+    dayState: "watering",
+  });
+}
+
+/**
+ * تکمیل آزمون — میوه‌ی نقره‌ای رو حذف و سکه می‌ده.
+ */
+export function completeQuiz(
+  state: GameState,
+  treeId: string,
+  fruitId: string,
+  result: QuizResult
+): GameState {
+  const tree = getTreeById(state, treeId);
+  if (!tree) return state;
+
+  return {
+    ...updateTree(state, treeId, {
+      fruits: tree.fruits.filter((f) => f.id !== fruitId),
+    }),
+    coins: state.coins + result.coinsEarned,
+  };
+}
+
+/**
+ * ساخت state اولیه‌ی بازی.
+ */
+export function createInitialState(): GameState {
+  return {
+    plots: [],
+    activePlotId: null,
+    activeTreeId: null,
+    words: [],
+    coins: 0,
+    lastPlayed: Date.now(),
+    version: STATE_VERSION,
+    currentDay: 0,
+    targetLanguage: DEFAULT_TARGET_LANGUAGE,
+    totalWordsLearned: 0,
+    hasSeenTutorial: false,
+    hasPlantedTree: false,
+  };
+}
+

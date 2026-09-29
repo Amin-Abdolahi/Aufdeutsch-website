@@ -1,8 +1,8 @@
 /**
- * Word Tree — Constants (نسخه ۱۰.۰)
+ * Word Tree — Constants (نسخه ۱۲.۰)
  *
- * ⚠️ تغییرات نسخه ۱۰.۰:
- * - STATE_VERSION به 11 آپدیت شد (برای درخت پیش‌فرض)
+ * ⚠️ تغییرات نسخه ۱۲.۰:
+ * - STATE_VERSION به 13 آپدیت شد (treeIds)
  */
 
 // ─────────────────────────────────────────────────────────────
@@ -58,7 +58,7 @@ export const MAX_REVIEW_STAGE = REVIEW_INTERVALS.length - 1;
 export const STORAGE_KEY = "wordtree_game_state_v1";
 export const CUSTOM_WORDS_STORAGE_KEY = "wordtree_custom_words_v1";
 export const USER_STATS_STORAGE_KEY = "wordtree_user_stats_v1";
-export const STATE_VERSION = 11;
+export const STATE_VERSION = 13;
 
 // ─────────────────────────────────────────────────────────────
 // زمان‌ها
@@ -97,42 +97,58 @@ export const SPELLING_HARD_BLANK_COUNT = 3;
 export const SPELLING_OPTIONS_PER_BLANK = 4;
 
 // ─────────────────────────────────────────────────────────────
-// کاشت درخت (نسخه ۱۰.۰)
+// کاشت درخت
 // ─────────────────────────────────────────────────────────────
-/**
- * انواع درخت‌هایی که کاربر می‌تونه بکاره.
- *
- * ⚠️ برای MVP، دو تا گزینه داریم:
- * - «آلمانی پیش‌فرض» → ۵۰ کلمه‌ی آماده
- * - «درخت شخصی» → کاربر خودش کلمات رو وارد می‌کنه
- *
- * برای فاز بعد، «آیلتس»، «کسب‌وکار»، و... اضافه می‌شن.
- */
+
 export const TREE_TYPES = [
   {
     id: "default-de",
     icon: "🇩🇪",
-    nameKey: "treeTypeDefault",       // کلید i18n
-    descKey: "treeTypeDefaultDesc",   // کلید i18n
-    wordCount: 50,                     // تعداد کلمات
-    isCustom: false,                   // درخت پیش‌فرض
+    nameKey: "treeTypeDefault",
+    descKey: "treeTypeDefaultDesc",
+    wordCount: 50,
+    isCustom: false,
   },
   {
     id: "custom",
     icon: "➕",
-    nameKey: "treeTypeCustom",         // کلید i18n
-    descKey: "treeTypeCustomDesc",     // کلید i18n
-    wordCount: 0,                      // کاربر خودش وارد می‌کنه
-    isCustom: true,                    // درخت شخصی
+    nameKey: "treeTypeCustom",
+    descKey: "treeTypeCustomDesc",
+    wordCount: 0,
+    isCustom: true,
   },
 ] as const;
 
-/**
- * شناسه‌ی نوع درخت پیش‌فرض.
- */
 export const DEFAULT_TREE_TYPE = "default-de";
-
-/**
- * شناسه‌ی نوع درخت شخصی.
- */
 export const CUSTOM_TREE_TYPE = "custom";
+
+// ─────────────────────────────────────────────────────────────
+// باغچه (Plot)
+// ─────────────────────────────────────────────────────────────
+
+export const DEFAULT_PLOT_NAME = "باغ من";
+export const MAX_TREES_PER_PLOT = 50;
+export const MAX_PLOTS = 20;
+
+// ─────────────────────────────────────────────────────────────
+// تم باغچه و شکل درخت
+// ─────────────────────────────────────────────────────────────
+
+export const PLOT_THEMES = [
+  { id: "default", icon: "🌿", nameKey: "plotThemeDefault" },
+] as const;
+
+export const DEFAULT_PLOT_THEME = "default";
+
+export const TREE_VARIANTS = [
+  { id: "oak", icon: "🌳", nameKey: "treeVariantOak" },
+] as const;
+
+export const DEFAULT_TREE_VARIANT = "oak";
+
+// ─────────────────────────────────────────────────────────────
+// Snapshot
+// ─────────────────────────────────────────────────────────────
+
+export const MAX_SNAPSHOTS = 5;
+export const SNAPSHOT_INTERVAL_MS = 24 * 60 * 60 * 1000;
