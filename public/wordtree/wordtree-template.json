@@ -1,0 +1,51 @@
+{
+  "version": "1.0",
+  "language": "de",
+  "words": [
+    {
+      "de": "der Apfel",
+      "fa": "سیب",
+      "en": "apple",
+      "category": "noun",
+      "level": "A1",
+      "noun": {
+        "article": "der",
+        "plural": "die Äpfel"
+      },
+      "pronunciation": {
+        "persian": "آپفِل"
+      },
+      "example": {
+        "de": "Ich esse einen Apfel.",
+        "translations": {
+          "fa": "من یک سیب می‌خورم.",
+          "en": "I eat an apple.",
+          "de": "Ich esse einen Apfel."
+        }
+      }
+    },
+    {
+      "de": "laufen",
+      "fa": "دویدن",
+      "en": "to run",
+      "category": "verb",
+      "level": "A1",
+      "verb": {
+        "praeteritum": "lief",
+        "perfekt": "ist gelaufen",
+        "auxiliary": "sein"
+      },
+      "pronunciation": {
+        "persian": "لوفِن"
+      },
+      "example": {
+        "de": "Er läuft jeden Tag.",
+        "translations": {
+          "fa": "او هر روز می‌دوه.",
+          "en": "He runs every day.",
+          "de": "Er läuft jeden Tag."
+        }
+      }
+    }
+  ]
+}

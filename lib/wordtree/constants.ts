@@ -1,5 +1,5 @@
 /**
- * Word Tree — Constants (نسخه ۵.۰)
+ * Word Tree — Constants (نسخه ۷.۰)
  */
 
 // ─────────────────────────────────────────────────────────────
@@ -8,6 +8,23 @@
 
 export const DAILY_WORDS = 5;
 export const MAX_DAILY_WORDS = 15;
+
+// ─────────────────────────────────────────────────────────────
+// زبان (نسخه ۷.۰ — چندزبانه)
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * زبان هدف پیش‌فرض.
+ *
+ * ⚠️ برای MVP، فقط "de" (آلمانی) داریم.
+ * برای فاز ۲، کاربر می‌تونه زبانش رو انتخاب کنه.
+ */
+export const DEFAULT_TARGET_LANGUAGE = "de";
+
+/**
+ * لیست زبان‌های پشتیبانی‌شده (کلمات داخلی).
+ */
+export const SUPPORTED_LANGUAGES = ["de"];
 
 // ─────────────────────────────────────────────────────────────
 // آستانه‌های سطح درخت
@@ -25,39 +42,17 @@ export const COIN_PER_GOLDEN_FRUIT = 1;
 export const COIN_PER_SPECIAL_FRUIT = 3;
 
 // ─────────────────────────────────────────────────────────────
-// جوایز افزودن کلمه (جدید در نسخه ۵.۰)
+// جوایز افزودن کلمه
 // ─────────────────────────────────────────────────────────────
 
-/**
- * جایزه برای افزودن کلمه‌ی سفارشی (فقط برای خودم).
- */
 export const REWARD_CUSTOM_WORD = 5;
-
-/**
- * جایزه برای افزودن کلمه‌ی عمومی (برای همه).
- *
- * ⚠️ در فاز ۱ (لوکال)، این جایزه به کلمه‌ی سفارشی هم داده می‌شه.
- * در فاز ۲ (Supabase)، فقط برای کلمه‌ی عمومی.
- */
 export const REWARD_COMMUNITY_WORD = 15;
-
-/**
- * جایزه‌ی بذر برای افزودن کلمه‌ی عمومی.
- */
 export const REWARD_COMMUNITY_SEED = 1;
-
-/**
- * حداکثر جایزه‌ی روزانه (برای جلوگیری از سوءاستفاده).
- */
 export const MAX_DAILY_REWARD = 50;
-
-/**
- * حداکثر تعداد کلمات سفارشی برای هر کاربر.
- */
 export const MAX_CUSTOM_WORDS = 500;
 
 // ─────────────────────────────────────────────────────────────
-// Spaced Repetition (مرور فاصله‌دار)
+// Spaced Repetition
 // ─────────────────────────────────────────────────────────────
 
 export const REVIEW_INTERVALS = [0, 1, 3, 7, 14, 30];
@@ -69,7 +64,7 @@ export const MAX_REVIEW_STAGE = REVIEW_INTERVALS.length - 1;
 
 export const STORAGE_KEY = "wordtree_game_state_v1";
 export const CUSTOM_WORDS_STORAGE_KEY = "wordtree_custom_words_v1";
-export const STATE_VERSION = 6;
+export const STATE_VERSION = 8;
 
 // ─────────────────────────────────────────────────────────────
 // زمان‌ها
@@ -78,3 +73,12 @@ export const STATE_VERSION = 6;
 export const WATERING_COOLDOWN = 24 * 60 * 60 * 1000;
 export const FRUIT_RIPEN_TIME = 24 * 60 * 60 * 1000;
 export const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+
+// ─────────────────────────────────────────────────────────────
+// ایمپورت گروهی
+// ─────────────────────────────────────────────────────────────
+
+export const MAX_IMPORT_WORDS = 500;
+export const REWARD_IMPORTED_WORD = 3;
+export const MAX_DAILY_IMPORT_REWARD = 100;
+export const IMPORT_FILE_VERSION = "1.0";

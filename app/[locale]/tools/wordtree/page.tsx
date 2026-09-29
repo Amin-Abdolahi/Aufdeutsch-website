@@ -1,17 +1,13 @@
 "use client";
 
 /**
- * Word Tree — Main Page (نسخه ۷.۰ — کلمات سفارشی)
+ * Word Tree — Main Page (نسخه ۸.۲ — با راهنمای ایمپورت)
  *
  * ⚠️ نکته برای توسعه‌دهنده‌های آینده:
  *
- * ۱. کاربر می‌تونه کلمه‌ی سفارشی اضافه کنه (دکمه‌ی «+ افزودن کلمه»).
- *    کلمه توی localStorage ذخیره می‌شه و به `gameState.words` اضافه می‌شه.
- *
- * ۲. جایزه‌ی افزودن کلمه: REWARD_CUSTOM_WORD (۵ سکه).
- *
- * ۳. کلمات سفارشی با `source: "custom"` مشخص می‌شن.
- *
+ * ۱. کاربر می‌تونه کلمه‌ی سفارشی اضافه کنه (دستی یا گروهی).
+ * ۲. دکمه‌ی «افزودن گروهی» → مودال ایمپورت JSON.
+ * ۳. کلمات سفارشی اولویت دارن (اول توی allWords).
  * ۴. برای فاز ۲ (Supabase)، کلمات عمومی اضافه می‌شن.
  */
 
@@ -19,7 +15,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { getDictionary, isLocale, Locale } from "@/lib/i18n";
-import { GameState, Word, WordEntry } from "@/lib/wordtree/types";
+import { GameState, Word, WordEntry, ImportResult } from "@/lib/wordtree/types";
 import { loadGameState, saveGameState } from "@/lib/wordtree/storage";
 import {
   createInitialState,
@@ -29,16 +25,12 @@ import {
   startNextDay,
   countReadyFruits,
 } from "@/lib/wordtree/gameLogic";
-import {
-  getDailyWords,
-  hasNewWords,
-  WORDS_DE,
-} from "@/data/wordtree/words-de";
+import { WORDS_DE } from "@/data/wordtree/words-de";
 import {
   loadCustomWords,
   addCustomWord,
-  generateCustomWordId,
 } from "@/lib/wordtree/customWords";
+import { importWordsFromJSON } from "@/lib/wordtree/jsonImport";
 import { REWARD_CUSTOM_WORD } from "@/lib/wordtree/constants";
 import { Tree } from "./components/Tree";
 import { CoinDisplay } from "./components/CoinDisplay";
@@ -46,6 +38,7 @@ import { ProgressBar } from "./components/ProgressBar";
 import { WateringPanel } from "./components/WateringPanel";
 import { HarvestPanel } from "./components/HarvestPanel";
 import { AddWordModal } from "./components/AddWordModal";
+import { ImportWordsModal } from "./components/ImportWordsModal";
 import { Button } from "@/components/ui/Button";
 
 export default function WordTreePage() {
@@ -58,6 +51,7 @@ export default function WordTreePage() {
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [showWateringPanel, setShowWateringPanel] = useState(false);
   const [showAddWordModal, setShowAddWordModal] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
   const [selectedFruitId, setSelectedFruitId] = useState<string | null>(null);
   const [customWords, setCustomWords] = useState<WordEntry[]>([]);
   const [rewardMessage, setRewardMessage] = useState<string | null>(null);
@@ -85,26 +79,16 @@ export default function WordTreePage() {
   const canWater = canWaterToday(gameState);
   const readyFruits = countReadyFruits(gameState);
 
-  // ⚠️ کلمات سفارشی اول، بعد داخلی‌ها
-  // اینطوری توی لیست روزانه، اولویت دارن
+  // ─── همه‌ی کلمات (سفارشی اول، بعد داخلی) ───
   const allWords = [...customWords, ...WORDS_DE];
 
-  // ─── لیست کلماتی که کاربر قبلاً یاد گرفته ───
   const learnedIds = gameState.words.map((w) => w.id);
 
-  // ─── آیا کلمه‌ی جدیدی مونده؟ ───
   const hasNew = allWords.some((w) => !learnedIds.includes(w.id));
 
-// ─── کلمات روزانه ───
-// ⚠️ کلمات سفارشی اولویت دارن (کاربر خودش اضافه کرده)
-const availableWords = allWords.filter((w) => !learnedIds.includes(w.id));
-
-const customFirst = [
-  ...availableWords.filter((w) => w.source === "custom"),
-  ...availableWords.filter((w) => w.source !== "custom"),
-];
-
-const dailyWords = customFirst.slice(0, 5);
+  const dailyWords = allWords
+    .filter((w) => !learnedIds.includes(w.id))
+    .slice(0, 5);
 
   // ─── شروع آبیاری ───
   const handleStartWatering = () => {
@@ -117,13 +101,14 @@ const dailyWords = customFirst.slice(0, 5);
       .filter((w) => learnedWordIds.includes(w.id))
       .map((w) => ({
         id: w.id,
+        language: w.language,
         german: w.translations.de,
         translation: w.translations[safeLocale] || w.translations.fa,
         status: "learning" as const,
         reviewCount: 0,
         reviewStage: 0,
         nextReviewDay: undefined,
-        source: w.source,
+        source: w.source ?? "builtin",
       }));
 
     setGameState(waterTree(gameState, newWords));
@@ -151,23 +136,38 @@ const dailyWords = customFirst.slice(0, 5);
   // ─── افزودن کلمه‌ی سفارشی ───
   const handleAddWord = (word: Omit<WordEntry, "source" | "createdAt">) => {
     const result = addCustomWord(word);
-  if (result.success) {
-    // آپدیت لیست کلمات سفارشی
-    const updatedCustomWords = loadCustomWords();
-    setCustomWords(updatedCustomWords);
+    if (result.success) {
+      setCustomWords(loadCustomWords());
+      setGameState({
+        ...gameState,
+        coins: gameState.coins + REWARD_CUSTOM_WORD,
+      });
+      setRewardMessage(
+        `${t.rewardEarned} +${REWARD_CUSTOM_WORD} ${t.coins}`
+      );
+      setTimeout(() => setRewardMessage(null), 3000);
+    }
+    return result;
+  };
 
-    // اضافه کردن جایزه
-    setGameState({
-      ...gameState,
-      coins: gameState.coins + REWARD_CUSTOM_WORD,
-    });
+  // ─── ایمپورت گروهی ───
+  const handleImportWords = (fileContent: string): ImportResult => {
+    const result = importWordsFromJSON(fileContent);
 
-    // نمایش پیام جایزه
-    setRewardMessage(
-      `${t.rewardEarned} +${REWARD_CUSTOM_WORD} ${t.coins}`
-    );
-    setTimeout(() => setRewardMessage(null), 3000);
-  }
+    if (result.imported > 0) {
+      setCustomWords(loadCustomWords());
+      setGameState({
+        ...gameState,
+        coins: gameState.coins + result.coinsEarned,
+      });
+      if (result.coinsEarned > 0) {
+        setRewardMessage(
+          `${t.rewardEarned} +${result.coinsEarned} ${t.coins}`
+        );
+        setTimeout(() => setRewardMessage(null), 3000);
+      }
+    }
+
     return result;
   };
 
@@ -292,6 +292,14 @@ const dailyWords = customFirst.slice(0, 5);
           >
             ➕ {t.addWord}
           </button>
+
+          {/* دکمه‌ی ایمپورت گروهی */}
+          <button
+            onClick={() => setShowImportModal(true)}
+            className="px-6 py-3 bg-navy-900 hover:bg-navy-800 text-paper-100 font-bold rounded-sm transition-all duration-200 shadow-md hover:shadow-lg"
+          >
+            📥 {t.importWords}
+          </button>
         </div>
       </div>
 
@@ -367,6 +375,42 @@ const dailyWords = customFirst.slice(0, 5);
               color: t.categoryColor,
             },
           }}
+        />
+      )}
+
+      {/* ─── مودال ایمپورت گروهی ─── */}
+      {showImportModal && (
+        <ImportWordsModal
+          onClose={() => setShowImportModal(false)}
+          onImport={handleImportWords}
+          labels={{
+            title: t.importWordsTitle,
+            subtitle: t.importWordsSubtitle,
+            dropzone: t.importDropzone,
+            dropzoneActive: t.importDropzoneActive,
+            selectFile: t.importSelectFile,
+            downloadPrompt: t.importDownloadPrompt,
+            downloadTemplate: t.importDownloadTemplate,
+            importing: t.importImporting,
+            resultTitle: t.importResultTitle,
+            totalLabel: t.importTotalLabel,
+            importedLabel: t.importImportedLabel,
+            rejectedLabel: t.importRejectedLabel,
+            coinsLabel: t.importCoinsLabel,
+            errorsTitle: t.importErrorsTitle,
+            close: t.importClose,
+            invalidFile: t.importInvalidFile,
+            guideTitle: t.importGuideTitle,
+            guideStep1: t.importGuideStep1,
+            guideStep2: t.importGuideStep2,
+            guideStep3: t.importGuideStep3,
+            guideFull: t.importGuideFull,
+            guideFullTitle: t.importGuideFullTitle,
+            guideFullContent: t.importGuideFullContent,
+            guideBack: t.importGuideBack,
+          }}
+          promptUrl="/wordtree/wordtree-prompt.txt"
+          templateUrl="/wordtree/wordtree-template.json"
         />
       )}
     </div>
