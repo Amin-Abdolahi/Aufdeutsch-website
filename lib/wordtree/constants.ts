@@ -99,11 +99,13 @@ export const SPELLING_OPTIONS_PER_BLANK = 4;
 // ─────────────────────────────────────────────────────────────
 // کاشت درخت (نسخه ۱۰.۰)
 // ─────────────────────────────────────────────────────────────
-
 /**
  * انواع درخت‌هایی که کاربر می‌تونه بکاره.
  *
- * ⚠️ برای MVP، فقط «آلمانی پیش‌فرض» رو داریم.
+ * ⚠️ برای MVP، دو تا گزینه داریم:
+ * - «آلمانی پیش‌فرض» → ۵۰ کلمه‌ی آماده
+ * - «درخت شخصی» → کاربر خودش کلمات رو وارد می‌کنه
+ *
  * برای فاز بعد، «آیلتس»، «کسب‌وکار»، و... اضافه می‌شن.
  */
 export const TREE_TYPES = [
@@ -113,6 +115,15 @@ export const TREE_TYPES = [
     nameKey: "treeTypeDefault",       // کلید i18n
     descKey: "treeTypeDefaultDesc",   // کلید i18n
     wordCount: 50,                     // تعداد کلمات
+    isCustom: false,                   // درخت پیش‌فرض
+  },
+  {
+    id: "custom",
+    icon: "➕",
+    nameKey: "treeTypeCustom",         // کلید i18n
+    descKey: "treeTypeCustomDesc",     // کلید i18n
+    wordCount: 0,                      // کاربر خودش وارد می‌کنه
+    isCustom: true,                    // درخت شخصی
   },
 ] as const;
 
@@ -120,3 +131,8 @@ export const TREE_TYPES = [
  * شناسه‌ی نوع درخت پیش‌فرض.
  */
 export const DEFAULT_TREE_TYPE = "default-de";
+
+/**
+ * شناسه‌ی نوع درخت شخصی.
+ */
+export const CUSTOM_TREE_TYPE = "custom";

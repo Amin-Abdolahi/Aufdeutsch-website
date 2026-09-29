@@ -1,12 +1,12 @@
 "use client";
 
 /**
- * Word Tree — Main Page (نسخه ۱۴.۰ — با کاشت درخت)
+ * Word Tree — Main Page (نسخه ۱۵.۰ — با درخت شخصی)
  *
- * ⚠️ تغییرات نسخه ۱۴.۰:
- * - اضافه شدن PlantTreeScreen (صفحه‌ی کاشت درخت)
- * - اگه کاربر درخت نکاشته، صفحه‌ی کاشت نشون داده می‌شه
- * - تور اولیه بعد از کاشت شروع می‌شه
+ * ⚠️ تغییرات نسخه ۱۵.۰:
+ * - اگه کاربر «درخت شخصی» رو انتخاب کرد، مودال ایمپورت باز می‌شه
+ * - بعد از ایمپورت موفق، درخت کاشته می‌شه
+ * - اگه کاربر قبلاً کلمه اضافه کرده، مستقیم درخت کاشته می‌شه
  */
 
 import { useState, useEffect } from "react";
@@ -35,7 +35,7 @@ import {
 import { WORDS_DE } from "@/data/wordtree/words-de";
 import { loadCustomWords, addCustomWord } from "@/lib/wordtree/customWords";
 import { importWordsFromJSON } from "@/lib/wordtree/jsonImport";
-import { REWARD_CUSTOM_WORD } from "@/lib/wordtree/constants";
+import { REWARD_CUSTOM_WORD, CUSTOM_TREE_TYPE } from "@/lib/wordtree/constants";
 import { Tree } from "./components/Tree";
 import { CoinDisplay } from "./components/CoinDisplay";
 import { ProgressBar } from "./components/ProgressBar";
@@ -76,6 +76,8 @@ export default function WordTreePage() {
   const [selectedFruitId, setSelectedFruitId] = useState<string | null>(null);
   const [customWords, setCustomWords] = useState<WordEntry[]>([]);
   const [rewardMessage, setRewardMessage] = useState<string | null>(null);
+  // ─── حالت انتظار: کاربر «درخت شخصی» انتخاب کرده و منتظر ایمپورته ───
+  const [pendingCustomPlant, setPendingCustomPlant] = useState(false);
 
   // ─── بارگذاری از localStorage ───
   useEffect(() => {
@@ -84,10 +86,8 @@ export default function WordTreePage() {
     setGameState(initialState);
     setCustomWords(loadCustomWords());
 
-    // ─── snapshot خودکار ───
     autoSnapshot();
 
-    // ─── تور اولیه (فقط اگه درخت کاشته شده) ───
     if (initialState.hasPlantedTree && !initialState.hasSeenTutorial) {
       setTimeout(() => setShowTour(true), 500);
     }
@@ -108,28 +108,115 @@ export default function WordTreePage() {
 
   // ─── کاشت درخت ───
   const handlePlantTree = (treeTypeId: string) => {
+    // ─── اگه «درخت شخصی» انتخاب شد ───
+    if (treeTypeId === CUSTOM_TREE_TYPE) {
+      // اگه کاربر قبلاً کلمه اضافه کرده → مستقیم بکار
+      if (customWords.length > 0) {
+        const newState = plantTree(gameState);
+        setGameState(newState);
+        setTimeout(() => setShowTour(true), 800);
+      } else {
+        // وگرنه، مودال ایمپورت رو باز کن
+        setPendingCustomPlant(true);
+        setShowImportModal(true);
+      }
+      return;
+    }
+
+    // ─── درخت پیش‌فرض ───
     const newState = plantTree(gameState);
     setGameState(newState);
-
-    // ─── بعد از کاشت، تور رو نشون بده ───
     setTimeout(() => setShowTour(true), 800);
+  };
+
+  // ─── باز کردن مودال ایمپورت از صفحه‌ی کاشت ───
+  const handleOpenImportFromPlanting = () => {
+    setPendingCustomPlant(true);
+    setShowImportModal(true);
   };
 
   // ─── اگه کاربر درخت نکاشته، صفحه‌ی کاشت رو نشون بده ───
   if (!gameState.hasPlantedTree) {
     return (
-      <PlantTreeScreen
-        onPlant={handlePlantTree}
-        labels={{
-          welcome: t.plantWelcome || "به باغت خوش اومدی! 🌱",
-          subtitle: t.plantSubtitle || "",
-          selectTree: t.plantSelectTree || "",
-          treeTypeDefault: t.treeTypeDefault || "آلمانی پیش‌فرض",
-          treeTypeDefaultDesc: t.treeTypeDefaultDesc || "",
-          plantButton: t.plantButton || "بکار",
-          wordsCount: t.plantWordsCount || "{count} کلمه",
-        }}
-      />
+      <>
+        <PlantTreeScreen
+          onPlant={handlePlantTree}
+          onOpenImport={handleOpenImportFromPlanting}
+          customWordsCount={customWords.length}
+          labels={{
+            welcome: t.plantWelcome || "به باغت خوش اومدی! 🌱",
+            subtitle: t.plantSubtitle || "",
+            selectTree: t.plantSelectTree || "",
+            treeTypeDefault: t.treeTypeDefault || "آلمانی پیش‌فرض",
+            treeTypeDefaultDesc: t.treeTypeDefaultDesc || "",
+            treeTypeCustom: t.treeTypeCustom || "درخت شخصی",
+            treeTypeCustomDesc: t.treeTypeCustomDesc || "",
+            plantButton: t.plantButton || "بکار",
+            customWordsImported: t.customWordsImported || "{count} کلمه آماده",
+            wordsCount: t.plantWordsCount || "{count} کلمه",
+          }}
+        />
+
+        {/* ─── مودال ایمپورت (برای درخت شخصی) ─── */}
+        {showImportModal && (
+          <ImportWordsModal
+            onClose={() => {
+              setShowImportModal(false);
+              setPendingCustomPlant(false);
+            }}
+            onImport={(fileContent) => {
+              const result = importWordsFromJSON(fileContent);
+              if (result.imported > 0) {
+                setCustomWords(loadCustomWords());
+                // ─── اگه در حالت «درخت شخصی» هستیم، درخت رو بکار ───
+                if (pendingCustomPlant) {
+                  setTimeout(() => {
+                    const newState = plantTree(gameState);
+                    setGameState(newState);
+                    setPendingCustomPlant(false);
+                    setShowImportModal(false);
+                    setTimeout(() => setShowTour(true), 800);
+                  }, 1500);
+                }
+              }
+              return result;
+            }}
+            labels={{
+              title: t.importWordsTitle,
+              subtitle: t.importWordsSubtitle,
+              dropzone: t.importDropzone,
+              dropzoneActive: t.importDropzoneActive,
+              selectFile: t.importSelectFile,
+              downloadPrompt: t.importDownloadPrompt,
+              downloadTemplate: t.importDownloadTemplate,
+              importing: t.importImporting,
+              resultTitle: t.importResultTitle,
+              totalLabel: t.importTotalLabel,
+              importedLabel: t.importImportedLabel,
+              rejectedLabel: t.importRejectedLabel,
+              coinsLabel: t.importCoinsLabel,
+              errorsTitle: t.importErrorsTitle,
+              close: t.importClose,
+              invalidFile: t.importInvalidFile,
+              guideTitle: t.importGuideTitle,
+              guideStep1: t.importGuideStep1,
+              guideStep2: t.importGuideStep2,
+              guideStep3: t.importGuideStep3,
+              guideFull: t.importGuideFull,
+              guideFullTitle: t.importGuideFullTitle,
+              guideFullContent: t.importGuideFullContent,
+              guideBack: t.importGuideBack,
+              tabPaste: t.importTabPaste,
+              tabUpload: t.importTabUpload,
+              pastePlaceholder: t.importPastePlaceholder,
+              pasteButton: t.importPasteButton,
+              pasteEmpty: t.importPasteEmpty,
+            }}
+            promptUrl="/wordtree/wordtree-prompt.txt"
+            templateUrl="/wordtree/wordtree-template.json"
+          />
+        )}
+      </>
     );
   }
 
@@ -354,7 +441,6 @@ export default function WordTreePage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-sky-50 via-paper-100 to-paper-100 py-8 px-4">
       <div className="max-w-3xl mx-auto">
-        {/* ─── بنر هشدار ─── */}
         <AlertBanner
           onBackupClick={() => setShowBackupModal(true)}
           labels={{
@@ -364,7 +450,6 @@ export default function WordTreePage() {
           }}
         />
 
-        {/* ─── هدر ─── */}
         <div className="flex items-center justify-between mb-6">
           <Link
             href={`/${safeLocale}/tools`}
@@ -391,7 +476,6 @@ export default function WordTreePage() {
           </div>
         </div>
 
-        {/* ─── عنوان ─── */}
         <div className="text-center mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-navy-900 font-mono mb-2">
             {t.pageTitle}
@@ -399,14 +483,12 @@ export default function WordTreePage() {
           <p className="text-navy-900/60">{t.pageSubtitle}</p>
         </div>
 
-        {/* ─── پیام جایزه ─── */}
         {rewardMessage && (
           <div className="mb-4 text-center bg-gold-300/30 border border-gold-500/40 rounded-sm py-2 px-4 animate-panel-in">
             <p className="text-navy-900 font-bold">🎁 {rewardMessage}</p>
           </div>
         )}
 
-        {/* ─── نوار پیشرفت ─── */}
         <div className="mb-8">
           <ProgressBar
             current={gameState.tree.totalWords}
@@ -415,7 +497,6 @@ export default function WordTreePage() {
           />
         </div>
 
-        {/* ─── درخت ─── */}
         <div className="my-8 flex justify-center" data-tour="tree">
           <Tree
             level={gameState.tree.level}
@@ -424,12 +505,10 @@ export default function WordTreePage() {
           />
         </div>
 
-        {/* ─── پیام راهنما ─── */}
         <div className="text-center mb-6">
           <p className="text-navy-900/70">{getGuidanceMessage()}</p>
         </div>
 
-        {/* ─── دکمه‌ی اصلی ─── */}
         <div className="flex justify-center" data-tour="water-button">
           {gameState.dayState === "completed" ? (
             <Button variant="secondary" size="lg" onClick={handleStartNextDay}>
@@ -452,7 +531,6 @@ export default function WordTreePage() {
         </div>
       </div>
 
-      {/* ─── تور اولیه ─── */}
       <OnboardingTour
         isOpen={showTour}
         onClose={handleTourClose}
@@ -474,7 +552,6 @@ export default function WordTreePage() {
         }}
       />
 
-      {/* ─── راهنمای کامل ─── */}
       {showHelp && (
         <HelpModal
           onClose={() => setShowHelp(false)}
@@ -506,7 +583,6 @@ export default function WordTreePage() {
         />
       )}
 
-      {/* ─── مودال بک‌آپ ─── */}
       {showBackupModal && (
         <BackupModal
           onClose={() => setShowBackupModal(false)}
@@ -534,7 +610,6 @@ export default function WordTreePage() {
         />
       )}
 
-      {/* ─── مودال snapshot ─── */}
       {showSnapshotModal && (
         <SnapshotModal
           onClose={() => setShowSnapshotModal(false)}
@@ -558,7 +633,6 @@ export default function WordTreePage() {
         />
       )}
 
-      {/* ─── پنل تنظیمات ─── */}
       <SettingsPanel
         isOpen={showSettings}
         onClose={() => setShowSettings(false)}
@@ -566,7 +640,6 @@ export default function WordTreePage() {
         title="تنظیمات"
       />
 
-      {/* ─── منوی آزمون ─── */}
       <QuizMenu
         isOpen={showQuizMenu}
         onClose={() => setShowQuizMenu(false)}
@@ -608,7 +681,6 @@ export default function WordTreePage() {
         }}
       />
 
-      {/* ─── پنل آبیاری ─── */}
       {showWateringPanel && (
         <WateringPanel
           words={wateringWords}
@@ -623,7 +695,6 @@ export default function WordTreePage() {
         />
       )}
 
-      {/* ─── پنل چیدن ─── */}
       {selectedFruit && selectedWordEntry && selectedWord && (
         <HarvestPanel
           wordEntry={selectedWordEntry}
@@ -654,7 +725,6 @@ export default function WordTreePage() {
         />
       )}
 
-      {/* ─── مودال افزودن کلمه ─── */}
       {showAddWordModal && (
         <AddWordModal
           onClose={() => setShowAddWordModal(false)}
@@ -693,7 +763,6 @@ export default function WordTreePage() {
         />
       )}
 
-      {/* ─── مودال ایمپورت گروهی ─── */}
       {showImportModal && (
         <ImportWordsModal
           onClose={() => setShowImportModal(false)}

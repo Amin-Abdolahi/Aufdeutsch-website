@@ -530,14 +530,17 @@ const fa = {
     alertDismiss: "بستن",
         // ─── کاشت درخت (Onboarding) ───
     plantWelcome: "به باغت خوش اومدی! 🌱",
-    plantSubtitle: "اینجا می‌تونی یه درخت بکاری و با یادگیری کلمات آلمانی، رشدش بدی. هر روز ازش مراقبت کن تا بزرگ‌تر بشه.",
+    plantSubtitle: "اینجا می‌تونی یه درخت بکاری و با یادگیری کلمات جدید، رشدش بدی. هر روز ازش مراقبت کن تا بزرگ‌تر بشه.",
     plantSelectTree: "کدوم درخت رو می‌کاری؟",
     plantWordsCount: "{count} کلمه",
     plantButton: "بکار",
     // ─── انواع درخت ───
     treeTypeDefault: "آلمانی پیش‌فرض",
     treeTypeDefaultDesc: "۵۰ کلمه‌ی پرکاربرد آلمانی برای شروع",
-
+        treeTypeCustom: "درخت شخصی",
+    treeTypeCustomDesc: "کلمات خودت رو وارد کن( همه زبانها)",
+    customWordsImported: "{count} کلمه آماده‌ست ✓",
+    importGuideForPlanting: "کلمه‌های خودت رو وارد کن",
     // ─── Snapshot (نسخه‌های قبلی) ───
     snapshots: "نسخه‌های قبلی",
     snapshotsTitle: "نسخه‌های قبلی بازی",
@@ -1092,6 +1095,10 @@ const de: Dict = {
     // ─── Baumtypen ───
     treeTypeDefault: "Deutsch Standard",
     treeTypeDefaultDesc: "50 häufig verwendete deutsche Wörter zum Starten",
+    treeTypeCustom: "Eigener Baum",
+    treeTypeCustomDesc: "Füge deine eigenen Wörter hinzu — manuell oder mit KI",
+    customWordsImported: "{count} Wörter bereit ✓",
+    importGuideForPlanting: "Füge deine eigenen Wörter hinzu",
 
     // ─── Snapshots ───
     snapshots: "Vorherige Versionen",
@@ -1647,6 +1654,10 @@ const en: Dict = {
     // ─── Tree Types ───
     treeTypeDefault: "German Default",
     treeTypeDefaultDesc: "50 common German words to get started",
+    treeTypeCustom: "Custom Tree",
+    treeTypeCustomDesc: "Add your own words — manually or with AI",
+    customWordsImported: "{count} words ready ✓",
+    importGuideForPlanting: "Add your own words",
 
     // ─── Snapshots ───
     snapshots: "Previous versions",

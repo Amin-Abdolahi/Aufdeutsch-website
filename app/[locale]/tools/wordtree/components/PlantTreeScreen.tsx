@@ -1,38 +1,59 @@
 "use client";
 
 /**
- * PlantTreeScreen — صفحه‌ی کاشت درخت (نسخه ۱.۰)
+ * PlantTreeScreen — صفحه‌ی کاشت درخت (نسخه ۲.۰)
  *
- * ⚠️ نکته برای توسعه‌دهنده‌های آینده:
- *
- * ۱. این صفحه وقتی نشون داده می‌شه که کاربر هنوز درخت نکاشته.
- * ۲. کاربر از بین انواع درخت (مثلاً «آلمانی پیش‌فرض») یکی رو انتخاب می‌کنه.
- * ۳. بعد از انتخاب، دکمه‌ی «بکار» فعال می‌شه.
- * ۴. برای اضافه کردن نوع درخت جدید، `TREE_TYPES` توی `constants.ts` رو آپدیت کن.
+ * ⚠️ تغییرات نسخه ۲.۰:
+ * - اضافه شدن گزینه‌ی «درخت شخصی»
+ * - اگه کاربر «درخت شخصی» رو انتخاب کرد → مودال ایمپورت باز می‌شه
+ * - بعد از ایمپورت، درخت کاشته می‌شه
  */
 
 import { useState } from "react";
-import { TREE_TYPES } from "@/lib/wordtree/constants";
+import { TREE_TYPES, CUSTOM_TREE_TYPE } from "@/lib/wordtree/constants";
 
 interface PlantTreeScreenProps {
   onPlant: (treeTypeId: string) => void;
+  onOpenImport: () => void;
+  customWordsCount: number;
   labels: {
     welcome: string;
     subtitle: string;
     selectTree: string;
     treeTypeDefault: string;
     treeTypeDefaultDesc: string;
+    treeTypeCustom: string;
+    treeTypeCustomDesc: string;
     plantButton: string;
+    customWordsImported: string;
     wordsCount: string;
   };
 }
 
-export function PlantTreeScreen({ onPlant, labels }: PlantTreeScreenProps) {
+export function PlantTreeScreen({
+  onPlant,
+  onOpenImport,
+  customWordsCount,
+  labels,
+}: PlantTreeScreenProps) {
   const [selectedTreeType, setSelectedTreeType] = useState<string>(
     TREE_TYPES[0].id
   );
 
   const handlePlant = () => {
+    // ─── اگه «درخت شخصی» انتخاب شد ───
+    if (selectedTreeType === CUSTOM_TREE_TYPE) {
+      // اگه کاربر قبلاً کلمه اضافه کرده، مستقیم بکار
+      if (customWordsCount > 0) {
+        onPlant(selectedTreeType);
+      } else {
+        // وگرنه، مودال ایمپورت رو باز کن
+        onOpenImport();
+      }
+      return;
+    }
+
+    // ─── درخت پیش‌فرض ───
     onPlant(selectedTreeType);
   };
 
@@ -41,7 +62,6 @@ export function PlantTreeScreen({ onPlant, labels }: PlantTreeScreenProps) {
       <div className="max-w-lg w-full">
         {/* ─── پس‌زمینه‌ی تزئینی ─── */}
         <div className="text-center mb-8">
-          {/* ─── ایموجی درخت بزرگ ─── */}
           <div className="text-8xl mb-4 animate-pulse-slow">🌱</div>
 
           <h1 className="text-3xl md:text-4xl font-bold text-navy-900 font-mono mb-3">
@@ -81,12 +101,28 @@ export function PlantTreeScreen({ onPlant, labels }: PlantTreeScreenProps) {
                   <div className="flex-1">
                     <p className="font-bold text-navy-900 mb-1">{name}</p>
                     <p className="text-xs text-navy-900/60 mb-2">{desc}</p>
-                    <p className="text-[10px] text-navy-900/40 font-mono">
-                      {labels.wordsCount.replace(
-                        "{count}",
-                        treeType.wordCount.toString()
-                      )}
-                    </p>
+                    {/* ─── تعداد کلمات ─── */}
+                    {treeType.isCustom ? (
+                      customWordsCount > 0 ? (
+                        <p className="text-[10px] text-green-600 font-mono font-bold">
+                          ✓ {labels.customWordsImported.replace(
+                            "{count}",
+                            customWordsCount.toString()
+                          )}
+                        </p>
+                      ) : (
+                        <p className="text-[10px] text-navy-900/40 font-mono">
+                          {labels.wordsCount.replace("{count}", "0")}
+                        </p>
+                      )
+                    ) : (
+                      <p className="text-[10px] text-navy-900/40 font-mono">
+                        {labels.wordsCount.replace(
+                          "{count}",
+                          treeType.wordCount.toString()
+                        )}
+                      </p>
+                    )}
                   </div>
                   {isSelected && (
                     <span className="text-gold-500 text-xl flex-shrink-0">
