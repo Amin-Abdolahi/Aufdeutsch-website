@@ -1,14 +1,13 @@
 "use client";
 
 /**
- * Word Tree — Main Page (نسخه ۸.۲ — با راهنمای ایمپورت)
+ * Word Tree — Main Page (نسخه ۹.۰ — با پنل تنظیمات)
  *
  * ⚠️ نکته برای توسعه‌دهنده‌های آینده:
  *
- * ۱. کاربر می‌تونه کلمه‌ی سفارشی اضافه کنه (دستی یا گروهی).
- * ۲. دکمه‌ی «افزودن گروهی» → مودال ایمپورت JSON.
- * ۳. کلمات سفارشی اولویت دارن (اول توی allWords).
- * ۴. برای فاز ۲ (Supabase)، کلمات عمومی اضافه می‌شن.
+ * ۱. دکمه‌های «افزودن کلمه» و «افزودن گروهی» به پنل تنظیمات منتقل شدن.
+ * ۲. آیکون ⚙️ توی هدر، پنل تنظیمات رو باز می‌کنه.
+ * ۳. برای اضافه کردن گزینه‌ی جدید به پنل، به آرایه‌ی `settingsItems` اضافه کن.
  */
 
 import { useState, useEffect } from "react";
@@ -39,6 +38,7 @@ import { WateringPanel } from "./components/WateringPanel";
 import { HarvestPanel } from "./components/HarvestPanel";
 import { AddWordModal } from "./components/AddWordModal";
 import { ImportWordsModal } from "./components/ImportWordsModal";
+import { SettingsPanel } from "./components/SettingsPanel";
 import { Button } from "@/components/ui/Button";
 
 export default function WordTreePage() {
@@ -52,6 +52,7 @@ export default function WordTreePage() {
   const [showWateringPanel, setShowWateringPanel] = useState(false);
   const [showAddWordModal, setShowAddWordModal] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [selectedFruitId, setSelectedFruitId] = useState<string | null>(null);
   const [customWords, setCustomWords] = useState<WordEntry[]>([]);
   const [rewardMessage, setRewardMessage] = useState<string | null>(null);
@@ -79,7 +80,6 @@ export default function WordTreePage() {
   const canWater = canWaterToday(gameState);
   const readyFruits = countReadyFruits(gameState);
 
-  // ─── همه‌ی کلمات (سفارشی اول، بعد داخلی) ───
   const allWords = [...customWords, ...WORDS_DE];
 
   const learnedIds = gameState.words.map((w) => w.id);
@@ -207,6 +207,20 @@ export default function WordTreePage() {
     return `${t.wordsLearned}: ${gameState.tree.totalWords}`;
   };
 
+  // ─── آیتم‌های پنل تنظیمات ───
+  const settingsItems = [
+    {
+      icon: "➕",
+      label: t.addWord,
+      onClick: () => setShowAddWordModal(true),
+    },
+    {
+      icon: "📥",
+      label: t.importWords,
+      onClick: () => setShowImportModal(true),
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-sky-50 via-paper-100 to-paper-100 py-8 px-4">
       <div className="max-w-3xl mx-auto">
@@ -218,11 +232,20 @@ export default function WordTreePage() {
           >
             ← {t.backToTools}
           </Link>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-navy-900/60 font-mono">
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-navy-900/60 font-mono hidden sm:inline">
               روز {gameState.currentDay}
             </span>
             <CoinDisplay coins={gameState.coins} />
+            {/* ─── دکمه‌ی تنظیمات ─── */}
+            <button
+              onClick={() => setShowSettings(true)}
+              className="w-10 h-10 flex items-center justify-center rounded-full bg-navy-900/10 hover:bg-navy-900/20 transition text-navy-900 text-lg"
+              aria-label="تنظیمات"
+              title="تنظیمات"
+            >
+              ⚙️
+            </button>
           </div>
         </div>
 
@@ -264,8 +287,8 @@ export default function WordTreePage() {
           <p className="text-navy-900/70">{getGuidanceMessage()}</p>
         </div>
 
-        {/* ─── دکمه‌ها ─── */}
-        <div className="flex justify-center gap-3 flex-wrap">
+        {/* ─── دکمه‌ی اصلی ─── */}
+        <div className="flex justify-center">
           {gameState.dayState === "completed" ? (
             <Button variant="secondary" size="lg" onClick={handleStartNextDay}>
               🌅 روز بعد
@@ -284,24 +307,16 @@ export default function WordTreePage() {
                 : t.waterButtonDisabled}
             </Button>
           )}
-
-          {/* دکمه‌ی افزودن کلمه */}
-          <button
-            onClick={() => setShowAddWordModal(true)}
-            className="px-6 py-3 bg-gold-300 hover:bg-gold-500 text-navy-900 font-bold rounded-sm transition-all duration-200 shadow-md hover:shadow-lg"
-          >
-            ➕ {t.addWord}
-          </button>
-
-          {/* دکمه‌ی ایمپورت گروهی */}
-          <button
-            onClick={() => setShowImportModal(true)}
-            className="px-6 py-3 bg-navy-900 hover:bg-navy-800 text-paper-100 font-bold rounded-sm transition-all duration-200 shadow-md hover:shadow-lg"
-          >
-            📥 {t.importWords}
-          </button>
         </div>
       </div>
+
+      {/* ─── پنل تنظیمات ─── */}
+      <SettingsPanel
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
+        items={settingsItems}
+        title="تنظیمات"
+      />
 
       {/* ─── پنل آبیاری ─── */}
       {showWateringPanel && (
@@ -378,7 +393,7 @@ export default function WordTreePage() {
         />
       )}
 
-      {/* ─── مودال ایمپورت گروهی ─── */}
+            {/* ─── مودال ایمپورت گروهی ─── */}
       {showImportModal && (
         <ImportWordsModal
           onClose={() => setShowImportModal(false)}
@@ -408,6 +423,11 @@ export default function WordTreePage() {
             guideFullTitle: t.importGuideFullTitle,
             guideFullContent: t.importGuideFullContent,
             guideBack: t.importGuideBack,
+            tabPaste: t.importTabPaste,
+            tabUpload: t.importTabUpload,
+            pastePlaceholder: t.importPastePlaceholder,
+            pasteButton: t.importPasteButton,
+            pasteEmpty: t.importPasteEmpty,
           }}
           promptUrl="/wordtree/wordtree-prompt.txt"
           templateUrl="/wordtree/wordtree-template.json"

@@ -1,14 +1,17 @@
 "use client";
 
 /**
- * ImportWordsModal — مودال ایمپورت گروهی (نسخه ۲.۰ — با راهنما)
+ * ImportWordsModal — مودال ایمپورت گروهی (نسخه ۳.۰ — با دو حالت)
  *
  * ⚠️ نکته برای توسعه‌دهنده‌های آینده:
  *
- * ۱. کاربر فایل JSON رو انتخاب می‌کنه (drag & drop یا file picker).
- * ۲. ما فایل رو تجزیه می‌کنیم و نتیجه رو نشون می‌دیم.
- * ۳. راهنمای ۳ مرحله‌ای توی خود پنجره.
- * ۴. دکمه‌ی «راهنمای کامل» → پنل راهنمای تفصیلی.
+ * ۱. دو حالت برای ایمپورت:
+ *    - «آپلود فایل»: کاربر فایل JSON رو drag & drop می‌کنه.
+ *    - «چسباندن متن»: کاربر کد JSON رو مستقیم paste می‌کنه.
+ *    حالت پیش‌فرض: «چسباندن متن» (راحت‌تره).
+ *
+ * ۲. راهنمای ۳ مرحله‌ای توی خود پنجره.
+ * ۳. دکمه‌ی «راهنمای کامل» → پنل راهنمای تفصیلی.
  */
 
 import { useState, useRef } from "react";
@@ -35,7 +38,6 @@ interface ImportWordsModalProps {
     errorsTitle: string;
     close: string;
     invalidFile: string;
-    // ─── جدید ───
     guideTitle: string;
     guideStep1: string;
     guideStep2: string;
@@ -44,10 +46,18 @@ interface ImportWordsModalProps {
     guideFullTitle: string;
     guideFullContent: string;
     guideBack: string;
+    // ─── جدید ───
+    tabPaste: string;
+    tabUpload: string;
+    pastePlaceholder: string;
+    pasteButton: string;
+    pasteEmpty: string;
   };
   promptUrl: string;
   templateUrl: string;
 }
+
+type TabType = "paste" | "upload";
 
 export function ImportWordsModal({
   onClose,
@@ -56,13 +66,16 @@ export function ImportWordsModal({
   promptUrl,
   templateUrl,
 }: ImportWordsModalProps) {
+  const [activeTab, setActiveTab] = useState<TabType>("paste");
   const [isDragging, setIsDragging] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [result, setResult] = useState<ImportResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showGuide, setShowGuide] = useState(false);
+  const [pastedText, setPastedText] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // ─── پردازش فایل ───
   const handleFile = async (file: File) => {
     if (!file.name.endsWith(".json")) {
       setError(labels.invalidFile);
@@ -84,6 +97,28 @@ export function ImportWordsModal({
     }
   };
 
+  // ─── پردازش متن paste‌شده ───
+  const handlePasteImport = () => {
+    if (!pastedText.trim()) {
+      setError(labels.pasteEmpty);
+      return;
+    }
+
+    setIsImporting(true);
+    setError(null);
+    setResult(null);
+
+    try {
+      const importResult = onImport(pastedText);
+      setResult(importResult);
+    } catch (err) {
+      setError("خطا در پردازش متن");
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
+  // ─── Drag & Drop ───
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(true);
@@ -138,7 +173,7 @@ export function ImportWordsModal({
     <div className="fixed inset-0 bg-navy-900/70 backdrop-blur-md z-50 flex items-center justify-center p-4">
       <div className="bg-paper-100 p-6 md:p-8 rounded-xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto animate-panel-in border border-gold-300/30">
         {/* هدر */}
-        <div className="mb-6 text-center">
+        <div className="mb-4 text-center">
           <h2 className="text-xl font-bold text-navy-900 font-mono mb-1">
             📥 {labels.title}
           </h2>
@@ -233,33 +268,82 @@ export function ImportWordsModal({
               </ol>
             </div>
 
-            {/* Dropzone */}
-            <div
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-              onClick={() => fileInputRef.current?.click()}
-              className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-all ${
-                isDragging
-                  ? "border-gold-500 bg-gold-300/20 scale-105"
-                  : "border-navy-900/30 hover:border-gold-500 hover:bg-gold-300/10"
-              }`}
-            >
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".json"
-                onChange={handleFileSelect}
-                className="hidden"
-              />
-              <p className="text-4xl mb-3">📁</p>
-              <p className="text-navy-900 font-bold mb-1">
-                {isDragging ? labels.dropzoneActive : labels.dropzone}
-              </p>
-              <p className="text-sm text-navy-900/60">{labels.selectFile}</p>
+            {/* ─── تب‌ها ─── */}
+            <div className="flex gap-2 mb-4 bg-navy-900/5 p-1 rounded-sm">
+              <button
+                onClick={() => setActiveTab("paste")}
+                className={`flex-1 py-2 text-sm font-bold rounded-sm transition ${
+                  activeTab === "paste"
+                    ? "bg-white text-navy-900 shadow-sm"
+                    : "text-navy-900/60 hover:text-navy-900"
+                }`}
+              >
+                📋 {labels.tabPaste}
+              </button>
+              <button
+                onClick={() => setActiveTab("upload")}
+                className={`flex-1 py-2 text-sm font-bold rounded-sm transition ${
+                  activeTab === "upload"
+                    ? "bg-white text-navy-900 shadow-sm"
+                    : "text-navy-900/60 hover:text-navy-900"
+                }`}
+              >
+                📁 {labels.tabUpload}
+              </button>
             </div>
 
-            {/* دکمه‌های دانلود */}
+            {/* ─── تب: چسباندن متن ─── */}
+            {activeTab === "paste" && (
+              <>
+                <textarea
+                  value={pastedText}
+                  onChange={(e) => setPastedText(e.target.value)}
+                  placeholder={labels.pastePlaceholder}
+                  className="w-full h-48 p-3 border border-navy-900/20 rounded-sm focus:outline-none focus:border-gold-500 bg-white font-mono text-xs resize-none"
+                  dir="ltr"
+                />
+                <Button
+                  variant="primary"
+                  size="md"
+                  onClick={handlePasteImport}
+                  disabled={isImporting}
+                >
+                  {isImporting ? labels.importing : labels.pasteButton}
+                </Button>
+              </>
+            )}
+
+            {/* ─── تب: آپلود فایل ─── */}
+            {activeTab === "upload" && (
+              <>
+                <div
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  onClick={() => fileInputRef.current?.click()}
+                  className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-all ${
+                    isDragging
+                      ? "border-gold-500 bg-gold-300/20 scale-105"
+                      : "border-navy-900/30 hover:border-gold-500 hover:bg-gold-300/10"
+                  }`}
+                >
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".json"
+                    onChange={handleFileSelect}
+                    className="hidden"
+                  />
+                  <p className="text-4xl mb-3">📁</p>
+                  <p className="text-navy-900 font-bold mb-1">
+                    {isDragging ? labels.dropzoneActive : labels.dropzone}
+                  </p>
+                  <p className="text-sm text-navy-900/60">{labels.selectFile}</p>
+                </div>
+              </>
+            )}
+
+            {/* ─── دکمه‌های دانلود ─── */}
             <div className="grid grid-cols-2 gap-3 mt-4">
               <a
                 href={promptUrl}
@@ -283,7 +367,7 @@ export function ImportWordsModal({
               </div>
             )}
 
-            {isImporting && (
+            {isImporting && activeTab === "upload" && (
               <p className="text-center text-navy-900/60 mt-4">
                 {labels.importing}
               </p>
