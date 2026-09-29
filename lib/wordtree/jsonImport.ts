@@ -1,22 +1,5 @@
 /**
- * Word Tree — JSON Import (نسخه ۱.۰)
- *
- * این فایل، تجزیه و اعتبارسنجی فایل‌های JSON برای ایمپورت گروهی رو مدیریت می‌کنه.
- *
- * ⚠️ نکته برای توسعه‌دهنده‌های آینده:
- *
- * ۱. کاربر با کمک هوش مصنوعی یه فایل JSON می‌سازه
- *    (با استفاده از prompt آماده توی `public/wordtree/wordtree-prompt.txt`).
- *
- * ۲. این فایل، JSON رو تجزیه می‌کنه و به `WordEntry` تبدیل می‌کنه.
- *
- * ۳. اعتبارسنجی مرحله‌به‌مرحله:
- *    - چک کردن ساختار کلی
- *    - چک کردن هر کلمه
- *    - چک کردن تکراری‌ها
- *    - ذخیره‌ی کلمات موفق
- *
- * ۴. خطاها به کاربر نشون داده می‌شن (با شماره‌ی ردیف).
+ * Word Tree — JSON Import (نسخه ۲.۰ — چندزبانه)
  */
 
 import {
@@ -26,12 +9,13 @@ import {
   WordEntry,
   WordCategory,
   GermanLevel,
+  TargetLanguage,
 } from "./types";
 import {
   MAX_IMPORT_WORDS,
   REWARD_IMPORTED_WORD,
   MAX_DAILY_IMPORT_REWARD,
-  IMPORT_FILE_VERSION,
+  DEFAULT_TARGET_LANGUAGE,
 } from "./constants";
 import {
   loadCustomWords,
@@ -43,13 +27,6 @@ import {
 // توابع اصلی
 // ─────────────────────────────────────────────────────────────
 
-/**
- * تجزیه و ایمپورت کلمات از فایل JSON.
- *
- * @param fileContent - محتوای فایل (string)
- * @param currentDayCoinsEarned - سکه‌هایی که امروز از ایمپورت گرفته شده (برای محدودیت)
- * @returns نتیجه‌ی ایمپورت
- */
 export function importWordsFromJSON(
   fileContent: string,
   currentDayCoinsEarned: number = 0
@@ -102,18 +79,23 @@ export function importWordsFromJSON(
 
   const total = parsed.words.length;
 
-  // ─── مرحله ۳: گرفتن کلمات موجود (برای چک تکراری) ───
+  // ─── مرحله ۳: زبان هدف ───
+  const language: TargetLanguage =
+    parsed.language || DEFAULT_TARGET_LANGUAGE;
+
+  // ─── مرحله ۴: گرفتن کلمات موجود ───
   const existingWords = loadCustomWords();
-  const existingGermanWords = new Set(
-    existingWords.map((w) => w.translations.de.toLowerCase().trim())
+  const existingKeys = new Set(
+    existingWords.map(
+      (w) => `${w.language}:${w.translations.de.toLowerCase().trim()}`
+    )
   );
 
-  // ─── مرحله ۴: پردازش هر کلمه ───
+  // ─── مرحله ۵: پردازش هر کلمه ───
   const newWords: WordEntry[] = [];
-  const seenInFile = new Set<string>(); // برای چک تکراری توی خود فایل
+  const seenInFile = new Set<string>();
 
   for (let i = 0; i < parsed.words.length; i++) {
-    // اگه از حد مجاز رد شد، بقیه رو نادیده بگیر
     if (i >= MAX_IMPORT_WORDS) {
       rejected++;
       continue;
@@ -122,7 +104,6 @@ export function importWordsFromJSON(
     const word = parsed.words[i];
     const rowNumber = i + 1;
 
-    // اعتبارسنجی کلمه
     const validation = validateImportWord(word, rowNumber);
     if (!validation.valid) {
       errors.push(...validation.errors);
@@ -130,30 +111,24 @@ export function importWordsFromJSON(
       continue;
     }
 
-    // چک تکراری توی خود فایل
-    const normalizedGerman = word.de.toLowerCase().trim();
-    if (seenInFile.has(normalizedGerman)) {
+    const normalizedKey = `${language}:${word.de.toLowerCase().trim()}`;
+    if (seenInFile.has(normalizedKey)) {
       errors.push(`ردیف ${rowNumber}: کلمه "${word.de}" توی فایل تکراریه.`);
       rejected++;
       continue;
     }
 
-    // چک تکراری با کلمات موجود
-    if (existingGermanWords.has(normalizedGerman)) {
-      errors.push(
-        `ردیف ${rowNumber}: کلمه "${word.de}" قبلاً اضافه شده.`
-      );
+    if (existingKeys.has(normalizedKey)) {
+      errors.push(`ردیف ${rowNumber}: کلمه "${word.de}" قبلاً اضافه شده.`);
       rejected++;
       continue;
     }
 
-    // تبدیل به WordEntry
-    const wordEntry = convertToWordEntry(word);
+    const wordEntry = convertToWordEntry(word, language);
     newWords.push(wordEntry);
-    seenInFile.add(normalizedGerman);
+    seenInFile.add(normalizedKey);
     imported++;
 
-    // محاسبه‌ی جایزه
     const rewardCoins = Math.min(
       REWARD_IMPORTED_WORD,
       MAX_DAILY_IMPORT_REWARD - currentDayCoinsEarned - coinsEarned
@@ -163,7 +138,7 @@ export function importWordsFromJSON(
     }
   }
 
-  // ─── مرحله ۵: ذخیره‌ی کلمات جدید ───
+  // ─── مرحله ۶: ذخیره‌ی کلمات جدید ───
   if (newWords.length > 0) {
     saveCustomWords([...newWords, ...existingWords]);
   }
@@ -172,7 +147,7 @@ export function importWordsFromJSON(
     total,
     imported,
     rejected,
-    errors: errors.slice(0, 20), // حداکثر ۲۰ خطا نشون بده
+    errors: errors.slice(0, 20),
     coinsEarned,
   };
 }
@@ -181,24 +156,19 @@ export function importWordsFromJSON(
 // اعتبارسنجی
 // ─────────────────────────────────────────────────────────────
 
-/**
- * اعتبارسنجی یه کلمه‌ی ایمپورت.
- */
 function validateImportWord(
   word: ImportWord,
   rowNumber: number
 ): { valid: boolean; errors: string[] } {
   const errors: string[] = [];
 
-  // فیلدهای اجباری
   if (!word.de || typeof word.de !== "string" || !word.de.trim()) {
-    errors.push(`ردیف ${rowNumber}: فیلد "de" (کلمه‌ی آلمانی) اجباریه.`);
+    errors.push(`ردیف ${rowNumber}: فیلد "de" (کلمه) اجباریه.`);
   }
   if (!word.fa || typeof word.fa !== "string" || !word.fa.trim()) {
     errors.push(`ردیف ${rowNumber}: فیلد "fa" (ترجمه) اجباریه.`);
   }
 
-  // category
   const validCategories: WordCategory[] = [
     "noun",
     "verb",
@@ -213,7 +183,6 @@ function validateImportWord(
     );
   }
 
-  // level
   const validLevels: GermanLevel[] = ["A1", "A2", "B1", "B2", "C1"];
   if (!word.level || !validLevels.includes(word.level)) {
     errors.push(
@@ -221,7 +190,6 @@ function validateImportWord(
     );
   }
 
-  // چک گرامر اسم
   if (word.category === "noun") {
     if (!word.noun || !word.noun.article || !word.noun.plural) {
       errors.push(
@@ -234,7 +202,6 @@ function validateImportWord(
     }
   }
 
-  // چک گرامر فعل
   if (word.category === "verb") {
     if (
       !word.verb ||
@@ -262,12 +229,13 @@ function validateImportWord(
 // تبدیل
 // ─────────────────────────────────────────────────────────────
 
-/**
- * تبدیل ImportWord به WordEntry.
- */
-function convertToWordEntry(word: ImportWord): WordEntry {
+function convertToWordEntry(
+  word: ImportWord,
+  language: TargetLanguage
+): WordEntry {
   return {
     id: generateCustomWordId(),
+    language,
     level: word.level,
     category: word.category,
     translations: {
@@ -284,13 +252,6 @@ function convertToWordEntry(word: ImportWord): WordEntry {
   };
 }
 
-// ─────────────────────────────────────────────────────────────
-// توابع کمکی
-// ─────────────────────────────────────────────────────────────
-
-/**
- * بررسی اینکه آیا فایل JSON معتبره (بدون ایمپورت).
- */
 export function validateImportFile(
   fileContent: string
 ): { valid: boolean; error?: string } {

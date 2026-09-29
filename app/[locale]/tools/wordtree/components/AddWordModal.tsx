@@ -1,19 +1,10 @@
 "use client";
 
 /**
- * AddWordModal — فرم افزودن کلمه‌ی سفارشی (نسخه ۱.۰)
+ * AddWordModal — فرم افزودن کلمه‌ی سفارشی (نسخه ۱.۱)
  *
- * ⚠️ نکته برای توسعه‌دهنده‌های آینده:
- *
- * ۱. کاربر می‌تونه کلمه‌ی آلمانی + ترجمه + اطلاعات گرامری (اختیاری) وارد کنه.
- *
- * ۲. برای فاز ۲ (Supabase)، چک‌باکس «اشتراک با دیگران» اضافه می‌شه.
- *
- * ۳. جایزه بر اساس نوع کلمه:
- *    - کلمه‌ی سفارشی (فقط خودم): REWARD_CUSTOM_WORD (۵ سکه)
- *    - کلمه‌ی عمومی (برای همه): REWARD_COMMUNITY_WORD (۱۵ سکه + ۱ بذر)
- *
- * ۴. برای MVP، همه‌ی کلمات «سفارشی» حساب می‌شن (بدون Supabase).
+ * ⚠️ تغییرات نسخه ۱.۱:
+ * - اضافه شدن `language: "de"` به کلمه‌ی جدید
  */
 
 import { useState } from "react";
@@ -74,15 +65,14 @@ export function AddWordModal({ onClose, onSave, labels }: AddWordModalProps) {
   const [error, setError] = useState("");
 
   const handleSave = () => {
-    // چک کردن فیلدهای اجباری
     if (!german.trim() || !translation.trim()) {
       setError(labels.errorRequired);
       return;
     }
 
-    // ساخت کلمه‌ی جدید
     const newWord: Omit<WordEntry, "source" | "createdAt"> = {
       id: `custom-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+      language: "de",
       level,
       category,
       translations: {
@@ -92,7 +82,6 @@ export function AddWordModal({ onClose, onSave, labels }: AddWordModalProps) {
       },
     };
 
-    // اطلاعات گرامری
     if (category === "noun") {
       newWord.noun = { article, plural: plural.trim() || "-" };
     } else if (category === "verb") {
@@ -103,12 +92,10 @@ export function AddWordModal({ onClose, onSave, labels }: AddWordModalProps) {
       };
     }
 
-    // تلفظ
     if (pronunciation.trim()) {
       newWord.pronunciation = { persian: pronunciation.trim() };
     }
 
-    // مثال
     if (example.trim()) {
       newWord.example = {
         de: example.trim(),
@@ -120,7 +107,6 @@ export function AddWordModal({ onClose, onSave, labels }: AddWordModalProps) {
       };
     }
 
-    // ذخیره
     const result = onSave(newWord);
     if (result.success) {
       onClose();
@@ -132,7 +118,6 @@ export function AddWordModal({ onClose, onSave, labels }: AddWordModalProps) {
   return (
     <div className="fixed inset-0 bg-navy-900/70 backdrop-blur-md z-50 flex items-center justify-center p-4">
       <div className="bg-paper-100 p-6 md:p-8 rounded-xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto animate-panel-in border border-gold-300/30">
-        {/* هدر */}
         <div className="mb-6 text-center">
           <h2 className="text-xl font-bold text-navy-900 font-mono mb-1">
             ➕ {labels.title}
@@ -140,9 +125,7 @@ export function AddWordModal({ onClose, onSave, labels }: AddWordModalProps) {
           <p className="text-xs text-navy-900/60">{labels.rewardInfo}</p>
         </div>
 
-        {/* فرم */}
         <div className="space-y-4">
-          {/* کلمه‌ی آلمانی */}
           <div>
             <label className="block text-sm font-bold text-navy-900/70 mb-1">
               {labels.germanLabel} *
@@ -157,7 +140,6 @@ export function AddWordModal({ onClose, onSave, labels }: AddWordModalProps) {
             />
           </div>
 
-          {/* ترجمه */}
           <div>
             <label className="block text-sm font-bold text-navy-900/70 mb-1">
               {labels.translationLabel} *
@@ -171,7 +153,6 @@ export function AddWordModal({ onClose, onSave, labels }: AddWordModalProps) {
             />
           </div>
 
-          {/* دسته و سطح */}
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-bold text-navy-900/70 mb-1">
@@ -208,7 +189,6 @@ export function AddWordModal({ onClose, onSave, labels }: AddWordModalProps) {
             </div>
           </div>
 
-          {/* اطلاعات گرامری اسم */}
           {category === "noun" && (
             <div className="grid grid-cols-2 gap-3">
               <div>
@@ -244,7 +224,6 @@ export function AddWordModal({ onClose, onSave, labels }: AddWordModalProps) {
             </div>
           )}
 
-          {/* اطلاعات گرامری فعل */}
           {category === "verb" && (
             <div className="grid grid-cols-2 gap-3">
               <div>
@@ -274,7 +253,6 @@ export function AddWordModal({ onClose, onSave, labels }: AddWordModalProps) {
             </div>
           )}
 
-          {/* تلفظ */}
           <div>
             <label className="block text-sm font-bold text-navy-900/70 mb-1">
               {labels.pronunciationLabel}
@@ -288,7 +266,6 @@ export function AddWordModal({ onClose, onSave, labels }: AddWordModalProps) {
             />
           </div>
 
-          {/* مثال */}
           <div className="space-y-2">
             <div>
               <label className="block text-sm font-bold text-navy-900/70 mb-1">
@@ -317,7 +294,6 @@ export function AddWordModal({ onClose, onSave, labels }: AddWordModalProps) {
             </div>
           </div>
 
-          {/* خطا */}
           {error && (
             <div className="bg-red-50 border-r-4 border-red-500 p-3 rounded-sm">
               <p className="text-sm text-red-700">{error}</p>
@@ -325,7 +301,6 @@ export function AddWordModal({ onClose, onSave, labels }: AddWordModalProps) {
           )}
         </div>
 
-        {/* دکمه‌ها */}
         <div className="grid grid-cols-2 gap-3 mt-6">
           <button
             onClick={onClose}
