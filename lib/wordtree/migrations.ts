@@ -1,13 +1,15 @@
 /**
- * Word Tree — Migrations (نسخه ۴.۰)
+ * Word Tree — Migrations (نسخه ۵.۰)
  *
- * ⚠️ تغییرات نسخه ۴.۰:
- * - اضافه شدن migration از v12 به v13 (treeIds)
+ * ⚠️ تغییرات نسخه ۵.۰:
+ * - اضافه شدن migration از v13 به v14 (poolWordIds)
+ * - تعمیر کلماتی که با متن خالی ذخیره شده بودن
  *
  * ⚠️ تاریخچه‌ی نسخه‌ها:
  * - v1 تا v11: ...
  * - v12: ساختار باغچه‌ها
  * - v13: کلمات چند-درختی (treeIds)
+ * - v14: استخر کلمات اختصاصی هر درخت (poolWordIds)
  */
 
 import {
@@ -25,6 +27,8 @@ import {
   DEFAULT_PLOT_THEME,
   DEFAULT_TREE_VARIANT,
 } from "./constants";
+import { WORDS_DE } from "@/data/wordtree/words-de";
+import { loadCustomWords } from "./customWords";
 
 // ─────────────────────────────────────────────────────────────
 // Migrationها (قدیمی — خلاصه‌شده)
@@ -185,6 +189,51 @@ function migrateV12toV13(state: any): GameState {
   };
 }
 
+/**
+ * Migration از v13 به v14: poolWordIds.
+ *
+ * ⚠️ این migration:
+ * ۱. برای هر درخت، `poolWordIds` رو از روی کلمات attach شده می‌سازه.
+ *    اگه درخت کلمه‌ای نداشت، از WORDS_DE استفاده می‌کنه.
+ * ۲. کلماتی که با متن خالی ذخیره شده بودن (باگ v13) رو تعمیر می‌کنه.
+ */
+function migrateV13toV14(state: any): GameState {
+  const words: any[] = state.words || [];
+  const customById = new Map(loadCustomWords().map((w) => [w.id, w]));
+  const builtinById = new Map(WORDS_DE.map((w) => [w.id, w]));
+
+  // ─── تعمیر کلمات خالی ───
+  const repairedWords = words.map((w: any) => {
+    if (w.german && w.translation) return w;
+    const entry = builtinById.get(w.id) || customById.get(w.id);
+    if (!entry) return w;
+    return {
+      ...w,
+      german: entry.translations.de,
+      translation: entry.translations.fa || entry.translations.de,
+    };
+  });
+
+  // ─── ساخت pool برای هر درخت ───
+  const plots: Plot[] = (state.plots || []).map((plot: any) => {
+    const trees = (plot.trees || []).map((tree: any) => {
+      const attachedIds = repairedWords
+        .filter((w: any) => Array.isArray(w.treeIds) && w.treeIds.includes(tree.id))
+        .map((w: any) => w.id);
+      const poolWordIds = attachedIds.length > 0 ? attachedIds : WORDS_DE.map((w) => w.id);
+      return { ...tree, poolWordIds };
+    });
+    return { ...plot, trees };
+  });
+
+  return {
+    ...state,
+    plots,
+    words: repairedWords,
+    version: STATE_VERSION,
+  };
+}
+
 // ─────────────────────────────────────────────────────────────
 // اجرای migrationها
 // ─────────────────────────────────────────────────────────────
@@ -202,6 +251,9 @@ export function runMigrations(state: any): GameState {
   }
   if (oldVersion < 13) {
     newState = migrateV12toV13(newState);
+  }
+  if (oldVersion < 14) {
+    newState = migrateV13toV14(newState);
   }
 
   newState.version = STATE_VERSION;

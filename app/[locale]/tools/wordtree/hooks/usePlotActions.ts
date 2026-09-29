@@ -8,12 +8,12 @@ import { GameState, TreeVariant } from "@/lib/wordtree/types";
 import {
   createPlot,
   createTree,
-  addWordsToTree,
 } from "@/lib/wordtree/gameLogic";
 import {
   MAX_PLOTS,
   MAX_TREES_PER_PLOT,
 } from "@/lib/wordtree/constants";
+import { WORDS_DE } from "@/data/wordtree/words-de";
 
 interface UsePlotActionsProps {
   gameState: GameState;
@@ -53,9 +53,14 @@ export function usePlotActions({
       return { success: false, error: createTreeMaxReached };
     }
 
-    const newTree = createTree(name, variant);
+    // کلمات انتخاب‌شده = استخر این درخت. اگه هیچی انتخاب نشد،
+    // از استخر استاندارد آلمانی استفاده کن.
+    const poolWordIds =
+      wordIds.length > 0 ? wordIds : WORDS_DE.map((w) => w.id);
 
-    let updated: GameState = {
+    const newTree = createTree(name, variant, poolWordIds);
+
+    const updated: GameState = {
       ...gameState,
       plots: gameState.plots.map((plot) =>
         plot.id === selectedPlot.id
@@ -63,10 +68,6 @@ export function usePlotActions({
           : plot
       ),
     };
-
-    if (wordIds && wordIds.length > 0) {
-      updated = addWordsToTree(updated, newTree.id, wordIds);
-    }
 
     setGameState(updated);
     return { success: true };

@@ -151,6 +151,9 @@ export interface QuizResult {
 /**
  * یه درخت توی یه باغچه.
  *
+ * ⚠️ تغییرات نسخه ۱۴.۰:
+ * - `poolWordIds` اضافه شد: استخر کلمات اختصاصی این درخت.
+ *
  * ⚠️ تغییر نسخه ۱۳.۰:
  * - `wordIds` حذف شد. کلمات از طریق `Word.treeIds` پیدا می‌شن.
  * - `totalWords` از روی `Word.treeIds` محاسبه می‌شه (کش شده).
@@ -162,6 +165,8 @@ export interface Tree {
   level: TreeLevel;
   /** تعداد کلمات (کش شده — از Word.treeIds محاسبه می‌شه) */
   totalWords: number;
+  /** استخر کلمات این درخت (کلماتی که می‌شه یاد گرفت) */
+  poolWordIds: string[];
   fruits: Fruit[];
   lastWatered?: number;
   wateredToday: boolean;

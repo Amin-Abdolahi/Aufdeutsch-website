@@ -8,6 +8,7 @@
 
 import { GameState, Tree, WordEntry, Word } from "@/lib/wordtree/types";
 import { Locale } from "@/lib/i18n";
+import { getDueReviewWords } from "@/lib/wordtree/gameLogic";
 import { Tree as TreeComponent } from "../components/Tree";
 import { CoinDisplay } from "../components/CoinDisplay";
 import { ProgressBar } from "../components/ProgressBar";
@@ -84,14 +85,20 @@ export function TreeScreen({
     : null;
 
   const getGuidanceMessage = () => {
+    const hasDue = getDueReviewWords(gameState, selectedTree.id).length > 0;
     const hasSilver = selectedTree.fruits.some((f) => f.type === "silver");
     if (hasSilver) return "🥈 یه میوه‌ی نقره‌ای روی درختت هست! روش کلیک کن و آزمون بده.";
-    if (!hasNew) return "🎉 همه‌ی کلماتت توی این درختن!";
+    if (!hasNew && !hasDue) return "🎉 همه‌ی کلماتت توی این درختن!";
     if (selectedTree.dayState === "completed") return `روز ${gameState.currentDay} تموم شد! 🎉`;
-    if (!selectedTree.wateredToday) return t.firstWaterMessage;
+    if (!selectedTree.wateredToday)
+      return hasDue && !hasNew
+        ? "🔁 وقت مرور کلماته! آبیاری کن تا میوه‌های مرور بیان."
+        : t.firstWaterMessage;
     if (readyFruits > 0) return t.harvestMessage;
     return `${t.wordsLearned}: ${selectedTree.totalWords}`;
   };
+
+  const hasDueReviews = getDueReviewWords(gameState, selectedTree.id).length > 0;
 
   return (
     <>
@@ -149,7 +156,7 @@ export function TreeScreen({
 
           {/* نوار پیشرفت */}
           <div className="mb-8">
-            <ProgressBar current={selectedTree.totalWords} total={50} label={t.progress} />
+            <ProgressBar current={selectedTree.totalWords} total={selectedTree.poolWordIds.length} label={t.progress} />
             {wordsToNext > 0 && (
               <p className="text-xs text-navy-900/50 text-center mt-2 font-mono">
                 {t.toNextLevel?.replace("{count}", wordsToNext.toString())}
@@ -173,7 +180,8 @@ export function TreeScreen({
 
           {/* دکمه‌ی اصلی */}
           <div className="flex justify-center" data-tour="water-button">
-            {selectedTree.dayState === "completed" ? (
+            {selectedTree.dayState === "completed" ||
+            (selectedTree.fruits.length === 0 && selectedTree.wateredToday) ? (
               <Button variant="secondary" size="lg" onClick={handlers.handleStartNextDay}>
                 🌅 روز بعد
               </Button>
@@ -181,10 +189,18 @@ export function TreeScreen({
               <Button
                 variant="primary"
                 size="lg"
-                onClick={() => setters.setShowWateringPanel(true)}
-                disabled={!canWater || !hasNew}
+                onClick={() => {
+                  // اگه کلمه‌ی جدید برای آموزش هست، پنل آبیاری باز می‌شه.
+                  // وگرنه فقط میوه‌های مرور رسیده رو ظاهر می‌کنه.
+                  if (dailyWords.length > 0) {
+                    setters.setShowWateringPanel(true);
+                  } else {
+                    handlers.handleWateringComplete([]);
+                  }
+                }}
+                disabled={!canWater || (!hasNew && !hasDueReviews)}
               >
-                {!hasNew
+                {!hasNew && !hasDueReviews
                   ? "🎉 همه‌ی کلماتت توی این درختن"
                   : canWater
                   ? `💧 ${t.waterButton}`

@@ -1,8 +1,8 @@
 /**
  * Word Tree — Constants (نسخه ۱۲.۰)
  *
- * ⚠️ تغییرات نسخه ۱۲.۰:
- * - STATE_VERSION به 13 آپدیت شد (treeIds)
+ * ⚠️ تغییرات نسخه ۱۴.۰:
+ * - STATE_VERSION به ۱۴ آپدیت شد (poolWordIds)
  */
 
 // ─────────────────────────────────────────────────────────────
@@ -58,7 +58,7 @@ export const MAX_REVIEW_STAGE = REVIEW_INTERVALS.length - 1;
 export const STORAGE_KEY = "wordtree_game_state_v1";
 export const CUSTOM_WORDS_STORAGE_KEY = "wordtree_custom_words_v1";
 export const USER_STATS_STORAGE_KEY = "wordtree_user_stats_v1";
-export const STATE_VERSION = 13;
+export const STATE_VERSION = 14;
 
 // ─────────────────────────────────────────────────────────────
 // زمان‌ها

@@ -15,6 +15,7 @@ import {
   addWordsToTree,
   removeWordFromTree,
   getTreeWords,
+  getDueReviewWords,
 } from "@/lib/wordtree/gameLogic";
 import { Locale } from "@/lib/i18n";
 
@@ -37,9 +38,9 @@ export function useTreeActions({
 }: UseTreeActionsProps) {
   const handleWateringComplete = (learnedWordIds: string[]) => {
     if (!selectedTree) return;
-    const treeWords = getTreeWords(gameState, selectedTree.id);
-    const treeWordIds = treeWords.map((w) => w.id);
+    const treeWordIds = getTreeWords(gameState, selectedTree.id).map((w) => w.id);
 
+    // ─── کلمات جدید یادگرفته‌شده ───
     const newWords: Word[] = allWordsData
       .filter((w) => learnedWordIds.includes(w.id) && !treeWordIds.includes(w.id))
       .map((w) => ({
@@ -47,7 +48,7 @@ export function useTreeActions({
         language: w.language,
         german: w.translations.de,
         translation: w.translations[safeLocale] || w.translations.fa,
-        status: "learning" as const,
+        status: "new",
         reviewCount: 0,
         reviewStage: 0,
         nextReviewDay: undefined,
@@ -55,7 +56,10 @@ export function useTreeActions({
         treeIds: [],
       }));
 
-    setGameState(waterTree(gameState, selectedTree.id, newWords));
+    // ─── کلمات رسیده‌ی مرور (بدون پنل آموزشی) ───
+    const reviewWords = getDueReviewWords(gameState, selectedTree.id);
+
+    setGameState(waterTree(gameState, selectedTree.id, newWords, reviewWords));
     onCloseWateringPanel();
   };
 
@@ -79,7 +83,9 @@ export function useTreeActions({
 
   const handleAddWordsToTree = (wordIds: string[]) => {
     if (!selectedTree) return;
-    setGameState(addWordsToTree(gameState, selectedTree.id, wordIds));
+    // ⚠️ allWordsData پاس داده می‌شه تا کلمات جدید از WordEntry ساخته بشن
+    // (باگ قبلی: کلماتی که توی state نبودن سایلنت اسکیپ می‌شدن)
+    setGameState(addWordsToTree(gameState, selectedTree.id, wordIds, allWordsData));
   };
 
   const handleRemoveWordsFromTree = (wordIds: string[]) => {

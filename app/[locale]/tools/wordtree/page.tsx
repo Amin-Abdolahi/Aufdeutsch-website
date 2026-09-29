@@ -18,7 +18,8 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { getDictionary, isLocale, Locale } from "@/lib/i18n";
-import { getPlotById, getTreeById, getTreeWords, getAvailableWordsForTree, getWordsToNextLevel, canWaterToday, countReadyFruits } from "@/lib/wordtree/gameLogic";
+import { getPlotById, getTreeById, getTreeWords, getWordsToNextLevel, canWaterToday, countReadyFruits } from "@/lib/wordtree/gameLogic";
+import { DAILY_WORDS } from "@/lib/wordtree/constants";
 import { WORDS_DE } from "@/data/wordtree/words-de";
 
 import { useGameState } from "./hooks/useGameState";
@@ -230,9 +231,26 @@ export default function WordTreePage() {
     const readyFruits = countReadyFruits(gameState, selectedTree.id);
     const treeWords = getTreeWords(gameState, selectedTree.id);
     const treeWordIds = treeWords.map((w) => w.id);
-    const availableWords = getAvailableWordsForTree(gameState, selectedTree.id);
-    const hasNew = allWordsData.some((w) => !treeWordIds.includes(w.id));
-    const dailyWords = allWordsData.filter((w) => !treeWordIds.includes(w.id)).slice(0, 5);
+
+    // ─── کلمات استخر این درخت که هنوز یاد گرفته نشدن ───
+    const poolNotLearned = allWordsData.filter(
+      (w) => selectedTree.poolWordIds.includes(w.id) && !treeWordIds.includes(w.id)
+    );
+
+    const hasNew = poolNotLearned.length > 0;
+    const dailyWords = poolNotLearned.slice(0, DAILY_WORDS);
+    const availableWords = poolNotLearned.map((w) => ({
+      id: w.id,
+      language: w.language,
+      german: w.translations.de,
+      translation: w.translations[safeLocale] || w.translations.fa,
+      status: "new" as const,
+      reviewCount: 0,
+      reviewStage: 0,
+      nextReviewDay: undefined,
+      source: w.source ?? "builtin",
+      treeIds: [],
+    }));
     const wordsToNext = getWordsToNextLevel(selectedTree.totalWords, selectedTree.level);
 
     return (
