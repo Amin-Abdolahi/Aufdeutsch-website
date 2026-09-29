@@ -73,9 +73,6 @@ export function HomeContent({ locale }: HomeContentProps) {
               <p className="text-paper-100/80 text-lg leading-relaxed mb-8 max-w-[34rem]">
                 {t.home.coursesDesc}
               </p>
-              <Button href={`/${locale}/courses`} variant="secondary" size="lg">
-                {t.home.coursesAll}
-              </Button>
             </div>
             <div className="grid grid-cols-2 gap-6">
               {coursePreview.map((course, index) => (

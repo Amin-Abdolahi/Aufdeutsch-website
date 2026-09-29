@@ -32,7 +32,7 @@
 |---|---|
 | `/` | Landing page and introduction to AUF Deutsch |
 | `/about` | About the instructors and teaching approach |
-| `/courses` | German courses and language levels |
+| `` | German courses and language levels |
 | `/pricing` | Course pricing and packages |
 | `/contact` | Contact and consultation information |
 | `/blog` | German-learning articles and educational content |

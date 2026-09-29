@@ -219,9 +219,7 @@ export function AboutContent({ locale }: AboutContentProps) {
             <Button href={`/${locale}/contact`} size="lg">
               {t.about.ctaContact}
             </Button>
-            <Button href={`/${locale}/courses`} variant="outline" size="lg">
-              {t.about.ctaCourses}
-            </Button>
+           
           </div>
         </div>
       </Section>

@@ -235,7 +235,7 @@ export function HeroSection({ locale }: HeroSectionProps) {
                   {t.home.heroCta}
                 </Button>
                 <Button
-                  href={`/${locale}/courses`}
+                  href={`/${locale}`}
                   variant="outline"
                   size="lg"
                   className="tracking-[0.08em]"

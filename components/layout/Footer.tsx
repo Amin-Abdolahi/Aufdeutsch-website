@@ -8,12 +8,6 @@ export function Footer() {
   const currentYear = new Date().getFullYear();
 
   const footerLinks = {
-    courses: [
-      { label: t.footer.coursesA1, href: `/${locale}/courses?level=a1` },
-      { label: t.footer.coursesB1, href: `/${locale}/courses?level=b1` },
-      { label: t.footer.coursesC1, href: `/${locale}/courses?level=c1` },
-      { label: t.footer.coursesExam, href: `/${locale}/courses?type=exam` },
-    ],
     company: [
       { label: t.footer.aboutUs, href: `/${locale}/about` },
       { label: t.footer.pricing, href: `/${locale}/pricing` },
@@ -77,18 +71,7 @@ export function Footer() {
             </div>
           </div>
 
-          <div>
-            <h3 className="font-bold text-gold-500 mb-4">{t.footer.courses}</h3>
-            <ul className="space-y-2">
-              {footerLinks.courses.map((link) => (
-                <li key={link.href}>
-                  <Link href={link.href} className="text-paper-100/60 hover:text-paper-100 transition-colors text-sm">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          
 
           <div>
             <h3 className="font-bold text-gold-500 mb-4">{t.footer.company}</h3>

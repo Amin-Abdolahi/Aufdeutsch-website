@@ -24,7 +24,7 @@
 |------|-----|---------|
 | Home | `/` | لندینگ پیج اصلی |
 | About | `/about` | معرفی مدرسین |
-| Courses | `/courses` | لیست دورهها |
+| Courses | `` | لیست دورهها |
 | Pricing | `/pricing` | قیمتگذاری |
 | Contact | `/contact` | فرم تماس |
 | Blog | `/blog` | مقالات |
