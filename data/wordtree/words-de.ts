@@ -887,17 +887,54 @@ export function getWordsByCategory(category: WordCategory): WordEntry[] {
 /**
  * گرفتن کلمات روزانه.
  *
- * ⚠️ این تابع در حال حاضر ۵ کلمه‌ی اول رو برمی‌گردونه.
- * برای فاز ۲ (آزمون باغبان)، باید بتونه کلمات بیشتری برگردونه
- * و از تکرار کلمات قبلی جلوگیری کنه.
+ * ⚠️ نکته برای توسعه‌دهنده‌های آینده:
  *
- * @param count - تعداد کلمات (پیش‌فرض: ۵)
- * @param excludeIds - کلماتی که نباید برگردونن (برای فاز ۲)
+ * این تابع کلماتی رو برمی‌گردونه که کاربر **قبلاً یاد نگرفته**.
+ *
+ * پارامترها:
+ * - `count`: تعداد کلماتی که می‌خوایم برگردونیم (پیش‌فرض: ۵)
+ * - `excludeIds`: لیست کلماتی که کاربر قبلاً یاد گرفته
+ *   (از `gameState.words.map(w => w.id)`)
+ *
+ * رفتار:
+ * - کلماتی که توی `excludeIds` هستن، فیلتر می‌شن.
+ * - از بین کلمات باقی‌مونده، `count` تا اولی برگردونده می‌شه.
+ * - اگه کلمه‌ی جدیدی نمونه، آرایه‌ی خالی برمی‌گردونه.
+ *
+ * @example
+ * // کاربر ۵ کلمه یاد گرفته:
+ * const learned = ["w1", "w2", "w3", "w4", "w5"];
+ * // کلمات روز بعد:
+ * const nextWords = getDailyWords(5, learned);
+ * // نتیجه: w6, w7, w8, w9, w10
  */
 export function getDailyWords(
   count: number = 5,
   excludeIds: string[] = []
 ): WordEntry[] {
+  // فیلتر کردن کلماتی که کاربر قبلاً یاد گرفته
   const available = WORDS_DE.filter((w) => !excludeIds.includes(w.id));
+
+  // اگه کلمه‌ی جدیدی نمونه، آرایه‌ی خالی برمی‌گردونیم
+  if (available.length === 0) return [];
+
+  // برگردوندن `count` کلمه‌ی اول از کلمات موجود
   return available.slice(0, count);
+}
+
+/**
+ * بررسی اینکه آیا کلمه‌ی جدیدی برای یادگیری مونده یا نه.
+ *
+ * این تابع برای این استفاده می‌شه که بدونیم کاربر
+ * همه‌ی کلمات رو یاد گرفته یا نه.
+ *
+ * @param excludeIds - کلماتی که کاربر قبلاً یاد گرفته
+ * @returns true اگه کلمه‌ی جدیدی مونده باشه
+ *
+ * @example
+ * const learned = ["w1", ..., "w50"]; // همه‌ی کلمات
+ * hasNewWords(learned); // false
+ */
+export function hasNewWords(excludeIds: string[] = []): boolean {
+  return WORDS_DE.some((w) => !excludeIds.includes(w.id));
 }

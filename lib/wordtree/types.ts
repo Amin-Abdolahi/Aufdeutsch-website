@@ -1,17 +1,22 @@
 /**
- * Word Tree — Type Definitions (نسخه ۲.۰ - نهایی)
+ * Word Tree — Type Definitions (نسخه ۳.۰)
  *
  * این فایل، ساختار داده‌ای کل بازی رو تعریف می‌کنه.
  *
  * ⚠️ نکته‌ی مهم برای توسعه‌دهنده‌های آینده:
- * این ساختار برای «آینده‌نگر بودن» طراحی شده. یعنی حتی اگه الان
- * از یه فیلد استفاده نمی‌کنیم، ولی می‌دونیم که بعداً لازیم می‌شه،
- * الان تعریفش می‌کنیم تا بعداً نیاز به migration نداشته باشیم.
  *
- * اگه می‌خوای فیلد جدیدی اضافه کنی:
- * ۱. اول ببین آیا می‌تونی از فیلدهای اختیاری (?) استفاده کنی.
- * ۲. اگه فیلد اجباریه، باید یه migration بنویسی (توی storage.ts).
- * ۳. کامنت بنویس که چرا اضافه شد.
+ * ۱. ساختار برای «آینده‌نگر بودن» طراحی شده. یعنی حتی اگه الان
+ *    از یه فیلد استفاده نمی‌کنیم، ولی می‌دونیم که بعداً لازیم می‌شه،
+ *    الان تعریفش می‌کنیم تا بعداً نیاز به migration نداشته باشیم.
+ *
+ * ۲. اگه می‌خوای فیلد جدیدی اضافه کنی:
+ *    - اول ببین آیا می‌تونی از فیلدهای اختیاری (?) استفاده کنی.
+ *    - اگه فیلد اجباریه، باید یه migration بنویسی (توی storage.ts).
+ *    - کامنت بنویس که چرا اضافه شد.
+ *
+ * ۳. هر بار که ساختار GameState رو تغییر دادی:
+ *    - STATE_VERSION توی constants.ts رو زیاد کن.
+ *    - یه تابع migration توی storage.ts بنویس.
  */
 
 import { Locale } from "@/lib/i18n";
@@ -68,14 +73,9 @@ export type WordCategory =
 
 /**
  * سطح زبان آلمانی (CEFR).
- *
- * از A1 (مبتدی) تا C1 (پیشرفته).
- * فعلاً فقط A1 استفاده می‌شه، ولی برای آینده آماده‌ست.
  */
 export type GermanLevel = "A1" | "A2" | "B1" | "B2" | "C1";
 
-
-export type { Locale } from "@/lib/i18n";
 // ─────────────────────────────────────────────────────────────
 // اطلاعات گرامری
 // ─────────────────────────────────────────────────────────────
@@ -87,11 +87,6 @@ export type { Locale } from "@/lib/i18n";
  * ۱. حرف تعریف (der/die/das) → جنسیت
  * ۲. حالت جمع (Plural)
  * ۳. حالت‌های گرامری (Akkusativ, Dativ, Genitiv) → برای فاز ۳
- *
- * مثال:
- * - der Mann → die Männer
- * - die Frau → die Frauen
- * - das Kind → die Kinder
  */
 export interface NounInfo {
   /** حرف تعریف معین (Nominativ) */
@@ -109,10 +104,6 @@ export interface NounInfo {
  * ۱. مصدر (Infinitiv) → lesen
  * ۲. گذشته‌ی ساده (Präteritum) → las
  * ۳. گذشته‌ی کامل (Perfekt) → hat gelesen
- *
- * نکته: بعضی افعال با «sein» صرف می‌شن (افعال حرکتی):
- * - gehen → ist gegangen
- * - kommen → ist gekommen
  */
 export interface VerbInfo {
   /** گذشته‌ی ساده */
@@ -133,16 +124,6 @@ export interface VerbInfo {
  * مثال دو زبانه.
  *
  * هر کلمه یه جمله‌ی آلمانی داره که به زبان مادری کاربر ترجمه شده.
- *
- * مثال:
- * {
- *   de: "Der Mann liest ein Buch.",
- *   translations: {
- *     fa: "مرد یک کتاب می‌خواند.",
- *     en: "The man is reading a book.",
- *     de: "Der Mann liest ein Buch.",
- *   }
- * }
  */
 export interface Example {
   /** جمله‌ی آلمانی */
@@ -155,13 +136,6 @@ export interface Example {
  * اطلاعات تلفظ.
  *
  * ⚠️ برای فاز ۲: فایل صوتی اضافه می‌شه.
- *
- * مثال:
- * {
- *   ipa: "[ˈman]",          // تلفظ استاندارد بین‌المللی
- *   persian: "مان",          // تلفظ فارسی‌نویسی
- *   audioUrl: "/wordtree/audio/w1.mp3",  // فایل صوتی
- * }
  */
 export interface Pronunciation {
   /** تلفظ IPA (استاندارد بین‌المللی) */
@@ -180,20 +154,6 @@ export interface Pronunciation {
  * کلمه‌ی اصلی در دیتابیس بازی.
  *
  * این ساختار، منبع اصلی همه‌ی کلمات بازیه.
- *
- * @example
- * {
- *   id: "w1",
- *   level: "A1",
- *   category: "noun",
- *   translations: { fa: "مرد", de: "der Mann", en: "man" },
- *   noun: { article: "der", plural: "die Männer" },
- *   pronunciation: { persian: "مان", ipa: "[ˈman]" },
- *   example: {
- *     de: "Der Mann liest ein Buch.",
- *     translations: { fa: "مرد یک کتاب می‌خواند.", en: "The man is reading a book.", de: "Der Mann liest ein Buch." },
- *   },
- * }
  */
 export interface WordEntry {
   /** شناسه‌ی یکتا */
@@ -224,7 +184,6 @@ export interface WordEntry {
  * کلمه‌ی درون بازی (نسخه‌ی runtime).
  *
  * این ساختار، نسخه‌ی «فعال» یه کلمه‌ست که توی حافظه‌ی کاربر ذخیره می‌شه.
- * اطلاعات گرامری (noun, verb) رو نداره چون اون اطلاعات از `WordEntry` میاد.
  */
 export interface Word {
   /** شناسه (مطابق با WordEntry.id) */
@@ -258,7 +217,7 @@ export interface Fruit {
   type: FruitType;
   /** زمان ایجاد (timestamp) */
   createdAt: number;
-  /** آیا آماده‌ی چیدنه؟ (برای فاز ۲) */
+  /** آیا آماده‌ی چیدنه؟ */
   isReady: boolean;
 }
 
@@ -286,11 +245,19 @@ export interface TreeState {
  * وضعیت کل بازی.
  *
  * این ساختار توی localStorage ذخیره می‌شه.
- * کلید ذخیره‌سازی: `wordtree_game_state_v1` (توی constants.ts)
  *
- * ⚠️ برای توسعه‌دهنده‌های آینده:
- * اگه ساختار رو تغییر دادی، باید یه migration بنویسی
- * که داده‌های قدیمی رو به ساختار جدید تبدیل کنه (توی storage.ts).
+ * ⚠️ نکته‌ی مهم درباره‌ی «روز بازی»:
+ *
+ * `currentDay` = شماره‌ی روز بازی فعلی (۱، ۲، ۳، ...)
+ * `dayState` = وضعیت روز فعلی:
+ *   - "watering": کاربر باید آبیاری کنه
+ *   - "harvesting": کاربر باید میوه‌ها رو بچینه
+ *   - "ready": هر دو کار انجام شده، آماده‌ی روز بعد
+ *   - "completed": روز تموم شده
+ *
+ * وقتی کاربر هر دو کار (آبیاری + چیدن) رو انجام داد:
+ *   - `currentDay` یکی زیاد می‌شه
+ *   - `dayState` به "watering" برمی‌گرده
  */
 export interface GameState {
   /** وضعیت درخت */
@@ -303,4 +270,12 @@ export interface GameState {
   lastPlayed: number;
   /** نسخه‌ی ساختار (برای migration) */
   version: number;
+  /** شماره‌ی روز بازی فعلی */
+  currentDay: number;
+  /** وضعیت روز فعلی */
+  dayState: "watering" | "harvesting" | "ready" | "completed";
+  /** شناسه‌ی کلماتی که در روز جاری یاد گرفته شدن */
+  wordsLearnedToday: string[];
+  /** آیا کاربر امروز آبیاری کرده؟ */
+  wateredToday: boolean;
 }

@@ -1,5 +1,5 @@
 /**
- * Word Tree — Storage (نسخه ۲.۰)
+ * Word Tree — Storage (نسخه ۳.۰)
  *
  * این فایل، ذخیره‌سازی و بازیابی وضعیت بازی رو مدیریت می‌کنه.
  *
@@ -76,24 +76,24 @@ export function clearGameState(): void {
  *
  * ⚠️ این تابع رو برای هر نسخه‌ی جدید آپدیت کن.
  *
- * @example
- * اگه نسخه‌ی ۱ به ۲ مهاجرت می‌کنه:
- * - فیلد جدید `health` به tree اضافه می‌شه
- * - فیلد `tags` به words اضافه می‌شه
+ * تاریخچه‌ی نسخه‌ها:
+ * - v1: ساختار اولیه (بدون روز بازی)
+ * - v2: اضافه کردن اطلاعات گرامری (noun, verb)
+ * - v3: اضافه کردن «روز بازی» (currentDay, dayState, wateredToday)
  */
 function migrateGameState(oldState: GameState): GameState {
   let newState = { ...oldState };
 
-  // ─── Migration از v1 به v2 ───
-  // (اگه نسخه‌ی ۲ ساختار جدیدی داشت، اینجا اضافه کن)
-  // مثال:
-  // if (oldState.version < 2) {
-  //   newState = {
-  //     ...newState,
-  //     tree: { ...newState.tree, health: 100 },
-  //     version: 2,
-  //   };
-  // }
+  // ─── Migration از v1/v2 به v3 ───
+  if ((oldState.version || 1) < 3) {
+    newState = {
+      ...newState,
+      currentDay: 1,
+      dayState: "watering",
+      wordsLearnedToday: [],
+      wateredToday: false,
+    };
+  }
 
   // آپدیت نسخه
   newState.version = STATE_VERSION;
