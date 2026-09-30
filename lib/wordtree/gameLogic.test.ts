@@ -13,6 +13,7 @@ import {
   getWateringsLeft,
   deleteTree,
   startReview,
+  forgetWord,
 } from "./gameLogic";
 import { Word, WordEntry } from "./types";
 import { WORDS_DE } from "@/data/wordtree/words-de";
@@ -309,5 +310,58 @@ describe("game loop", () => {
     // و درخت ۲ هنوز سر جاشه
     expect(s.plots[0].trees).toHaveLength(1);
     expect(s.plots[0].trees[0].id).toBe(tree2.id);
+  });
+
+  // ───────────────────────────────────────────────────────────
+  // حلقه‌ی چرخشیِ مرور
+  // ───────────────────────────────────────────────────────────
+
+  it("forgetWord keeps the fruit and resets SRS stage", () => {
+    const { state, treeId } = plant();
+    let s = waterTree(state, treeId, newRuntimeWords(WORDS_DE.slice(0, 5)));
+    const tree = () => s.plots[0].trees[0];
+
+    // اول یه کلمه رو «بلدم» بزن → مرحله ۱
+    const fruit1 = tree().fruits[0];
+    s = harvestFruit(s, treeId, fruit1.id, true);
+    const wordId = fruit1.wordId;
+    expect(s.words.find((w) => w.id === wordId)!.reviewStage).toBe(1);
+
+    // دوباره میوه براش بساز (آبیاری بعدی)
+    s = waterTree(s, treeId, [], [
+      s.words.find((w) => w.id === wordId)! as Word,
+    ]);
+    const fruit2 = tree().fruits.find((f) => f.wordId === wordId)!;
+    expect(fruit2).toBeDefined();
+
+    // «بلد نیستم»: میوه باید سر جاش بمونه ولی مرحله ریست شه
+    s = forgetWord(s, treeId, fruit2.id);
+    const w = s.words.find((x) => x.id === wordId)!;
+    expect(w.reviewStage).toBe(0);
+    expect(w.status).toBe("new");
+    expect(w.reviewCount).toBe(2);
+    // میوه حذف نشده
+    expect(
+      s.plots[0].trees[0].fruits.some((f) => f.id === fruit2.id)
+    ).toBe(true);
+  });
+
+  it("forgotten words stay due for review (no duplicate fruits)", () => {
+    const { state, treeId } = plant();
+    let s = waterTree(state, treeId, newRuntimeWords(WORDS_DE.slice(0, 5)));
+    const tree = () => s.plots[0].trees[0];
+
+    // یه میوه رو «بلد نیستم» بزن
+    const fruit = tree().fruits[0];
+    s = forgetWord(s, treeId, fruit.id);
+    const wordId = fruit.wordId;
+    const w = s.words.find((x) => x.id === wordId)!;
+    // nextReviewDay = امروز → کلمه هنوز رسیده‌ست
+    expect(w.nextReviewDay).toBe(s.currentDay);
+
+    // کلمه‌ی فراموش‌شده نباید دوباره به‌عنوان میوه‌ی مرور ساخته بشه
+    // (چون هنوز میوه‌ی روش داره)
+    const due = getDueReviewWords(s, treeId);
+    expect(due.some((d) => d.id === wordId)).toBe(false);
   });
 });

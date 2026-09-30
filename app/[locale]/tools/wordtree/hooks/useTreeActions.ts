@@ -10,6 +10,7 @@ import { GameState, Word, WordEntry, Tree, QuizResult } from "@/lib/wordtree/typ
 import {
   waterTree,
   harvestFruit,
+  forgetWord,
   startNextDay,
   completeQuiz,
   addWordsToTree,
@@ -66,7 +67,13 @@ export function useTreeActions({
 
   const handleHarvestAnswer = (fruitId: string, remembered: boolean) => {
     if (!selectedTree) return;
-    setGameState(harvestFruit(gameState, selectedTree.id, fruitId, remembered));
+    if (remembered) {
+      // «بلدم» → SRS جلو می‌ره و میوه چیده می‌شه
+      setGameState(harvestFruit(gameState, selectedTree.id, fruitId, true));
+    } else {
+      // «بلد نیستم» → میوه سر جاش می‌مونه، مرحله‌ی مرور ریست می‌شه
+      setGameState(forgetWord(gameState, selectedTree.id, fruitId));
+    }
   };
 
   const handleStartNextDay = () => {

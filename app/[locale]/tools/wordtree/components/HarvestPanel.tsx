@@ -22,13 +22,15 @@ import { WordEntry } from "@/lib/wordtree/types";
 import { Locale } from "@/lib/i18n";
 import { generateExerciseForWord } from "@/lib/wordtree/exercises";
 import { SpellingExercise } from "./exercises/SpellingExercise";
-import { Button } from "@/components/ui/Button";
 
 interface HarvestPanelProps {
   wordEntry: WordEntry;
   locale: Locale;
   reviewStage: number;
   onAnswer: (remembered: boolean) => void;
+  onClose: () => void;
+  /** پیشرفت توی صف مرور (کلمه‌ی چندم از چندتا) */
+  queueProgress?: { current: number; total: number };
   labels: {
     title: string;
     question: string;
@@ -50,6 +52,13 @@ interface HarvestPanelProps {
     practiceTryAgain: string;
     practiceShowAnswer: string;
     skipPractice: string;
+    // ─── نسخه‌ی ۵: حلقه‌ی مرور ───
+    iKnow: string;
+    iDontKnow: string;
+    progress: string;
+    loopHint: string;
+    close: string;
+    allDone: string;
   };
 }
 
@@ -58,6 +67,8 @@ export function HarvestPanel({
   locale,
   reviewStage,
   onAnswer,
+  onClose,
+  queueProgress,
   labels,
 }: HarvestPanelProps) {
   const [revealed, setRevealed] = useState(false);
@@ -137,11 +148,48 @@ export function HarvestPanel({
     <div className="fixed inset-0 bg-navy-900/70 backdrop-blur-md z-50 flex items-center justify-center p-4">
       <div className="bg-paper-100 p-6 md:p-8 rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto animate-panel-in border border-gold-300/30">
         {/* ─── هدر ─── */}
-        <div className="mb-6 text-center">
-          <h2 className="text-xl font-bold text-navy-900 font-mono mb-1">
-            🍎 {labels.title}
-          </h2>
-          <p className="text-sm text-navy-900/60">{labels.question}</p>
+        <div className="mb-6">
+          <div className="flex items-start justify-between gap-3">
+            <h2 className="text-xl font-bold text-navy-900 font-mono mb-1">
+              🍎 {labels.title}
+            </h2>
+            <button
+              onClick={onClose}
+              className="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full bg-navy-900/5 hover:bg-navy-900/15 text-navy-900/60 hover:text-navy-900 transition text-sm"
+              title={labels.close}
+            >
+              ✕
+            </button>
+          </div>
+          <p className="text-sm text-navy-900/60 text-center">
+            {labels.question}
+          </p>
+
+          {/* ─── پیشرفت مرور ─── */}
+          {queueProgress && queueProgress.total > 0 && (
+            <div className="mt-3">
+              <div className="flex items-center justify-between text-[10px] text-navy-900/60 font-mono mb-1">
+                <span>
+                  {labels.progress
+                    .replace("{current}", queueProgress.current.toString())
+                    .replace("{total}", queueProgress.total.toString())}
+                </span>
+                <span>{labels.loopHint}</span>
+              </div>
+              <div className="w-full bg-navy-900/10 rounded-full h-1.5 overflow-hidden">
+                <div
+                  className="bg-gradient-to-r from-gold-300 to-gold-500 h-full rounded-full transition-all"
+                  style={{
+                    width: `${
+                      ((queueProgress.total - queueProgress.current + 1) /
+                        queueProgress.total) *
+                      100
+                    }%`,
+                  }}
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         {/* ─── کلمه ─── */}
@@ -247,19 +295,19 @@ export function HarvestPanel({
         {/* ─── دکمه‌ها ─── */}
         {revealed && (
           <div className="space-y-3">
-            {/* ─── دکمه‌ی یادم موند / یادم رفت ─── */}
+            {/* ─── دکمه‌ی بلدم / بلد نیستم ─── */}
             <div className="grid grid-cols-2 gap-3">
               <button
                 onClick={() => onAnswer(false)}
                 className="py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-sm transition"
               >
-                ✗ {labels.forgot}
+                ✗ {labels.iDontKnow}
               </button>
               <button
                 onClick={() => onAnswer(true)}
                 className="py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-sm transition"
               >
-                ✓ {labels.remembered}
+                ✓ {labels.iKnow}
               </button>
             </div>
 

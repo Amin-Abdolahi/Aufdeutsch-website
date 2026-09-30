@@ -354,6 +354,14 @@ const fa = {
     harvestReveal: "نمایش معنی",
     harvestForgot: "یادم رفت",
     harvestRemembered: "یادم موند",
+
+    // ─── حلقه‌ی مرور (نسخه ۵) ───
+    harvestIKnow: "بلدم",
+    harvestIDontKnow: "بلد نیستم",
+    harvestProgress: "کلمه‌ی {current} از {total}",
+    harvestLoopHint: "بلد نیستی؟ دوباره نشون داده می‌شه",
+    harvestClose: "بستن",
+    harvestAllDone: "آفرین! همه‌ی کلمات رو یاد گرفتی",
     grammar: "اطلاعات گرامری",
     article: "جنسیت",
     plural: "جمع",
@@ -1050,6 +1058,14 @@ const de: Dict = {
     harvestReveal: "Bedeutung zeigen",
     harvestForgot: "Vergessen",
     harvestRemembered: "Erinnert",
+
+    // ─── Wiederholungsschleife (v5) ───
+    harvestIKnow: "Ich kann es",
+    harvestIDontKnow: "Ich kann es nicht",
+    harvestProgress: "Wort {current} von {total}",
+    harvestLoopHint: "Nicht gekonnt? Wird wiederholt",
+    harvestClose: "Schließen",
+    harvestAllDone: "Super! Du hast alle Wörter gelernt",
     grammar: "Grammatik",
     article: "Artikel",
     plural: "Plural",
@@ -1746,6 +1762,14 @@ const en: Dict = {
     harvestReveal: "Show meaning",
     harvestForgot: "Forgot",
     harvestRemembered: "Remembered",
+
+    // ─── Review loop (v5) ───
+    harvestIKnow: "I know it",
+    harvestIDontKnow: "I don't know it",
+    harvestProgress: "Word {current} of {total}",
+    harvestLoopHint: "Don't know it? It will repeat",
+    harvestClose: "Close",
+    harvestAllDone: "Great! You learned all the words",
     grammar: "Grammar",
     article: "Article",
     plural: "Plural",

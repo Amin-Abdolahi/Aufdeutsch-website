@@ -6,6 +6,7 @@
  * ⚠️ وظیفه: نمایش درخت، آبیاری، چیدن میوه، روز بعد
  */
 
+import { useState } from "react";
 import { GameState, Tree, WordEntry, Word } from "@/lib/wordtree/types";
 import { Locale } from "@/lib/i18n";
 import {
@@ -82,17 +83,79 @@ export function TreeScreen({
     exampleTranslation: w.example?.translations?.[safeLocale],
   }));
 
-  const selectedFruit = selectedFruitId
-    ? selectedTree.fruits.find((f) => f.id === selectedFruitId)
+  // ─────────────────────────────────────────────────────────────
+  // صف چرخشیِ مرور: میوه‌ها پشت سر هم نشون داده می‌شن.
+  // ⚠️ کلماتی که کاربر «بلد نیستم» رو بزنه تو صف می‌مونن و بعد از
+  // آخرین کلمه دوباره از اول نشون داده می‌شن — تا جایی که همه رو
+  // «بلدم» بزنه.
+  // ─────────────────────────────────────────────────────────────
+  const [reviewQueue, setReviewQueue] = useState<string[]>([]);
+  const [reviewPos, setReviewPos] = useState(0);
+
+  const currentFruitId =
+    reviewQueue.length > 0 ? reviewQueue[reviewPos] : selectedFruitId;
+  const currentFruit = currentFruitId
+    ? selectedTree.fruits.find((f) => f.id === currentFruitId)
+    : null;
+  const currentWordEntry = currentFruit
+    ? allWordsData.find((w) => w.id === currentFruit.wordId)
+    : null;
+  const currentWord = currentFruit
+    ? gameState.words.find((w) => w.id === currentFruit.wordId)
     : null;
 
-  const selectedWordEntry = selectedFruit
-    ? allWordsData.find((w) => w.id === selectedFruit.wordId)
-    : null;
+  // ─── کلیک روی یه میوه ───
+  const handleFruitClick = (fruitId: string) => {
+    const fruit = selectedTree.fruits.find((f) => f.id === fruitId);
+    if (!fruit) return;
 
-  const selectedWord = selectedFruit
-    ? gameState.words.find((w) => w.id === selectedFruit.wordId)
-    : null;
+    if (fruit.type === "silver") {
+      // میوه‌ی نقره‌ای → آزمون (توسط parent هندل می‌شه)
+      onFruitClick(fruitId);
+      return;
+    }
+
+    // ⚠️ صف رو از میوه‌ی کلیک‌شده شروع کن، بعد بقیه‌ی میوه‌های قابل چیدن
+    const reviewableIds = selectedTree.fruits
+      .filter((f) => f.type !== "silver")
+      .map((f) => f.id);
+    setReviewQueue([fruitId, ...reviewableIds.filter((id) => id !== fruitId)]);
+    setReviewPos(0);
+    onFruitClick(fruitId);
+  };
+
+  // ─── جواب کاربر به کلمه‌ی فعلی ───
+  const handleAnswer = (remembered: boolean) => {
+    const fruitId = reviewQueue[reviewPos];
+    if (!fruitId) return;
+
+    // state آپدیت می‌شه (بلدم → میوه چیده می‌شه / بلد نیستم → میوه می‌مونه)
+    handlers.handleHarvestAnswer(fruitId, remembered);
+
+    if (remembered) {
+      // ─── بلدم: میوه از صف حذف می‌شه ───
+      const newQueue = reviewQueue.filter((id) => id !== fruitId);
+      if (newQueue.length === 0) {
+        // همه‌ی کلمات یاد گرفته شدن → نشست تموم شد
+        setReviewQueue([]);
+        setReviewPos(0);
+        setters.setSelectedFruitId(null);
+        return;
+      }
+      setReviewQueue(newQueue);
+      setReviewPos((p) => Math.min(p, newQueue.length - 1));
+    } else {
+      // ─── بلد نیستم: میوه تو صف می‌مونه، بعد از آخرین کلمه دوباره برمی‌گرده
+      setReviewPos((p) => (p + 1) % reviewQueue.length);
+    }
+  };
+
+  // ─── بستن پنل مرور ───
+  const handleCloseReview = () => {
+    setReviewQueue([]);
+    setReviewPos(0);
+    setters.setSelectedFruitId(null);
+  };
 
   const getGuidanceMessage = () => {
     const hasDue = getDueReviewWords(gameState, selectedTree.id).length > 0;
@@ -197,7 +260,7 @@ export function TreeScreen({
               level={selectedTree.level}
               variant={selectedTree.variant}
               fruits={selectedTree.fruits}
-              onFruitClick={onFruitClick}
+              onFruitClick={handleFruitClick}
               colors={treeColors}
             />
           </div>
@@ -361,15 +424,19 @@ export function TreeScreen({
         />
       )}
 
-      {/* پنل چیدن */}
-      {selectedFruit && selectedWordEntry && selectedWord && (
+      {/* پنل چیدن — صف چرخشیِ مرور */}
+      {currentFruit && currentWordEntry && currentWord && (
         <HarvestPanel
-          wordEntry={selectedWordEntry}
+          key={currentFruit.id}
+          wordEntry={currentWordEntry}
           locale={safeLocale}
-          reviewStage={selectedWord.reviewStage}
-          onAnswer={(remembered) =>
-            handlers.handleHarvestAnswer(selectedFruit.id, remembered)
-          }
+          reviewStage={currentWord.reviewStage}
+          queueProgress={{
+            current: reviewPos + 1,
+            total: reviewQueue.length,
+          }}
+          onAnswer={handleAnswer}
+          onClose={handleCloseReview}
           labels={{
             title: t.harvestPanelTitle,
             question: t.harvestPanelQuestion,
@@ -390,6 +457,13 @@ export function TreeScreen({
             practiceTryAgain: t.spellingTryAgain || "دوباره تلاش کن",
             practiceShowAnswer: t.spellingShowAnswer || "نمایش جواب",
             skipPractice: t.skipPractice || "رد کن",
+            // ─── حلقه‌ی مرور ───
+            iKnow: t.harvestIKnow || "بلدم",
+            iDontKnow: t.harvestIDontKnow || "بلد نیستم",
+            progress: t.harvestProgress || "کلمه‌ی {current} از {total}",
+            loopHint: t.harvestLoopHint || "بلد نیستی؟ دوباره نشون داده می‌شه",
+            close: t.harvestClose || "بستن",
+            allDone: t.harvestAllDone || "آفرین! همه رو یاد گرفتی",
           }}
         />
       )}

@@ -595,6 +595,42 @@ export function harvestFruit(
 }
 
 /**
+ * «بلد نیستم»: کلمه رو فراموش‌شده علامت می‌ذاره (مرحله‌ی SRS ریست می‌شه)
+ * ولی میوه سر جاش می‌مونه تا دوباره توی همین نشست نشون داده بشه.
+ *
+ * ⚠️ برخلاف harvestFruit(remembered=false)، میوه حذف نمی‌شه.
+ */
+export function forgetWord(
+  state: GameState,
+  treeId: string,
+  fruitId: string
+): GameState {
+  const tree = getTreeById(state, treeId);
+  if (!tree) return state;
+
+  const fruit = tree.fruits.find((f) => f.id === fruitId);
+  if (!fruit) return state;
+
+  const word = state.words.find((w) => w.id === fruit.wordId);
+  if (!word) return state;
+
+  const updatedWords = state.words.map((w) =>
+    w.id === fruit.wordId
+      ? {
+          ...w,
+          reviewCount: w.reviewCount + 1,
+          lastReviewed: Date.now(),
+          reviewStage: 0,
+          nextReviewDay: state.currentDay + REVIEW_INTERVALS[0],
+          status: "new" as const,
+        }
+      : w
+  );
+
+  return { ...state, words: updatedWords };
+}
+
+/**
  * شروع روز بعد — یک روز جلو، ریست wateredToday و wordsLearnedToday.
  */
 export function startNextDay(state: GameState, treeId: string): GameState {
