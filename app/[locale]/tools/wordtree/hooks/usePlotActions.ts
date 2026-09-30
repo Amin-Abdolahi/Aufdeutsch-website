@@ -14,7 +14,6 @@ import {
   MAX_PLOTS,
   MAX_TREES_PER_PLOT,
 } from "@/lib/wordtree/constants";
-import { WORDS_DE } from "@/data/wordtree/words-de";
 
 interface UsePlotActionsProps {
   gameState: GameState;
@@ -55,10 +54,10 @@ export function usePlotActions({
       return { success: false, error: createTreeMaxReached };
     }
 
-    // کلمات انتخاب‌شده = استخر این درخت. اگه هیچی انتخاب نشد،
-    // از استخر استاندارد آلمانی استفاده کن.
-    const poolWordIds =
-      wordIds.length > 0 ? wordIds : WORDS_DE.map((w) => w.id);
+    // ⚠️ استخر درخت دقیقاً همون کلماتی هست که کاربر انتخاب/ایمپورت کرده.
+    // اگه هیچی نبود، درخت خالی ساخته می‌شه (بعداً کلمه اضافه می‌کنه).
+    // هیچ کلمه‌ی پیش‌فرضی اینجا اضافه نمی‌شه.
+    const poolWordIds = wordIds;
 
     const newTree = createTree(name, variant, poolWordIds, color);
 

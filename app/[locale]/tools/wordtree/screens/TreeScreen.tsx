@@ -195,6 +195,7 @@ export function TreeScreen({
           <div className="my-8 flex justify-center" data-tour="tree">
             <TreeComponent
               level={selectedTree.level}
+              variant={selectedTree.variant}
               fruits={selectedTree.fruits}
               onFruitClick={onFruitClick}
               colors={treeColors}

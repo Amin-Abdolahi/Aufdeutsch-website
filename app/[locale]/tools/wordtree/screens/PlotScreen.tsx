@@ -6,7 +6,7 @@
  * ⚠️ وظیفه: نمایش درخت‌های یه باغچه + ساخت درخت جدید
  */
 
-import { GameState, Tree, WordEntry, Plot, Word } from "@/lib/wordtree/types";
+import { GameState, Tree, WordEntry, Plot } from "@/lib/wordtree/types";
 import { Locale } from "@/lib/i18n";
 import { PlotView } from "../components/PlotView";
 import { CreateTreeModal } from "../components/CreateTreeModal";
@@ -15,7 +15,7 @@ import { MyFilesModal } from "../components/MyFilesModal";
 import { SharedModals } from "../components/SharedModals";
 import { SettingsPanel } from "../components/SettingsPanel";
 import { getWordFiles } from "@/lib/wordtree/customWords";
-import { useState, useEffect } from "react";
+import { useMemo, useEffect } from "react";
 
 interface PlotScreenProps {
   gameState: GameState;
@@ -29,7 +29,6 @@ interface PlotScreenProps {
   modals: any;
   setters: any;
   handlers: any;
-  availableForNewTree: Word[];
   onOpenTree: (treeId: string) => void;
   onDeleteTree: (treeId: string) => void;
   onBackToGarden: () => void;
@@ -47,7 +46,6 @@ export function PlotScreen({
   modals,
   setters,
   handlers,
-  availableForNewTree,
   onOpenTree,
   onDeleteTree,
   onBackToGarden,
@@ -62,13 +60,11 @@ export function PlotScreen({
     return () => document.removeEventListener("delete-tree", handleDelete);
   }, [onDeleteTree]);
 
-  // ─── فایل‌های کاربر ───
-  const [files, setFiles] = useState<any[]>([]);
-  useEffect(() => {
-    if (modals.showMyFilesModal) {
-      setFiles(getWordFiles());
-    }
-  }, [modals.showMyFilesModal, customWords]);
+  // ─── فایل‌های کاربر (فقط وقتی مودال باز می‌شه محاسبه می‌شه) ───
+  const files = useMemo(
+    () => (modals.showMyFilesModal ? getWordFiles() : []),
+    [modals.showMyFilesModal, customWords]
+  );
 
   // ─── کلماتی که به درخت‌ها وصل شدن ───
   const attachedWordIds = gameState.words.map((w) => w.id);
@@ -96,26 +92,18 @@ export function PlotScreen({
         <CreateTreeModal
           onClose={() => setters.setShowCreateTreeModal(false)}
           onCreate={handlers.handleCreateTree}
-          availableWords={availableForNewTree}
+          onImportWords={handlers.handleImportWords}
           labels={{
             title: t.createTreeTitle || "درخت جدید",
             subtitle: t.createTreeSubtitle || "",
             nameLabel: t.createTreeNameLabel || "اسم درخت",
-            namePlaceholder: t.createTreeNamePlaceholder || "",
+            namePlaceholder: t.createTreeNamePlaceholder || "مثلاً: سفر",
             variantLabel: t.createTreeVariantLabel || "شکل درخت",
-            wordsLabel: t.createTreeWordsLabel || "کلمات این درخت",
-            wordsSubtitle: t.createTreeWordsSubtitle || "",
-            wordsSelected: t.createTreeWordsSelected || "",
-            wordsSearch: t.createTreeWordsSearch || "",
-            wordsEmpty: t.createTreeWordsEmpty || "",
-            wordsNoResults: t.createTreeWordsNoResults || "",
-            create: t.createTreeCreate || "بساز",
-            cancel: t.createTreeCancel || "انصراف",
             next: t.createTreeNext || "بعدی",
-            back: t.createTreeBack || "بازگشت",
-            skipWords: t.createTreeSkipWords || "بدون کلمه بساز",
+            create: t.createTreeCreate || "ساخت درخت",
+            cancel: t.createTreeCancel || "انصراف",
+            back: t.createTreeBack || "قبلی",
             errorRequired: t.createTreeErrorRequired || "",
-            maxReached: t.createTreeMaxReached || "",
             variantOak: t.variantOak || "بلوط",
             variantPine: t.variantPine || "کاج",
             variantPalm: t.variantPalm || "نخل",
@@ -129,7 +117,20 @@ export function PlotScreen({
             treeColorBlue: t.treeColorBlue || "آبی",
             treeColorPurple: t.treeColorPurple || "بنفش",
             treeColorGold: t.treeColorGold || "طلایی",
+            // ─── مرحله‌ی کلمات ───
+            wordsTitle: t.createTreeWordsTitle || "کلمات درخت",
+            wordsSubtitle: t.createTreeWordsSubtitleV3 || "",
+            poolCount: t.createTreePoolCount || "{count} کلمه در استخر",
+            uploadFile: t.createTreeUploadFile || "آپلود فایل کلمات",
+            uploadFileDesc: t.createTreeUploadFileDesc || "",
+            createEmpty: t.createTreeCreateEmpty || "ساخت درخت خالی",
+            createEmptyDesc: t.createTreeCreateEmptyDesc || "",
+            addMoreWords: t.createTreeAddMoreWords || "افزودن کلمات بیشتر",
+            emptyPoolHint: t.createTreeEmptyPoolHint || "",
+            importLabels: t,
           }}
+          promptUrl="/wordtree/wordtree-prompt.txt"
+          templateUrl="/wordtree/wordtree-template.json"
         />
       )}
 

@@ -279,6 +279,8 @@ export interface ImportResult {
   rejected: number;
   errors: string[];
   coinsEarned: number;
+  /** آیدی کلماتی که توی این ایمپورت ساخته شدن (برای استخر درخت) */
+  importedWordIds?: string[];
 }
 
 // ─────────────────────────────────────────────────────────────

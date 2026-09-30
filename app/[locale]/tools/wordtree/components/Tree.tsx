@@ -1,50 +1,323 @@
 "use client";
 
 /**
- * Tree — کامپوننت درخت (نسخه ۱۴.۰ — با میوه‌ی نقره‌ای)
+ * Tree — کامپوننت درخت (نسخه ۱۵.۰ — شکل‌های واقعی متفاوت)
  *
- * ⚠️ تغییرات نسخه ۱۴.۰:
- * - اضافه شدن میوه‌ی نقره‌ای (silver) برای آزمون
- * - رنگ‌بندی مخصوص میوه‌ی نقره‌ای (خاکستری نقره‌ای)
- * - تگ «آزمون» بالای میوه‌ی نقره‌ای
+ * ⚠️ تغییرات نسخه ۱۵.۰:
+ * - هر variant شکل SVG مخصوص خودش رو داره (بلوط/کاج/نخل/شکوفه/سیب/لیمو)
+ * - TreeIcon: نسخه‌ی سبک برای نمایش توی مودال‌ها و کارت‌ها
  */
 
 import { useMemo } from "react";
-import { Fruit, TreeLevel } from "@/lib/wordtree/types";
+import { Fruit, TreeLevel, TreeVariant } from "@/lib/wordtree/types";
+import { TREE_COLORS } from "@/lib/wordtree/constants";
+
+interface TreePalette {
+  canopy: string;
+  canopyShadow: string;
+  canopyLight: string;
+  trunk: string;
+  trunkShadow: string;
+}
 
 interface TreeProps {
   level: TreeLevel;
-  fruits: Fruit[];
+  variant?: TreeVariant;
+  fruits?: Fruit[];
   onFruitClick?: (fruitId: string) => void;
   /** رنگ تاج درخت (پالت کلی درخت) */
-  colors?: {
-    canopy: string;
-    canopyShadow: string;
-    canopyLight: string;
-    trunk: string;
-    trunkShadow: string;
+  colors?: TreePalette;
+}
+
+// ─────────────────────────────────────────────────────────────
+// هندسه‌ی تاج بر اساس variant
+// ─────────────────────────────────────────────────────────────
+
+const CROWN_GEOMETRY: Record<
+  TreeVariant,
+  { cx: number; cy: number; r: number }
+> = {
+  oak: { cx: 512, cy: 350, r: 215 },
+  pine: { cx: 512, cy: 370, r: 205 },
+  palm: { cx: 512, cy: 320, r: 195 },
+  blossom: { cx: 512, cy: 350, r: 210 },
+  apple: { cx: 512, cy: 350, r: 205 },
+  lemon: { cx: 512, cy: 350, r: 205 },
+};
+
+const LEVEL_SCALE: Record<TreeLevel, number> = {
+  seedling: 0.62,
+  young: 0.8,
+  mature: 0.92,
+  ancient: 1.05,
+};
+
+const DEFAULT_PALETTE: TreePalette = {
+  canopy: "#22C55E",
+  canopyShadow: "#16A34A",
+  canopyLight: "#4ADE80",
+  trunk: "#8B4513",
+  trunkShadow: "#6B3410",
+};
+
+export function paletteForColor(color?: string): TreePalette {
+  if (!color) return DEFAULT_PALETTE;
+  const c = TREE_COLORS[color];
+  if (!c) return DEFAULT_PALETTE;
+  return {
+    canopy: c.main,
+    canopyShadow: c.dark,
+    canopyLight: c.light,
+    trunk: "#8B4513",
+    trunkShadow: "#6B3410",
   };
 }
 
-const CROWN_INFO: Record<
-  TreeLevel,
-  { centerX: number; centerY: number; radius: number; scale: number }
-> = {
-  seedling: { centerX: 512, centerY: 400, radius: 180, scale: 0.65 },
-  young: { centerX: 512, centerY: 380, radius: 230, scale: 0.78 },
-  mature: { centerX: 512, centerY: 360, radius: 280, scale: 0.9 },
-  ancient: { centerX: 512, centerY: 360, radius: 320, scale: 1.05 },
-};
+// ─────────────────────────────────────────────────────────────
+// TreeShape — تاج + تنه (قابل استفاده با هر اندازه)
+// ─────────────────────────────────────────────────────────────
+
+interface ShapeProps {
+  variant: TreeVariant;
+  palette: TreePalette;
+  cx: number;
+  cy: number;
+  r: number;
+  /** y پایه‌ی تنه (زمین) */
+  trunkBase: number;
+}
+
+export function TreeShape({
+  variant,
+  palette,
+  cx,
+  cy,
+  r,
+  trunkBase,
+}: ShapeProps) {
+  const { canopy, canopyShadow, canopyLight, trunk, trunkShadow } = palette;
+
+  // ─── تنه (مشترک، به جز نخل) ───
+  const trunkPath =
+    variant === "palm"
+      ? `M ${cx - r * 0.12} ${cy + r * 0.1} C ${cx - r * 0.22} ${trunkBase - 170}, ${cx - r * 0.3} ${trunkBase - 60}, ${cx - r * 0.32} ${trunkBase} L ${cx + r * 0.32} ${trunkBase} C ${cx + r * 0.28} ${trunkBase - 60}, ${cx + r * 0.17} ${trunkBase - 170}, ${cx + r * 0.12} ${cy + r * 0.1} Z`
+      : `M ${cx - r * 0.18} ${cy + r * 0.82} C ${cx - r * 0.28} ${trunkBase - 130}, ${cx - r * 0.35} ${trunkBase - 45}, ${cx - r * 0.4} ${trunkBase} L ${cx + r * 0.4} ${trunkBase} C ${cx + r * 0.35} ${trunkBase - 45}, ${cx + r * 0.28} ${trunkBase - 130}, ${cx + r * 0.18} ${cy + r * 0.82} Z`;
+
+  const trunkShadowPath = `M ${cx + r * 0.12} ${cy + r * 0.86} C ${cx + r * 0.22} ${trunkBase - 125}, ${cx + r * 0.28} ${trunkBase - 42}, ${cx + r * 0.32} ${trunkBase} L ${cx + r * 0.4} ${trunkBase} C ${cx + r * 0.35} ${trunkBase - 45}, ${cx + r * 0.28} ${trunkBase - 130}, ${cx + r * 0.18} ${cy + r * 0.82} Z`;
+
+  return (
+    <g>
+      {/* ─── تنه ─── */}
+      <path d={trunkPath} fill={trunk} />
+      <path d={trunkShadowPath} fill={trunkShadow} opacity="0.55" />
+
+      {/* ─── حلقه‌های تنه‌ی نخل ─── */}
+      {variant === "palm" &&
+        [trunkBase - 150, trunkBase - 100, trunkBase - 50].map((y) => (
+          <path
+            key={y}
+            d={`M ${cx - r * 0.26} ${y} Q ${cx} ${y + r * 0.07} ${cx + r * 0.26} ${y}`}
+            stroke={trunkShadow}
+            strokeWidth={r * 0.045}
+            fill="none"
+            opacity="0.6"
+          />
+        ))}
+
+      {/* ─── تاج بر اساس variant ─── */}
+      {variant === "oak" && (
+        <g>
+          <circle cx={cx} cy={cy} r={r} fill={canopyShadow} />
+          <circle cx={cx - r * 0.55} cy={cy + r * 0.28} r={r * 0.55} fill={canopy} />
+          <circle cx={cx + r * 0.55} cy={cy + r * 0.28} r={r * 0.55} fill={canopy} />
+          <circle cx={cx} cy={cy - r * 0.28} r={r * 0.62} fill={canopyLight} />
+          <circle cx={cx - r * 0.3} cy={cy - r * 0.05} r={r * 0.28} fill={canopyLight} opacity="0.7" />
+        </g>
+      )}
+
+      {variant === "pine" && (
+        <g>
+          <polygon
+            points={`${cx},${cy - r} ${cx - r * 0.46},${cy - r * 0.28} ${cx + r * 0.46},${cy - r * 0.28}`}
+            fill={canopyLight}
+          />
+          <polygon
+            points={`${cx},${cy - r * 0.62} ${cx - r * 0.68},${cy + r * 0.12} ${cx + r * 0.68},${cy + r * 0.12}`}
+            fill={canopy}
+          />
+          <polygon
+            points={`${cx},${cy - r * 0.18} ${cx - r * 0.94},${cy + r * 0.62} ${cx + r * 0.94},${cy + r * 0.62}`}
+            fill={canopyShadow}
+          />
+        </g>
+      )}
+
+      {variant === "palm" && (
+        <g>
+          {[25, 75, 125, 175, 225, 315].map((deg) => (
+            <ellipse
+              key={deg}
+              cx={cx}
+              cy={cy - r * 0.55}
+              rx={r * 0.92}
+              ry={r * 0.15}
+              fill={deg % 50 === 25 ? canopy : canopyLight}
+              transform={`rotate(${deg} ${cx} ${cy - r * 0.38})`}
+            />
+          ))}
+          <circle cx={cx} cy={cy - r * 0.38} r={r * 0.26} fill={canopyShadow} />
+          {/* نارگیل */}
+          <circle cx={cx - r * 0.14} cy={cy - r * 0.08} r={r * 0.08} fill={trunk} />
+          <circle cx={cx + r * 0.14} cy={cy - r * 0.08} r={r * 0.08} fill={trunk} />
+        </g>
+      )}
+
+      {variant === "blossom" && (
+        <g>
+          <circle cx={cx} cy={cy} r={r} fill={canopyShadow} />
+          <circle cx={cx} cy={cy - r * 0.18} r={r * 0.76} fill={canopy} />
+          <circle cx={cx - r * 0.3} cy={cy + r * 0.1} r={r * 0.34} fill={canopyLight} opacity="0.75" />
+          {/* شکوفه‌ها */}
+          {[
+            [-0.5, -0.45],
+            [0.5, -0.4],
+            [-0.55, 0.25],
+            [0.55, 0.3],
+            [0, -0.72],
+            [-0.15, 0.55],
+            [0.25, 0.6],
+          ].map(([dx, dy], i) => (
+            <g key={i}>
+              <circle
+                cx={cx + r * dx}
+                cy={cy + r * dy}
+                r={r * 0.085}
+                fill="#ffffff"
+                opacity="0.95"
+              />
+              <circle
+                cx={cx + r * dx}
+                cy={cy + r * dy}
+                r={r * 0.04}
+                fill="#f9a8d4"
+              />
+            </g>
+          ))}
+        </g>
+      )}
+
+      {variant === "apple" && (
+        <g>
+          <circle cx={cx} cy={cy} r={r} fill={canopyShadow} />
+          <circle cx={cx} cy={cy - r * 0.18} r={r * 0.76} fill={canopy} />
+          <circle cx={cx - r * 0.3} cy={cy + r * 0.1} r={r * 0.34} fill={canopyLight} opacity="0.75" />
+          {/* سیب‌ها */}
+          {[
+            [-0.48, -0.3],
+            [0.5, -0.15],
+            [-0.1, 0.55],
+            [0.42, 0.42],
+          ].map(([dx, dy], i) => (
+            <g key={i}>
+              <circle cx={cx + r * dx} cy={cy + r * dy} r={r * 0.1} fill="#dc2626" />
+              <circle
+                cx={cx + r * dx - r * 0.035}
+                cy={cy + r * dy - r * 0.035}
+                r={r * 0.035}
+                fill="#fecaca"
+                opacity="0.85"
+              />
+            </g>
+          ))}
+        </g>
+      )}
+
+      {variant === "lemon" && (
+        <g>
+          <circle cx={cx} cy={cy} r={r} fill={canopyShadow} />
+          <circle cx={cx} cy={cy - r * 0.18} r={r * 0.76} fill={canopy} />
+          <circle cx={cx - r * 0.3} cy={cy + r * 0.1} r={r * 0.34} fill={canopyLight} opacity="0.75" />
+          {/* لیموها */}
+          {[
+            [-0.48, -0.25],
+            [0.5, -0.1],
+            [-0.05, 0.55],
+            [0.45, 0.4],
+          ].map(([dx, dy], i) => (
+            <g key={i}>
+              <ellipse
+                cx={cx + r * dx}
+                cy={cy + r * dy}
+                rx={r * 0.11}
+                ry={r * 0.075}
+                fill="#facc15"
+                transform={`rotate(${i * 35} ${cx + r * dx} ${cy + r * dy})`}
+              />
+              <ellipse
+                cx={cx + r * dx - r * 0.03}
+                cy={cy + r * dy - r * 0.025}
+                rx={r * 0.035}
+                ry={r * 0.02}
+                fill="#fef9c3"
+                opacity="0.85"
+              />
+            </g>
+          ))}
+        </g>
+      )}
+    </g>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// TreeIcon — نسخه‌ی سبک برای مودال/کارت
+// ─────────────────────────────────────────────────────────────
+
+interface TreeIconProps {
+  variant: TreeVariant;
+  color?: string;
+  className?: string;
+}
+
+export function TreeIcon({ variant, color, className }: TreeIconProps) {
+  const palette = paletteForColor(color);
+  return (
+    <svg
+      viewBox="0 0 200 260"
+      className={className}
+      aria-hidden="true"
+      style={{ filter: "drop-shadow(0 3px 4px rgba(0,0,0,0.15))" }}
+    >
+      <TreeShape
+        variant={variant}
+        palette={palette}
+        cx={100}
+        cy={92}
+        r={62}
+        trunkBase={250}
+      />
+    </svg>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Tree — درخت کامل با میوه‌ها
+// ─────────────────────────────────────────────────────────────
 
 function generateFruitPositions(
   count: number,
+  variant: TreeVariant,
   level: TreeLevel
 ): { x: number; y: number }[] {
-  const { centerX, centerY, radius } = CROWN_INFO[level];
+  const geom = CROWN_GEOMETRY[variant];
+  const scale = LEVEL_SCALE[level];
+  const cx = geom.cx;
+  const cy = geom.cy;
+  const effectiveRadius = geom.r * scale * 0.72;
+  const minDistance = Math.max(44, geom.r * scale * 0.26);
+
   const positions: { x: number; y: number }[] = [];
-  const maxAttempts = 50;
-  const effectiveRadius = radius * 0.72;
-  const minDistance = 80;
+  const maxAttempts = 60;
 
   for (let i = 0; i < count; i++) {
     let placed = false;
@@ -52,8 +325,8 @@ function generateFruitPositions(
     for (let attempt = 0; attempt < maxAttempts && !placed; attempt++) {
       const angle = Math.random() * Math.PI * 2;
       const distance = Math.sqrt(Math.random()) * effectiveRadius;
-      const x = centerX + distance * Math.cos(angle);
-      const y = centerY + distance * Math.sin(angle);
+      const x = cx + distance * Math.cos(angle);
+      const y = cy + distance * Math.sin(angle) * 0.92;
 
       const hasOverlap = positions.some((p) => {
         const dx = p.x - x;
@@ -71,8 +344,8 @@ function generateFruitPositions(
       const angle = Math.random() * Math.PI * 2;
       const distance = Math.sqrt(Math.random()) * effectiveRadius;
       positions.push({
-        x: centerX + distance * Math.cos(angle),
-        y: centerY + distance * Math.sin(angle),
+        x: cx + distance * Math.cos(angle),
+        y: cy + distance * Math.sin(angle) * 0.92,
       });
     }
   }
@@ -82,24 +355,18 @@ function generateFruitPositions(
 
 export function Tree({
   level,
-  fruits,
+  variant = "oak",
+  fruits = [],
   onFruitClick,
   colors,
 }: TreeProps) {
-  const config = CROWN_INFO[level];
-
-  // ─── پالت پیش‌فرض: سبز ───
-  const palette = colors ?? {
-    canopy: "#22C55E",
-    canopyShadow: "#16A34A",
-    canopyLight: "#4ADE80",
-    trunk: "#8B4513",
-    trunkShadow: "#6B3410",
-  };
+  const geom = CROWN_GEOMETRY[variant];
+  const scale = LEVEL_SCALE[level];
+  const palette = colors ?? DEFAULT_PALETTE;
 
   const positions = useMemo(
-    () => generateFruitPositions(fruits.length, level),
-    [fruits.length, level]
+    () => generateFruitPositions(fruits.length, variant, level),
+    [fruits.length, level, variant]
   );
 
   const fruitColors = {
@@ -107,7 +374,6 @@ export function Tree({
     yellow: { base: "#facc15", shadow: "#ca8a04", highlight: "#fde047", border: "#ffffff" },
     golden: { base: "#eab308", shadow: "#a16207", highlight: "#fde047", border: "#fef3c7" },
     orange: { base: "#fb923c", shadow: "#c2410c", highlight: "#fdba74", border: "#ffffff" },
-    // ─── میوه‌ی نقره‌ای: رنگ خاکستری نقره‌ای ───
     silver: {
       base: "#cbd5e1",
       shadow: "#64748b",
@@ -116,7 +382,7 @@ export function Tree({
     },
   };
 
-  const fruitRadius = 42 * config.scale;
+  const fruitRadius = 38 * scale;
 
   return (
     <div className="relative flex items-center justify-center w-full h-96">
@@ -137,20 +403,19 @@ export function Tree({
         className="relative w-full h-full max-w-md"
         aria-label="Word tree"
         style={{
-          transform: `scale(${config.scale}) translateY(-25px)`,
+          transform: `scale(${scale}) translateY(-25px)`,
           transition: "transform 0.5s ease-out",
           filter: "drop-shadow(0 10px 20px rgba(0,0,0,0.1))",
         }}
       >
-        {/* ─── درخت ─── */}
-        <path fill={palette.canopyShadow} d="M376.361 175.653C382.066 167.724 387.25 160.567 393.876 153.302C452.074 89.4855 547.591 69.3684 628.365 96.6686C691.457 117.993 749.195 170.686 760.663 238.283C764.449 260.539 761.706 275.893 756.983 297.185L757.061 297.382C761.181 300.197 765.934 306.448 769.327 310.291C819.841 367.504 824.606 441.532 781.369 504.549L778.388 508.834L778.101 509.582C785.373 555.854 774.801 592.008 747.552 629.628C718.981 669.071 668.098 698.72 620.192 706.274C619.421 706.392 618.647 706.489 617.871 706.564C613.164 707.83 575.613 734.948 568.982 739.533C570.325 760.914 571.793 782.287 573.387 803.651C575.411 830.391 577.323 848.954 576.506 875.721C583.142 881.577 588.112 886.943 593.316 894.148C595.567 897.265 598.333 901.999 600.528 904.805C605.518 911.361 607.231 919.203 608.754 927.093C568.643 927.513 528.53 927.623 488.417 927.421C469.034 927.401 448.962 926.932 429.678 927.492C430.243 918.703 433.375 912.256 437.467 904.628C439.237 902.551 442.759 896.753 444.662 894.151C448.981 888.249 452.353 884.861 457.461 879.8C458.445 859.06 459.67 838.332 461.138 817.621C463.139 782.702 465.346 747.795 467.761 712.902C461.663 711.987 450.558 711.766 443.383 710.946C420.198 708.454 397.48 702.706 375.899 693.87C310.747 667.027 253.566 606.725 254.36 532.321C254.527 516.612 257.873 496.752 263.925 482.172L263.918 481.901C248.134 468.038 231.775 445.036 222.613 426.292C197.796 375.52 202.094 316.905 232.224 269.443C266.044 216.168 315.663 188.603 376.09 175.848L376.361 175.653Z"/>
-        <path fill={palette.trunk} d="M263.925 482.172C271.021 487.11 277.882 494.751 285.051 500.285C319.969 527.237 359.494 545.131 403.604 549.867C424.932 552.321 445.984 553.308 467.292 550.065C469.318 549.756 477.515 548.247 477.629 549.992C477.599 549.534 478.195 551.784 478.087 551.397L478.847 551.733C481.554 552.961 485.189 555.384 487.833 557.023C502.4 566.051 517.896 573.689 534.182 579.091C541.817 581.624 549.805 583.512 557.473 586.072C562.638 586.627 571.074 588.519 576.668 589.385C588.676 591.23 600.821 592.041 612.967 591.809C669.89 590.845 726.202 568.874 764.349 525.657C768.823 520.589 772.974 514.819 777.672 510.014L778.101 509.582C785.373 555.854 774.801 592.008 747.552 629.628C718.981 669.071 668.098 698.72 620.192 706.274C619.421 706.392 618.647 706.489 617.871 706.564C613.164 707.83 575.613 734.948 568.982 739.533C570.325 760.914 571.793 782.287 573.387 803.651C575.411 830.391 577.323 848.954 576.506 875.721C583.142 881.577 588.112 886.943 593.316 894.148C595.567 897.265 598.333 901.999 600.528 904.805C605.518 911.361 607.231 919.203 608.754 927.093C568.643 927.513 528.53 927.623 488.417 927.421C469.034 927.401 448.962 926.932 429.678 927.492C430.243 918.703 433.375 912.256 437.467 904.628C439.237 902.551 442.759 896.753 444.662 894.151C448.981 888.249 452.353 884.861 457.461 879.8C458.445 859.06 459.67 838.332 461.138 817.621C463.139 782.702 465.346 747.795 467.761 712.902C461.663 711.987 450.558 711.766 443.383 710.946C420.198 708.454 397.48 702.706 375.899 693.87C310.747 667.027 253.566 606.725 254.36 532.321C254.527 516.612 257.873 496.752 263.925 482.172Z"/>
-        <path fill={palette.canopyLight} d="M263.925 482.172C271.021 487.11 277.882 494.751 285.051 500.285C319.969 527.237 359.494 545.131 403.604 549.867C424.932 552.321 445.984 553.308 467.292 550.065C469.318 549.756 477.515 548.247 477.629 549.992C477.599 549.534 478.195 551.784 478.087 551.397C476.888 564.491 476.428 576.643 475.605 589.685C473.881 614.044 472.541 638.429 471.586 662.83C464.217 659.342 439.534 643.636 434.386 638.321C432.423 636.294 431.486 633.486 430.544 630.879C426.663 620.131 423.105 609.265 419.21 598.515C417.867 594.807 417.016 590.723 415.132 587.248C414.272 585.662 413.192 584.257 411.495 583.517C410.324 583.007 408.906 582.835 407.701 583.331C406.209 583.945 404.825 585.486 404.506 587.094C403.583 591.738 414.318 620.885 416.572 626.978C410.596 622.912 384.343 603.722 379.504 602.824C374.241 603.852 371.741 610.553 377.116 614.412C407.261 636.057 440.229 655.634 470.106 677.46C469.844 684.907 469.143 692.544 468.593 699.992C468.363 703.11 468.254 710.147 467.761 712.902C461.663 711.987 450.558 711.766 443.383 710.946C420.198 708.454 397.48 702.706 375.899 693.87C310.747 667.027 253.566 606.725 254.36 532.321C254.527 516.612 257.873 496.752 263.925 482.172Z"/>
-        <path fill={palette.canopyLight} d="M778.101 509.582C785.373 555.854 774.801 592.008 747.552 629.628C718.981 669.071 668.098 698.72 620.192 706.274C619.421 706.392 618.647 706.489 617.871 706.564C620.256 703.729 625.671 700.214 628.797 697.966C637.874 691.429 647.026 684.996 656.249 678.666C662.344 674.465 672.867 668.788 677.329 663.31C678.276 662.148 678.626 660.83 678.531 659.339C678.428 657.726 677.696 656.046 676.495 654.951C675.586 654.122 674.329 653.55 673.077 653.646C669.102 653.951 641.741 673.956 636.442 677.478C638.584 671.654 650.92 641.661 649.52 638.196C648.872 636.59 646.84 634.716 645.222 634.129C644.024 633.695 642.645 633.889 641.552 634.543C636.004 637.86 624.767 681.006 618.095 689.392C613.918 694.641 593.451 708.631 586.938 712.061C580.132 712.799 574.556 712.403 567.39 713.426C563.467 688.893 563.824 660.258 561.704 635.309C560.371 619.605 557.871 601.494 557.473 586.072C562.638 586.627 571.074 588.519 576.668 589.385C588.676 591.23 600.821 592.041 612.967 591.809C669.89 590.845 726.202 568.874 764.349 525.657C768.823 520.589 772.974 514.819 777.672 510.014L778.101 509.582Z"/>
-        <path fill="white" d="M567.39 713.426C574.556 712.403 580.132 712.799 586.938 712.061C580.692 716.498 574.209 720.859 568.058 725.358C567.874 721.332 567.56 717.518 567.39 713.426Z"/>
-        <path fill={palette.canopy} d="M376.361 175.653C382.066 167.724 387.25 160.567 393.876 153.302C452.074 89.4855 547.591 69.3684 628.365 96.6686C691.457 117.993 749.195 170.686 760.663 238.283C764.449 260.539 761.706 275.893 756.983 297.185C755.379 295.475 753.733 293.805 752.045 292.177C708.214 249.676 660.532 229.547 599.405 226.638C590.493 226.214 581.924 226.829 573.025 226.967C567.42 223.616 557.748 214.528 551.35 210.119C498.631 173.786 438.21 165.292 376.361 175.653Z"/>
-        <path fill={palette.canopyShadow} d="M263.918 481.901C248.134 468.038 231.775 445.036 222.613 426.292C197.796 375.52 202.094 316.905 232.224 269.443C266.044 216.168 315.663 188.603 376.09 175.848L375.837 176.331C369.813 187.622 364.035 194.92 357.893 207.922C341.669 242.54 338.736 281.914 349.651 318.554C354.831 335.939 363.297 351.82 373.467 366.777C326.02 386.389 288.201 423.893 268.194 471.175C266.722 474.732 265.296 478.307 263.918 481.901Z"/>
-        <path fill={palette.canopyShadow} d="M757.061 297.382C761.181 300.197 765.934 306.448 769.327 310.291C819.841 367.504 824.606 441.532 781.369 504.549L778.388 508.834C777.675 507.298 777.257 505.32 776.831 503.642C774.31 495.027 771.798 485.9 767.974 477.797C750.699 441.188 721.309 416.123 686.693 396.949C693.137 391.361 698.692 387.241 705.155 381.116C724.655 362.634 739.298 341.868 750.029 317.223C752.786 310.891 754.286 303.739 756.875 297.797L757.061 297.382Z"/>
+        <TreeShape
+          variant={variant}
+          palette={palette}
+          cx={geom.cx}
+          cy={geom.cy}
+          r={geom.r}
+          trunkBase={920}
+        />
 
         {/* ─── میوه‌ها ─── */}
         {fruits.map((fruit, index) => {
@@ -173,7 +438,6 @@ export function Tree({
                   : "drop-shadow(0 3px 4px rgba(0,0,0,0.3))",
               }}
             >
-              {/* حلقه‌ی سفید برای مرور */}
               {isReview && (
                 <circle
                   cx={pos.x}
@@ -186,20 +450,13 @@ export function Tree({
                 />
               )}
 
-              {/* حاشیه */}
               <circle cx={pos.x} cy={pos.y} r={r + 3} fill={colors.border} />
-
-              {/* بدنه */}
               <circle cx={pos.x} cy={pos.y} r={r} fill={colors.base} />
-
-              {/* نیمه‌ی پایین تیره‌تر */}
               <path
                 d={`M ${pos.x - r} ${pos.y} A ${r} ${r} 0 0 0 ${pos.x + r} ${pos.y} Z`}
                 fill={colors.shadow}
                 opacity="0.4"
               />
-
-              {/* هایلایت */}
               <circle
                 cx={pos.x - r * 0.35}
                 cy={pos.y - r * 0.35}
@@ -207,8 +464,6 @@ export function Tree({
                 fill={colors.highlight}
                 opacity="0.75"
               />
-
-              {/* نقطه‌ی براق */}
               <circle
                 cx={pos.x - r * 0.4}
                 cy={pos.y - r * 0.4}
@@ -217,7 +472,6 @@ export function Tree({
                 opacity="0.95"
               />
 
-              {/* ─── آیکون ستاره برای میوه‌ی نقره‌ای ─── */}
               {isSilver && (
                 <text
                   x={pos.x}
@@ -232,7 +486,6 @@ export function Tree({
                 </text>
               )}
 
-              {/* تگ «آزمون» برای میوه‌ی نقره‌ای */}
               {isSilver && (
                 <g>
                   <rect
@@ -256,7 +509,6 @@ export function Tree({
                 </g>
               )}
 
-              {/* تگ «مرور» */}
               {isReview && (
                 <g>
                   <rect

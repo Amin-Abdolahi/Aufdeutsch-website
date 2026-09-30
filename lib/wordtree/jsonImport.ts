@@ -151,6 +151,7 @@ export function importWordsFromJSON(
     rejected,
     errors: errors.slice(0, 20),
     coinsEarned,
+    importedWordIds: newWords.map((w) => w.id),
   };
 }
 

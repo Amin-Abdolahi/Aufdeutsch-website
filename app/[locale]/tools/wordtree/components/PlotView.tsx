@@ -15,6 +15,7 @@
 import { useState } from "react";
 import { Plot, Tree } from "@/lib/wordtree/types";
 import { TREE_COLORS } from "@/lib/wordtree/constants";
+import { TreeIcon } from "./Tree";
 
 interface PlotViewProps {
   plot: Plot;
@@ -33,18 +34,6 @@ interface PlotViewProps {
     deleteTreeConfirm?: string;
   };
 }
-
-/**
- * آیکون درخت بر اساس variant.
- */
-const VARIANT_ICONS: Record<string, string> = {
-  oak: "🌳",
-  pine: "🌲",
-  palm: "🌴",
-  blossom: "🌸",
-  apple: "🍎",
-  lemon: "🍋",
-};
 
 export function PlotView({
   plot,
@@ -157,7 +146,6 @@ function TreeCard({
     deleteTreeConfirm?: string;
   };
 }) {
-  const icon = VARIANT_ICONS[tree.variant] || "🌳";
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   // ─── پالت رنگ درخت ───
@@ -213,32 +201,15 @@ function TreeCard({
       </div>
 
       <button onClick={onClick} className="w-full">
-        {/* ─── آیکون درخت (با رنگ سفارشی) ─── */}
-        <div
-          className="text-5xl mb-2 group-hover:scale-110 transition-transform inline-block"
-          style={
-            palette
-              ? {
-                  filter: `drop-shadow(0 2px 4px ${palette.dark}40)`,
-                }
-              : undefined
-          }
-        >
-          {palette ? (
-            <span
-              className="inline-block"
-              style={{
-                background: `linear-gradient(135deg, ${palette.light}, ${palette.main})`,
-                WebkitBackgroundClip: "text",
-                backgroundClip: "text",
-                color: "transparent",
-              }}
-            >
-              {icon}
-            </span>
-          ) : (
-            icon
-          )}
+        {/* ─── درخت با شکل و رنگ واقعی ─── */}
+        <div className="flex justify-center mb-2 group-hover:scale-110 transition-transform">
+          <div className="bg-gradient-to-b from-sky-100 to-emerald-50 rounded-lg p-1 border border-navy-900/5">
+            <TreeIcon
+              variant={tree.variant}
+              color={tree.color}
+              className="w-16 h-20"
+            />
+          </div>
         </div>
 
         {/* ─── اسم درخت ─── */}

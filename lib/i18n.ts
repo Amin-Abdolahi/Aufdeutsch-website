@@ -605,6 +605,18 @@ const fa = {
     createTreeErrorRequired: "لطفاً اسم درخت رو وارد کن.",
     createTreeMaxReached: "به حداکثر تعداد درخت توی این باغچه رسیدی.",
 
+    // ─── مرحله‌ی کلمات (نسخه ۳) ───
+    createTreeWordsTitle: "کلمات درخت",
+    createTreeWordsSubtitleV3: "یه فایل کلمات آپلود کن، یا درخت رو خالی بساز و بعداً کلمه اضافه کن.",
+    createTreePoolCount: "{count} کلمه توی استخر این درخت",
+    createTreeUploadFile: "آپلود فایل کلمات",
+    createTreeUploadFileDesc: "فایل JSON کلماتت رو ایمپورت کن (با ساخت پرامپت یا کپی)",
+    createTreeCreateEmpty: "ساخت درخت خالی",
+    createTreeCreateEmptyDesc: "بدون کلمه — بعداً از صفحه‌ی درخت کلمه اضافه کن",
+    createTreeAddMoreWords: "افزودن کلمات بیشتر",
+    createTreeEmptyPoolHint: "درخت خالیه. می‌تونی کلمات رو بعداً از صفحه‌ی درخت اضافه کنی.",
+    plantTreeDefaultName: "درخت من",
+
     // ─── شکل‌های درخت (Variants) ───
     variantOak: "بلوط",
     variantPine: "کاج",
@@ -1289,6 +1301,18 @@ const de: Dict = {
     createTreeErrorRequired: "Bitte gib einen Baumnamen ein.",
     createTreeMaxReached: "Maximale Anzahl an Bäumen in diesem Beet erreicht.",
 
+    // ─── Wort-Schritt (v3) ───
+    createTreeWordsTitle: "Baumwörter",
+    createTreeWordsSubtitleV3: "Lade eine Wortdatei hoch oder erstelle den Baum leer und füge später Wörter hinzu.",
+    createTreePoolCount: "{count} Wörter im Pool dieses Baumes",
+    createTreeUploadFile: "Wortdatei hochladen",
+    createTreeUploadFileDesc: "Importiere deine JSON-Wortdatei (Prompt erstellen oder kopieren)",
+    createTreeCreateEmpty: "Leeren Baum erstellen",
+    createTreeCreateEmptyDesc: "Ohne Wörter — später über die Baumverwaltung hinzufügen",
+    createTreeAddMoreWords: "Weitere Wörter hinzufügen",
+    createTreeEmptyPoolHint: "Der Baum ist leer. Du kannst später Wörter über die Baumseite hinzufügen.",
+    plantTreeDefaultName: "Mein Baum",
+
     // ─── Baumvarianten ───
     variantOak: "Eiche",
     variantPine: "Kiefer",
@@ -1972,6 +1996,18 @@ const en: Dict = {
     createTreeCancel: "Cancel",
     createTreeErrorRequired: "Please enter a tree name.",
     createTreeMaxReached: "Maximum number of trees in this plot reached.",
+
+    // ─── Words step (v3) ───
+    createTreeWordsTitle: "Tree words",
+    createTreeWordsSubtitleV3: "Upload a word file, or create the tree empty and add words later.",
+    createTreePoolCount: "{count} words in this tree's pool",
+    createTreeUploadFile: "Upload word file",
+    createTreeUploadFileDesc: "Import your JSON word file (build a prompt or copy one)",
+    createTreeCreateEmpty: "Create empty tree",
+    createTreeCreateEmptyDesc: "No words — add them later from the tree page",
+    createTreeAddMoreWords: "Add more words",
+    createTreeEmptyPoolHint: "The tree is empty. You can add words later from the tree page.",
+    plantTreeDefaultName: "My tree",
 
     // ─── Tree Variants ───
     variantOak: "Oak",

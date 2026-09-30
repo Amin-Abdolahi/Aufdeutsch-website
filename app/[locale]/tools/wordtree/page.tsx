@@ -202,24 +202,6 @@ export default function WordTreePage() {
   }
 
   if (view === "plot" && selectedPlot) {
-    const availableForNewTree = allWordsData
-      .filter((w) => {
-        const wordInState = gameState.words.find((gw) => gw.id === w.id);
-        return !wordInState || wordInState.treeIds.length === 0;
-      })
-      .map((w) => ({
-        id: w.id,
-        language: w.language,
-        german: w.translations.de,
-        translation: w.translations[safeLocale] || w.translations.fa,
-        status: "new" as const,
-        reviewCount: 0,
-        reviewStage: 0,
-        nextReviewDay: undefined,
-        source: w.source ?? "builtin",
-        treeIds: [],
-      }));
-
     return (
       <PlotScreen
         gameState={gameState}
@@ -233,7 +215,6 @@ export default function WordTreePage() {
         modals={modals}
         setters={setters}
         handlers={handlers}
-        availableForNewTree={availableForNewTree}
         onOpenTree={handleOpenTree}
         onDeleteTree={handleDeleteTreeAndGoBack}
         onBackToGarden={() => setView("garden")}

@@ -511,10 +511,11 @@ export function plantTree(
   state: GameState,
   treeName: string,
   variant: TreeVariant,
-  poolWordIds: string[]
+  poolWordIds: string[],
+  color?: TreeColor
 ): GameState {
   const plot = createPlot("باغ من");
-  const tree = createTree(treeName, variant, poolWordIds);
+  const tree = createTree(treeName, variant, poolWordIds, color);
 
   return {
     ...state,
