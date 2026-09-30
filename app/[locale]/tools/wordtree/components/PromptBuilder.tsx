@@ -259,18 +259,21 @@ export function buildPrompt(params: PromptParams): string {
     ? `در حوزه‌ی «${topic}»`
     : "کلمات پرکاربرد و روزمره";
 
-  const extraPart = extra ? `\n\nنکات اضافی از کاربر:\n${extra}` : "";
+  const extraPart = extra ? `\\n\\nتوضیحات اضافی کاربر:\\n${extra}` : "";
 
-  return `من می‌خواهم ${count} کلمه‌ی پرکاربرد آلمانی ${topicPart} (سطح ${level}) رو یاد بگیرم.
+  return `تو باید یک فایل JSON معتبر برای WordTree سایت AUF Deutsch تولید کنی.
 
-لطفاً این ${count} کلمه رو به این فرمت JSON تبدیل کن:
+من می‌خواهم ${count} کلمه‌ی پرکاربرد آلمانی ${topicPart} در سطح ${level} بسازم.
 
+زبان ترجمه اصلی: ${translationName}
+
+ساختار JSON دقیقاً باید این باشد:
 {
   "version": "1.0",
   "language": "de",
   "words": [
     {
-      "de": "کلمه آلمانی با حرف تعریف",
+      "de": "کلمه آلمانی با حرف تعریف برای اسم‌ها",
       "fa": "ترجمه فارسی",
       "en": "ترجمه انگلیسی",
       "category": "noun | verb | adjective | phrase | number | color",
@@ -281,17 +284,18 @@ export function buildPrompt(params: PromptParams): string {
       },
       "verb": {
         "praeteritum": "گذشته ساده",
-        "perfekt": "گذشته کامل",
+        "perfekt": "شکل Perfekt",
         "auxiliary": "haben | sein"
       },
       "pronunciation": {
         "persian": "تلفظ فارسی‌نویسی"
       },
       "example": {
-        "de": "جمله آلمانی",
+        "de": "جمله نمونه آلمانی",
         "translations": {
-          "fa": "ترجمه فارسی",
-          "en": "ترجمه انگلیسی"
+          "fa": "ترجمه فارسی جمله",
+          "en": "ترجمه انگلیسی جمله",
+          "de": "خود جمله آلمانی"
         }
       }
     }
@@ -299,15 +303,18 @@ export function buildPrompt(params: PromptParams): string {
 }
 
 قوانین:
-- ترجمه‌ها به ${translationName} باشن.
-- فقط فیلدهای مربوط به نوع کلمه رو وارد کن (مثلاً noun فقط برای اسم).
-- اگه کلمه اسم بود، article و plural اجباری.
-- اگه کلمه فعل بود، praeteritum و perfekt و auxiliary اجباری.
-- تلفظ فارسی‌نویسی رو دقیق بنویس.
-- مثال‌ها باید ساده و روزمره باشن.
-- سطح همه‌ی کلمات ${level} باشه (یا نزدیک به اون).
-- کلمات تکراری نباشن.${extraPart}
+- خروجی فقط JSON خام باشد؛ بدون توضیح و بدون code block.
+- دقیقاً ${count} کلمه تولید کن.
+- language همیشه "de" باشد.
+- fa و en برای همه کلمات اجباری هستند.
+- level همه کلمات دقیقاً ${level} باشد.
+- برای noun، noun.article و noun.plural اجباری است.
+- برای verb، verb.praeteritum و verb.perfekt و verb.auxiliary اجباری است.
+- برای سایر دسته‌ها فیلد noun یا verb را اضافه نکن.
+- pronunciation.persian و example کامل برای همه کلمات اجباری است.
+- example.translations.de باید دقیقاً با example.de یکسان باشد.
+- کلمات تکراری یا نامرتبط با موضوع اضافه نکن.
+- خروجی باید مستقیماً در بخش Import JSON بازی قابل Paste باشد.${extraPart}
 
-⚠️ مهم: خروجی رو **داخل یک code block** بذار (با سه تا بک‌تیک \`json شروع کن و با سه تا بک‌تیک تموم کن).
-اینطوری من می‌تونم کد رو کپی کنم و توی بازی paste کنم.`;
+اکنون فقط JSON نهایی را تولید کن.`;
 }
