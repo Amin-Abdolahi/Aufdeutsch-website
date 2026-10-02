@@ -37,7 +37,7 @@ export function LearningToolsContent({ locale }: LearningToolsContentProps) {
     },
     { type: "book" as const, title: t.tools.dictionaryTitle, description: t.tools.dictionaryDesc, status: t.tools.comingSoon, tone: "paper" as const, href: null, available: false },
     { type: "calendar" as const, title: t.tools.plannerTitle, description: t.tools.plannerDesc, status: t.tools.comingSoon, tone: "red" as const, href: null, available: false },
-    { type: "game" as const, title: t.tools.gamesTitle, description: t.tools.gamesDesc, status: t.tools.comingSoon, tone: "navy" as const, href: null, available: false },
+    { type: "game" as const, title: locale === "fa" ? "دنیای حروف" : "Alphabet World", description: locale === "fa" ? "حروف زنده‌اند — کلمات آلمانی را با آن‌ها بساز، پیدا کن و مسابقه بده." : "Lebende Buchstaben — baue, finde und rase um deutsche Wörter.", status: "", tone: "navy" as const, href: `/${locale}/tools/alphabet-world`, available: true },
     { type: "library" as const, title: t.tools.resourcesTitle, description: t.tools.resourcesDesc, status: t.tools.availableSoon, tone: "paper" as const, href: null, available: false },
   ];
 
@@ -64,15 +64,8 @@ export function LearningToolsContent({ locale }: LearningToolsContentProps) {
 
           <div className="grid gap-6 md:grid-cols-2">
             {tools.map((tool) => {
-              const CardWrapper = tool.available && tool.href ? Link : "div";
-              const wrapperProps = tool.available && tool.href
-                ? { href: tool.href }
-                : {};
-
-              return (
-                <CardWrapper
-                  key={tool.title}
-                  {...wrapperProps}
+              const content = (
+                <div
                   className={`group relative flex min-h-64 flex-col justify-between border border-navy-900/10 bg-white p-8 shadow-md transition-all duration-200 ${
                     tool.available ? "hover:-translate-y-1 hover:shadow-xl cursor-pointer" : "hover:-translate-y-1 hover:shadow-xl"
                   }`}
@@ -94,8 +87,18 @@ export function LearningToolsContent({ locale }: LearningToolsContentProps) {
                         : (locale === "fa" ? "در مسیر" : locale === "de" ? "In Arbeit" : "In progress")}
                     </span>
                   </div>
-                </CardWrapper>
+                </div>
               );
+
+              if (tool.available && tool.href) {
+                return (
+                  <Link key={tool.title} href={tool.href}>
+                    {content}
+                  </Link>
+                );
+              }
+
+              return <div key={tool.title}>{content}</div>;
             })}
           </div>
         </div>
