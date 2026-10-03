@@ -143,6 +143,12 @@ export type Dict = {
   offlineTag: string;
   aiTag: string;
   cacheTag: string;
+  offlineBanner: {
+    title: string;
+    body: string;
+    cta: string;
+    dismiss: string;
+  };
 };
 
 const fa: Dict = {
@@ -330,6 +336,12 @@ const fa: Dict = {
   offlineTag: "جواب آفلاین",
   aiTag: "مونتاژشده توسط حروف",
   cacheTag: "مونتاژشده توسط حروف",
+  offlineBanner: {
+    title: "هوش مصنوعی متصل نیست",
+    body: "این جواب از حالت آفلاین بازیه — کامل نیست. برای جواب واقعی، یک کلید API در تنظیمات وارد کن.",
+    cta: "تنظیمات",
+    dismiss: "بعداً",
+  },
 };
 
 const de: Dict = {
@@ -517,6 +529,12 @@ const de: Dict = {
   offlineTag: "Offline-Antwort",
   aiTag: "Zusammengesetzt von den Buchstaben",
   cacheTag: "Zusammengesetzt von den Buchstaben",
+  offlineBanner: {
+    title: "KI ist nicht verbunden",
+    body: "Diese Antwort kommt aus dem Offline-Modus — sie ist nicht vollständig. Für echte Antworten gib einen API-Schlüssel in den Einstellungen ein.",
+    cta: "Einstellungen",
+    dismiss: "Später",
+  },
 };
 
 export const STRINGS: Record<UiLang, Dict> = { fa, de };

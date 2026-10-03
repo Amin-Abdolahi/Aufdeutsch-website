@@ -81,6 +81,9 @@ const [byok, setByok] = useState<ByokConfig | null>(() => loadByok());
   const [toast, setToast] = useState<{ msg: string; good: boolean } | null>(null);
   const toastTimer = useRef<number | undefined>(undefined);
 
+  // اخطار آفلاین — وقتی جواب از حالت آفلاین بیاید
+  const [offlineWarn, setOfflineWarn] = useState(false);
+
   // refs امپراتیو
   const worldLayerRef = useRef<HTMLDivElement | null>(null);
   const responseLayerRef = useRef<HTMLDivElement | null>(null);
@@ -253,6 +256,8 @@ const [byok, setByok] = useState<ByokConfig | null>(() => loadByok());
       try {
         const res = await apiAsk(q, level, lang, byok);
         if (!res.text) throw new Error("empty-answer");
+        // جواب آفلاین بود → اخطار را نشان بده
+        if (res.source === "offline") setOfflineWarn(true);
         await asmRef.current?.assemble(res.text, {
           tag: res.source === "offline" ? s.offlineTag : s.aiTag,
           hint: s.hint,
@@ -1126,6 +1131,33 @@ const [byok, setByok] = useState<ByokConfig | null>(() => loadByok());
       {toast && (
         <div className={`aw-toast show ${toast.good ? "good" : ""}`}>
           {toast.msg}
+        </div>
+      )}
+
+      {/* اخطار آفلاین هوش مصنوعی */}
+      {offlineWarn && (
+        <div className="aw-offline-warn">
+          <div className="aw-offline-warn-body">
+            <strong>{s.offlineBanner.title}</strong>
+            <p>{s.offlineBanner.body}</p>
+            <div className="aw-offline-warn-actions">
+              <button
+                className="aw-btn aw-btn-primary"
+                onClick={() => {
+                  setOfflineWarn(false);
+                  setSheet("settings");
+                }}
+              >
+                {s.offlineBanner.cta}
+              </button>
+              <button
+                className="aw-btn"
+                onClick={() => setOfflineWarn(false)}
+              >
+                {s.offlineBanner.dismiss}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

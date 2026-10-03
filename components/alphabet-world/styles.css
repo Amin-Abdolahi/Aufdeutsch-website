@@ -1414,6 +1414,72 @@
   background: #5a8c72;
 }
 
+/* ---------- اخطار آفلاین هوش مصنوعی ---------- */
+.aw-offline-warn {
+  position: fixed;
+  left: 50%;
+  bottom: calc(90px + var(--aw-safe-b));
+  transform: translateX(-50%);
+  z-index: 75;
+  width: min(420px, 92vw);
+  background: #fff8ec;
+  border: 2px solid #e8a05a;
+  border-radius: 18px;
+  box-shadow: 0 14px 40px rgba(60, 40, 10, 0.22);
+  padding: 16px 18px 14px;
+  animation: aw-warn-in 0.32s ease both;
+}
+@keyframes aw-warn-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(18px) scale(0.96); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+.aw-offline-warn strong {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 15px;
+  color: #8a5215;
+  margin-bottom: 6px;
+}
+.aw-offline-warn strong::before {
+  content: "⚠️";
+  font-size: 17px;
+}
+.aw-offline-warn p {
+  margin: 0 0 12px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: #6b5234;
+}
+.aw-offline-warn-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+.aw-offline-warn-actions .aw-btn {
+  padding: 7px 16px;
+  font-size: 13px;
+  border-radius: 999px;
+  border: 1.5px solid #d8c3a4;
+  background: #fff;
+  color: #6b5234;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.18s;
+}
+.aw-offline-warn-actions .aw-btn:hover {
+  border-color: #b98d4d;
+}
+.aw-offline-warn-actions .aw-btn-primary {
+  background: #e8825a;
+  border-color: #e8825a;
+  color: #fff;
+}
+.aw-offline-warn-actions .aw-btn-primary:hover {
+  background: #d9714a;
+  border-color: #d9714a;
+}
+
 /* ---------- onboarding ---------- */
 .aw-intro {
   position: fixed;
