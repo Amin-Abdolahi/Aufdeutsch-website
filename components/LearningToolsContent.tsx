@@ -36,7 +36,7 @@ export function LearningToolsContent({ locale }: LearningToolsContentProps) {
       available: true,
     },
     { type: "book" as const, title: t.tools.dictionaryTitle, description: t.tools.dictionaryDesc, status: t.tools.comingSoon, tone: "paper" as const, href: null, available: false },
-    { type: "calendar" as const, title: t.tools.plannerTitle, description: t.tools.plannerDesc, status: t.tools.comingSoon, tone: "red" as const, href: null, available: false },
+    { type: "calendar" as const, title: locale === "fa" ? "پلنر زبان" : locale === "de" ? "Sprachplaner" : "Language Planner", description: locale === "fa" ? "هر زبانی، هر هدفی — برنامه هفتگی یادگیری خود را بساز و پیشرفتت را دنبال کن." : locale === "de" ? "Jede Sprache, jedes Ziel — erstelle deinen Wochenplan und verfolge deinen Fortschritt." : "Any language, any goal — build your weekly plan and track your progress.", status: "", tone: "red" as const, href: `/${locale}/tools/language-planner`, available: true },
     { type: "game" as const, title: locale === "fa" ? "دنیای حروف" : "Alphabet World", description: locale === "fa" ? "حروف زنده‌اند — کلمات آلمانی را با آن‌ها بساز، پیدا کن و مسابقه بده." : "Lebende Buchstaben — baue, finde und rase um deutsche Wörter.", status: "", tone: "navy" as const, href: `/${locale}/tools/alphabet-world`, available: true },
     { type: "library" as const, title: t.tools.resourcesTitle, description: t.tools.resourcesDesc, status: t.tools.availableSoon, tone: "paper" as const, href: null, available: false },
   ];
